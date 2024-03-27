@@ -82,6 +82,11 @@ class Timing : public Timer
 
 	bool stop(std::thread::id const thread_id = std::this_thread::get_id());
 
+	std::size_t stop(std::size_t           levels,
+	                 std::thread::id const thread_id = std::this_thread::get_id());
+
+	void stopAll(std::thread::id const thread_id = std::this_thread::get_id());
+
 	std::string const& tag() const;
 
 	void setTag(std::string const& tag);

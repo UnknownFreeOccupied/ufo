@@ -81,13 +81,57 @@ bool Timing::stop(std::thread::id const thread_id)
 		}
 	}
 
-	if (thread_id == started_id_ && this->active()) {
+	if (thread_id == started_id_) {
 		Timer::stop();
 		started_id_ = {};
 		return true;
 	}
 
 	return false;
+}
+
+std::size_t Timing::stop(std::size_t levels, std::thread::id const thread_id)
+{
+	if (0 == levels) {
+		return 0;
+	}
+
+	WriteLock lock(mutex_);
+
+	std::size_t stopped_levels{};
+	for (Timing& t : timings_) {
+		if (thread_id == t.started_id_) {
+			stopped_levels = t.stop(levels, thread_id);
+			if (levels == stopped_levels) {
+				return stopped_levels;
+			}
+		}
+	}
+
+	if (thread_id == started_id_) {
+		++stopped_levels;
+		Timer::stop();
+		started_id_ = {};
+	}
+
+	return stopped_levels;
+}
+
+void Timing::stopAll(std::thread::id const thread_id)
+{
+	WriteLock lock(mutex_);
+
+	for (Timing& t : timings_) {
+		if (thread_id == t.started_id_) {
+			t.stopAll(thread_id);
+			break;
+		}
+	}
+
+	if (thread_id == started_id_) {
+		Timer::stop();
+		started_id_ = {};
+	}
 }
 
 std::string const& Timing::tag() const { return tag_; }

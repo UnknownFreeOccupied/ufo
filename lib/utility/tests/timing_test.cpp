@@ -24,8 +24,7 @@ TEST_CASE("Timing")
 		});
 		t.start("Wow");
 		std::this_thread::sleep_for(10ms);
-		t.stop();
-		t.stop();
+		t.stopAll();
 
 		t2.join();
 	}};
@@ -40,4 +39,21 @@ TEST_CASE("Timing")
 	t2.join();
 
 	t.printNanoseconds(true, true, true, 1, 10, 2);
+
+// ufo::Timing t("Test");
+
+// t.start("First");
+// t.start("Thing 1");
+// t.stop();
+// t.start("Thing 1");
+// t.start("Wow");
+// t.stop();
+// t.stop();
+// t.start("Thing 2");
+// t.stop();
+// t.stop();
+// t.start("Second");
+// t.stop();
+
+// t.printNanoseconds(true, true, true, 1, 10, 2);
 }
