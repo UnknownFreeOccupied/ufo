@@ -151,12 +151,12 @@ class Timing : public Timer
 		auto timers = timings(first_as_tag);
 
 		addTags(data[0], timers, start_numbering_level, stop_numbering_level);
-		addTotal(data[1], timers, precision);
-		addLast(data[2], timers, precision);
-		addMean(data[3], timers, precision);
-		addStd(data[4], timers, precision);
-		addMin(data[5], timers, precision);
-		addMax(data[6], timers, precision);
+		addTotal<Period>(data[1], timers, precision);
+		addLast<Period>(data[2], timers, precision);
+		addMean<Period>(data[3], timers, precision);
+		addStd<Period>(data[4], timers, precision);
+		addMin<Period>(data[5], timers, precision);
+		addMax<Period>(data[6], timers, precision);
 		addNumSamples(data[7], timers);
 
 		std::array<int, data.size()> width;
@@ -252,7 +252,7 @@ class Timing : public Timer
 	void addTags(std::vector<std::string>& data, std::vector<TimingNL> const& timers,
 	             std::size_t start_numbering_level, std::size_t stop_numbering_level) const;
 
-	template <class Period = std::chrono::seconds::period>
+	template <class Period>
 	void addTotal(std::vector<std::string>& data, std::vector<TimingNL> const& timers,
 	              int precision) const
 	{
@@ -264,7 +264,7 @@ class Timing : public Timer
 		}
 	}
 
-	template <class Period = std::chrono::seconds::period>
+	template <class Period>
 	void addLast(std::vector<std::string>& data, std::vector<TimingNL> const& timers,
 	             int precision) const
 	{
@@ -276,7 +276,7 @@ class Timing : public Timer
 		}
 	}
 
-	template <class Period = std::chrono::seconds::period>
+	template <class Period>
 	void addMean(std::vector<std::string>& data, std::vector<TimingNL> const& timers,
 	             int precision) const
 	{
@@ -288,7 +288,7 @@ class Timing : public Timer
 		}
 	}
 
-	template <class Period = std::chrono::seconds::period>
+	template <class Period >
 	void addStd(std::vector<std::string>& data, std::vector<TimingNL> const& timers,
 	            int precision) const
 	{
@@ -300,7 +300,7 @@ class Timing : public Timer
 		}
 	}
 
-	template <class Period = std::chrono::seconds::period>
+	template <class Period >
 	void addMin(std::vector<std::string>& data, std::vector<TimingNL> const& timers,
 	            int precision) const
 	{
@@ -312,7 +312,7 @@ class Timing : public Timer
 		}
 	}
 
-	template <class Period = std::chrono::seconds::period>
+	template <class Period >
 	void addMax(std::vector<std::string>& data, std::vector<TimingNL> const& timers,
 	            int precision) const
 	{
