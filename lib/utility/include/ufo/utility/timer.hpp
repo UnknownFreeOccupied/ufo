@@ -179,8 +179,11 @@ class Timer
 	template <class Period = std::chrono::seconds::period>
 	[[nodiscard]] double sampleVariance() const
 	{
-		return 1 < numSamples() ? Period::den * Period::den * (variance_ / (numSamples() - 1))
-		                        : std::numeric_limits<double>::quiet_NaN();
+		constexpr long double s =
+		    static_cast<long double>(Period::den) / static_cast<long double>(Period::num);
+		return 1 < numSamples()
+		           ? static_cast<double>(s * s * (variance_ / (numSamples() - 1)))
+		           : std::numeric_limits<double>::quiet_NaN();
 	}
 
 	[[nodiscard]] double sampleVarianceSeconds() const;
@@ -194,7 +197,9 @@ class Timer
 	template <class Period = std::chrono::seconds::period>
 	[[nodiscard]] double populationVariance() const
 	{
-		return 1 < numSamples() ? Period::den * Period::den * (variance_ / numSamples())
+		constexpr long double s =
+		    static_cast<long double>(Period::den) / static_cast<long double>(Period::num);
+		return 1 < numSamples() ? static_cast<double>(s * s * (variance_ / numSamples()))
 		                        : std::numeric_limits<double>::quiet_NaN();
 	}
 
