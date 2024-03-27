@@ -48,12 +48,14 @@
 // STL
 #include <array>
 #include <cstdlib>
-#include <initializer_list>
 #include <iomanip>
 #include <limits>
-#include <map>
+#include <list>
+#include <mutex>
+#include <shared_mutex>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -61,25 +63,24 @@ namespace ufo
 {
 class Timing : public Timer
 {
+	using Mutex     = std::shared_mutex;
+	using ReadLock  = std::shared_lock<Mutex>;
+	using WriteLock = std::unique_lock<Mutex>;
+
  public:
 	Timing() = default;
 
 	Timing(std::string const& tag);
 
-	Timing(std::string const&                                          tag,
-	       std::initializer_list<std::pair<std::size_t const, Timing>> init);
+	Timing& start(std::string const&    tag,
+	              std::thread::id const thread_id = std::this_thread::get_id());
 
-	using Timer::start;
+	Timing& start(std::string const& tag, std::string const& color,
+	              std::thread::id const thread_id = std::this_thread::get_id());
 
-	void start(std::string const& tag);
+	void reset();
 
-	void start(std::string const& tag, std::string const& color);
-
-	using Timer::reset;
-
-	Timing const& operator[](std::size_t num) const;
-
-	Timing& operator[](std::size_t num);
+	bool stop(std::thread::id const thread_id = std::this_thread::get_id());
 
 	std::string const& tag() const;
 
@@ -328,9 +329,11 @@ class Timing : public Timer
 	std::pair<int, int> centeringPadding(std::string const& str, int max_width) const;
 
  private:
-	std::string                   tag_;
-	std::map<std::size_t, Timing> timer_;
-	std::string                   color_;
+	mutable Mutex     mutex_;
+	std::list<Timing> timings_;
+	std::string       tag_;
+	std::string       color_;
+	std::thread::id   started_id_;
 };
 }  // namespace ufo
 

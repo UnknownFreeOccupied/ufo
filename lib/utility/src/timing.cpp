@@ -2,7 +2,6 @@
 #include <ufo/utility/timing.hpp>
 
 // STL
-#include <array>
 #include <cmath>
 
 namespace ufo
@@ -13,27 +12,83 @@ namespace ufo
 
 Timing::Timing(std::string const& tag) : tag_(tag) {}
 
-Timing::Timing(std::string const&                                          tag,
-               std::initializer_list<std::pair<std::size_t const, Timing>> init)
-    : tag_(tag), timer_(init)
+Timing& Timing::start(std::string const& tag, std::thread::id const thread_id)
 {
+	WriteLock lock(mutex_);
+
+	for (Timing& t : timings_) {
+		if (thread_id == t.started_id_) {
+			return t.start(tag, thread_id);
+		}
+	}
+
+	for (Timing& t : timings_) {
+		if (tag == t.tag()) {
+			static_cast<Timer&>(t).start();
+			t.started_id_ = thread_id;
+			return t;
+		}
+	}
+
+	Timing& t = timings_.emplace_back(tag);
+	static_cast<Timer&>(t).start();
+	t.started_id_ = thread_id;
+	return t;
 }
 
-void Timing::start(std::string const& tag)
+Timing& Timing::start(std::string const& tag, std::string const& color,
+                      std::thread::id const thread_id)
 {
-	Timer::start();
-	tag_ = tag;
+	WriteLock lock(mutex_);
+
+	for (Timing& t : timings_) {
+		if (thread_id == t.started_id_) {
+			return t.start(tag, color, thread_id);
+		}
+	}
+
+	for (Timing& t : timings_) {
+		if (tag == t.tag()) {
+			static_cast<Timer&>(t).start();
+			t.started_id_ = thread_id;
+			t.color_      = color;
+			return t;
+		}
+	}
+
+	Timing& t = timings_.emplace_back(tag);
+	static_cast<Timer&>(t).start();
+	t.started_id_ = thread_id;
+	t.color_      = color;
+	return t;
 }
 
-void Timing::start(std::string const& tag, std::string const& color)
+void Timing::reset()
 {
-	start(tag);
-	color_ = color;
+	Timer::reset();
+	timings_.clear();
 }
 
-Timing const& Timing::operator[](std::size_t num) const { return timer_.at(num); }
+bool Timing::stop(std::thread::id const thread_id)
+{
+	WriteLock lock(mutex_);
 
-Timing& Timing::operator[](std::size_t num) { return timer_[num]; }
+	for (Timing& t : timings_) {
+		if (thread_id == t.started_id_) {
+			if (t.stop(thread_id)) {
+				return true;
+			}
+		}
+	}
+
+	if (thread_id == started_id_ && this->active()) {
+		Timer::stop();
+		started_id_ = {};
+		return true;
+	}
+
+	return false;
+}
 
 std::string const& Timing::tag() const { return tag_; }
 
@@ -85,6 +140,8 @@ void Timing::printNanoseconds(bool first_as_tag, bool random_colors, bool bold,
 
 std::vector<Timing::TimingNL> Timing::timings(bool skip_first) const
 {
+	ReadLock lock(mutex_);
+
 	std::vector<TimingNL> data;
 
 	if (!skip_first) {
@@ -93,8 +150,10 @@ std::vector<Timing::TimingNL> Timing::timings(bool skip_first) const
 
 	int level = skip_first ? 0 : 1;
 
-	for (auto const& [n, t] : timer_) {
-		t.timingsRecurs(data, n, level);
+	std::size_t i{1};
+	for (auto& t : timings_) {
+		t.timingsRecurs(data, i, level);
+		++i;
 	}
 
 	return data;
@@ -102,9 +161,13 @@ std::vector<Timing::TimingNL> Timing::timings(bool skip_first) const
 
 void Timing::timingsRecurs(std::vector<TimingNL>& data, std::size_t num, int level) const
 {
+	ReadLock lock(mutex_);
+
 	data.emplace_back(this, num, level);
-	for (auto const& [n, t] : timer_) {
-		t.timingsRecurs(data, n, level + 1);
+	std::size_t i{1};
+	for (auto& t : timings_) {
+		t.timingsRecurs(data, i, level + 1);
+		++i;
 	}
 }
 
