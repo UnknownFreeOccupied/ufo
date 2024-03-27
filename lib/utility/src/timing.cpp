@@ -87,52 +87,65 @@ void Timing::printNanoseconds(bool first_as_tag, bool random_colors, bool bold,
 // Private functions
 //
 
-int Timing::longestTag(bool skip_this, int level, std::size_t start_numbering_level,
-                       std::size_t stop_numbering_level) const
+std::vector<Timing::TimingNL> Timing::timings(bool skip_first) const
 {
-	int l = skip_this ? 0 : tag().length();
+	std::vector<TimingNL> data;
+
+	if (!skip_first) {
+		data.emplace_back(this, 0, 0);
+	}
+
+	int level = skip_first ? 0 : 1;
 
 	for (auto const& [n, t] : timer_) {
-		l = std::max(
-		    l, t.longestTagHelper(n, level + 1, start_numbering_level, stop_numbering_level));
+		t.timingsRecurs(data, n, level);
 	}
-	return l;
+
+	return data;
 }
 
-int Timing::longestTagHelper(std::size_t n, int level, std::size_t start_numbering_level,
-                             std::size_t stop_numbering_level) const
+void Timing::timingsRecurs(std::vector<TimingNL>& data, std::size_t num, int level) const
 {
-	int l = 4 * level + tag().length();
+	data.emplace_back(this, num, level);
+	for (auto const& [n, t] : timer_) {
+		t.timingsRecurs(data, n, level + 1);
+	}
+}
 
-	// FIXME: Should it be < or <=?
-	if (start_numbering_level <= level && level <= stop_numbering_level) {
-		l += 0 > n;
-		for (; 0 < n; n /= 10) {
-			++l;
+void Timing::addTags(std::vector<std::string>& data, std::vector<TimingNL> const& timers,
+                     std::size_t start_numbering_level,
+                     std::size_t stop_numbering_level) const
+{
+	for (auto const& t : timers) {
+		if (start_numbering_level <= t.level && t.level <= stop_numbering_level) {
+			data.push_back(std::string(2 * t.level, ' ') + std::to_string(t.num) + ". " +
+			               t.timing->tag());
+		} else {
+			data.push_back(std::string(2 * t.level, ' ') + t.timing->tag());
 		}
 	}
-
-	for (auto const& [n, t] : timer_) {
-		l = std::max(
-		    l, t.longestTagHelper(n, level + 1, start_numbering_level, stop_numbering_level));
-	}
-	return l;
 }
 
-int Timing::longestNumSamples(bool skip_this) const
+void Timing::addNumSamples(std::vector<std::string>&    data,
+                           std::vector<TimingNL> const& timers) const
+{
+	for (auto const& t : timers) {
+		data.push_back(std::to_string(t.timing->numSamples()));
+	}
+}
+
+int Timing::maxLength(std::vector<std::string> const& data) const
 {
 	int l = 0;
-
-	if (!skip_this) {
-		l = 1;
-		for (auto u = numSamples(); 0 < u; u /= 10) {
-			++l;
-		}
-	}
-
-	for (auto const& [_, t] : timer_) {
-		l = std::max(l, t.longestNumSamples(false));
+	for (std::string const& s : data) {
+		l = std::max(l, static_cast<int>(s.length()));
 	}
 	return l;
+}
+
+std::pair<int, int> Timing::centeringPadding(std::string const& str, int max_width) const
+{
+	return {std::ceil((max_width - static_cast<int>(str.length())) / 2.0),
+	        std::ceil((max_width - static_cast<int>(str.length())) / 2.0)};
 }
 }  // namespace ufo

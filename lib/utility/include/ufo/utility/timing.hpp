@@ -49,9 +49,13 @@
 #include <array>
 #include <cstdlib>
 #include <initializer_list>
+#include <iomanip>
 #include <limits>
 #include <map>
+#include <sstream>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace ufo
 {
@@ -110,37 +114,6 @@ class Timing : public Timer
 	           std::size_t group_colors_level    = std::numeric_limits<std::size_t>::max(),
 	           int         precision             = 4) const
 	{
-		static constexpr std::array const RC{redColor(),  greenColor(),   yellowColor(),
-		                                     blueColor(), magentaColor(), cyanColor(),
-		                                     whiteColor()};
-
-		std::array<std::string, 8> label{"Component", "Total", "Last", "Mean",
-		                                 "StDev",     "Min",   "Max",  "Samples"};
-		std::array                 width{
-        std::max(static_cast<int>(label[0].length()),
-		                             longestTag(first_as_tag, first_as_tag ? -1 : 0, start_numbering_level,
-		                                        stop_numbering_level)),
-        std::max(static_cast<int>(label[1].length()),
-		                             longestTotal<Period>(first_as_tag, precision)),
-        std::max(static_cast<int>(label[2].length()),
-		                             longestLast<Period>(first_as_tag, precision)),
-        std::max(static_cast<int>(label[3].length()),
-		                             longestMean<Period>(first_as_tag, precision)),
-        std::max(static_cast<int>(label[4].length()),
-		                             longestStd<Period>(first_as_tag, precision)),
-        std::max(static_cast<int>(label[5].length()),
-		                             longestMin<Period>(first_as_tag, precision)),
-        std::max(static_cast<int>(label[6].length()),
-		                             longestMax<Period>(first_as_tag, precision)),
-        std::max(static_cast<int>(label[7].length()), longestNumSamples(first_as_tag))};
-
-		std::array<int, width.size()> left_pad;
-		std::array<int, width.size()> right_pad;
-		for (std::size_t i{}; label.size() != i; ++i) {
-			left_pad[i]  = std::ceil((width[i] - static_cast<int>(label[i].length())) / 2.0);
-			right_pad[i] = std::ceil((width[i] - static_cast<int>(label[i].length())) / 2.0);
-		}
-
 		if (first_as_tag) {
 			printf("%s timings", tag().c_str());
 		} else {
@@ -163,26 +136,72 @@ class Timing : public Timer
 			printf(" [PERIOD NOT SUPPORTED]\n");
 		}
 
-		printf("%*s%s%*s", left_pad[0], "", label[0].c_str(), right_pad[0], "");
-		for (std::size_t i{1}; label.size() != i; ++i) {
-			printf("\t%*s%s%*s", left_pad[i], "", label[i].c_str(), right_pad[i], "");
+		using namespace std::string_literals;
+
+		static constexpr std::array const RC{redColor(),  greenColor(),   yellowColor(),
+		                                     blueColor(), magentaColor(), cyanColor(),
+		                                     whiteColor()};
+
+		std::array<std::vector<std::string>, 8> data{
+		    std::vector<std::string>{"Component"s}, std::vector<std::string>{"Total"s},
+		    std::vector<std::string>{"Last"s},      std::vector<std::string>{"Mean"s},
+		    std::vector<std::string>{"StDev"s},     std::vector<std::string>{"Min"s},
+		    std::vector<std::string>{"Max"s},       std::vector<std::string>{"Samples"s}};
+
+		auto timers = timings(first_as_tag);
+
+		addTags(data[0], timers, start_numbering_level, stop_numbering_level);
+		addTotal(data[1], timers, precision);
+		addLast(data[2], timers, precision);
+		addMean(data[3], timers, precision);
+		addStd(data[4], timers, precision);
+		addMin(data[5], timers, precision);
+		addMax(data[6], timers, precision);
+		addNumSamples(data[7], timers);
+
+		std::array<int, data.size()> width;
+		for (std::size_t i{}; data.size() > i; ++i) {
+			width[i] = maxLength(data[i]);
 		}
-		printf("\n");
 
-		if (first_as_tag) {
-			std::size_t i{};
-			printRecurs<Period>(0, i, width[0], random_colors, bold, group_colors_level,
-			                    precision, start_numbering_level, stop_numbering_level);
-		} else {
-			printf("%s%s%-*s\t%.*f\t%.*f\t%.*f\t%.*f\t%.*f\t%.*f\t%lu%s\n",
-			       bold ? "\033[1m" : "", random_colors ? RC[0] : color().c_str(), width[0],
-			       tag().c_str(), precision, total<Period>(), precision, last<Period>(),
-			       precision, mean<Period>(), precision, std<Period>(), precision,
-			       min<Period>(), precision, max<Period>(), numSamples(), resetColor());
+		std::size_t rows = data[0].size();
 
-			std::size_t i{};
-			printRecurs<Period>(1, i, width[0], random_colors, bold, group_colors_level,
-			                    precision, start_numbering_level, stop_numbering_level);
+		// First row special
+		{
+			auto [left_pad, right_pad] = centeringPadding(data[0][0], width[0]);
+			printf("%*s%s%*s", left_pad, "", data[0][0].c_str(), right_pad, "");
+			for (std::size_t i{1}; data.size() != i; ++i) {
+				auto [left_pad, right_pad] = centeringPadding(data[i][0], width[i]);
+				printf("\t%*s%s%*s", left_pad, "", data[i][0].c_str(), right_pad, "");
+			}
+			printf("\n");
+		}
+
+		int rng_color = 0;
+		for (std::size_t i{1}; rows > i; ++i) {
+			// Set color
+			rng_color += timers[i - 1].level <= group_colors_level;
+			printf("%s%s", bold ? "\033[1m" : "",
+			       random_colors ? RC[rng_color % RC.size()]
+			                     : timers[i - 1].timing->color().c_str());
+
+			// Print tag
+			printf("%-*s", width[0], data[0][i].c_str());
+
+			// Print rest
+			for (std::size_t j{1}; data.size() > j; ++j) {
+				auto [left_pad, right_pad] = centeringPadding(data[j][i], width[j]);
+				if ("nan" == data[j][i]) {
+					// Center aligned
+					printf("\t%*s%s%*s", left_pad, "", data[j][i].c_str(), right_pad, "");
+				} else {
+					// Left aligned
+					printf("\t%*s%s%*s", 0, "", data[j][i].c_str(), left_pad + right_pad, "");
+				}
+			}
+
+			// Reset color
+			printf("%s\n", resetColor());
 		}
 	}
 
@@ -215,195 +234,102 @@ class Timing : public Timer
 	    int         precision             = 4) const;
 
  private:
+	struct TimingNL {
+		Timing const* timing;
+		std::size_t   num;
+		int           level;
+
+		TimingNL(Timing const* timing, std::size_t num, int level)
+		    : timing(timing), num(num), level(level)
+		{
+		}
+	};
+
+	std::vector<TimingNL> timings(bool skip_first) const;
+
+	void timingsRecurs(std::vector<TimingNL>& data, std::size_t num, int level) const;
+
+	void addTags(std::vector<std::string>& data, std::vector<TimingNL> const& timers,
+	             std::size_t start_numbering_level, std::size_t stop_numbering_level) const;
+
 	template <class Period = std::chrono::seconds::period>
-	void printRecurs(int level, std::size_t& i, int component_width, bool random_colors,
-	                 bool bold, std::size_t group_colors_level, int precision,
-	                 std::size_t start_numbering_level,
-	                 std::size_t stop_numbering_level) const
+	void addTotal(std::vector<std::string>& data, std::vector<TimingNL> const& timers,
+	              int precision) const
 	{
-		static constexpr std::array const RC{redColor(),  greenColor(),   yellowColor(),
-		                                     blueColor(), magentaColor(), cyanColor(),
-		                                     whiteColor()};
-
-		for (auto const& [n, t] : timer_) {
-			i += level <= group_colors_level;
-			std::string tag;
-			// FIXME: Should it be < or <=?
-			if (start_numbering_level <= level && level <= stop_numbering_level) {
-				tag = std::string(2 * level, ' ') + std::to_string(n) + ". " + t.tag();
-			} else {
-				tag = std::string(2 * level, ' ') + t.tag();
-			}
-
-			printf("%s%s%-*s\t%.*f\t%.*f\t%.*f\t%.*f\t%.*f\t%.*f\t%lu%s\n",
-			       bold ? "\033[1m" : "", random_colors ? RC[i % RC.size()] : t.color().c_str(),
-			       component_width, tag.c_str(), precision, t.template total<Period>(),
-			       precision, t.template last<Period>(), precision, t.template mean<Period>(),
-			       precision, t.template std<Period>(), precision, t.template min<Period>(),
-			       precision, t.template max<Period>(), t.numSamples(), resetColor());
-			t.template printRecurs<Period>(level + 1, i, component_width, random_colors, bold,
-			                               group_colors_level, precision, start_numbering_level,
-			                               stop_numbering_level);
+		std::stringstream ss;
+		for (auto const& t : timers) {
+			ss << std::fixed << std::setprecision(precision) << t.timing->total<Period>();
+			data.push_back(ss.str());
+			ss = {};
 		}
 	}
 
-	int longestTag(bool skip_this, int level, std::size_t start_numbering_level,
-	               std::size_t stop_numbering_level) const;
-
-	int longestTagHelper(std::size_t n, int level, std::size_t start_numbering_level,
-	                     std::size_t stop_numbering_level) const;
-
 	template <class Period = std::chrono::seconds::period>
-	int longestTotal(bool skip_this, int precision) const
+	void addLast(std::vector<std::string>& data, std::vector<TimingNL> const& timers,
+	             int precision) const
 	{
-		int l = 0;
-
-		if (!skip_this) {
-			auto t = total<Period>();
-			if (std::isnan(t)) {
-				l = 3;
-			} else {
-				l               = precision + 1 + static_cast<int>(0.0 > t);
-				std::uint64_t u = std::abs(static_cast<std::int64_t>(t));
-				for (; 0 < u; u /= 10) {
-					++l;
-				}
-			}
+		std::stringstream ss;
+		for (auto const& t : timers) {
+			ss << std::fixed << std::setprecision(precision) << t.timing->last<Period>();
+			data.push_back(ss.str());
+			ss = {};
 		}
-
-		for (auto const& [_, t] : timer_) {
-			l = std::max(l, t.template longestTotal<Period>(false, precision));
-		}
-
-		return l;
 	}
 
 	template <class Period = std::chrono::seconds::period>
-	int longestLast(bool skip_this, int precision) const
+	void addMean(std::vector<std::string>& data, std::vector<TimingNL> const& timers,
+	             int precision) const
 	{
-		int l = 0;
-
-		if (!skip_this) {
-			auto t = last<Period>();
-			if (std::isnan(t)) {
-				l = 3;
-			} else {
-				l               = precision + 1 + static_cast<int>(0.0 > t);
-				std::uint64_t u = std::abs(static_cast<std::int64_t>(t));
-				for (; 0 < u; u /= 10) {
-					++l;
-				}
-			}
+		std::stringstream ss;
+		for (auto const& t : timers) {
+			ss << std::fixed << std::setprecision(precision) << t.timing->mean<Period>();
+			data.push_back(ss.str());
+			ss = {};
 		}
-
-		for (auto const& [_, t] : timer_) {
-			l = std::max(l, t.template longestLast<Period>(false, precision));
-		}
-
-		return l;
 	}
 
 	template <class Period = std::chrono::seconds::period>
-	int longestMean(bool skip_this, int precision) const
+	void addStd(std::vector<std::string>& data, std::vector<TimingNL> const& timers,
+	            int precision) const
 	{
-		int l = 0;
-
-		if (!skip_this) {
-			auto t = mean<Period>();
-			if (std::isnan(t)) {
-				l = 3;
-			} else {
-				l               = precision + 1 + static_cast<int>(0.0 > t);
-				std::uint64_t u = std::abs(static_cast<std::int64_t>(t));
-				for (; 0 < u; u /= 10) {
-					++l;
-				}
-			}
+		std::stringstream ss;
+		for (auto const& t : timers) {
+			ss << std::fixed << std::setprecision(precision) << t.timing->std<Period>();
+			data.push_back(ss.str());
+			ss = {};
 		}
-
-		for (auto const& [_, t] : timer_) {
-			l = std::max(l, t.template longestMean<Period>(false, precision));
-		}
-
-		return l;
 	}
 
 	template <class Period = std::chrono::seconds::period>
-	int longestStd(bool skip_this, int precision) const
+	void addMin(std::vector<std::string>& data, std::vector<TimingNL> const& timers,
+	            int precision) const
 	{
-		int l = 0;
-
-		if (!skip_this) {
-			auto t = std<Period>();
-			if (std::isnan(t)) {
-				l = 3;
-			} else {
-				l               = precision + 1 + static_cast<int>(0.0 > t);
-				std::uint64_t u = std::abs(static_cast<std::int64_t>(t));
-				for (; 0 < u; u /= 10) {
-					++l;
-				}
-			}
+		std::stringstream ss;
+		for (auto const& t : timers) {
+			ss << std::fixed << std::setprecision(precision) << t.timing->min<Period>();
+			data.push_back(ss.str());
+			ss = {};
 		}
-
-		for (auto const& [_, t] : timer_) {
-			l = std::max(l, t.template longestStd<Period>(false, precision));
-		}
-
-		return l;
 	}
 
 	template <class Period = std::chrono::seconds::period>
-	int longestMin(bool skip_this, int precision) const
+	void addMax(std::vector<std::string>& data, std::vector<TimingNL> const& timers,
+	            int precision) const
 	{
-		int l = 0;
-
-		if (!skip_this) {
-			auto t = min<Period>();
-			if (std::isnan(t)) {
-				l = 3;
-			} else {
-				l               = precision + 1 + static_cast<int>(0.0 > t);
-				std::uint64_t u = std::abs(static_cast<std::int64_t>(t));
-				for (; 0 < u; u /= 10) {
-					++l;
-				}
-			}
+		std::stringstream ss;
+		for (auto const& t : timers) {
+			ss << std::fixed << std::setprecision(precision) << t.timing->max<Period>();
+			data.push_back(ss.str());
+			ss = {};
 		}
-
-		for (auto const& [_, t] : timer_) {
-			l = std::max(l, t.template longestMin<Period>(false, precision));
-		}
-
-		return l;
 	}
 
-	template <class Period = std::chrono::seconds::period>
-	int longestMax(bool skip_this, int precision) const
-	{
-		int l = 0;
+	void addNumSamples(std::vector<std::string>&    data,
+	                   std::vector<TimingNL> const& timers) const;
 
-		if (!skip_this) {
-			auto t = max<Period>();
-			if (std::isnan(t)) {
-				l = 3;
-			} else {
-				l               = precision + 1 + static_cast<int>(0.0 > t);
-				std::uint64_t u = std::abs(static_cast<std::int64_t>(t));
-				for (; 0 < u; u /= 10) {
-					++l;
-				}
-			}
-		}
+	int maxLength(std::vector<std::string> const& data) const;
 
-		for (auto const& [_, t] : timer_) {
-			l = std::max(l, t.template longestMax<Period>(false, precision));
-		}
-
-		return l;
-	}
-
-	int longestNumSamples(bool skip_this) const;
+	std::pair<int, int> centeringPadding(std::string const& str, int max_width) const;
 
  private:
 	std::map<std::size_t, Timing> timer_;
