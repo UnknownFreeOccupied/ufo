@@ -145,7 +145,8 @@ int Timing::maxLength(std::vector<std::string> const& data) const
 
 std::pair<int, int> Timing::centeringPadding(std::string const& str, int max_width) const
 {
-	return {std::ceil((max_width - static_cast<int>(str.length())) / 2.0),
-	        std::ceil((max_width - static_cast<int>(str.length())) / 2.0)};
+	int left_pad  = std::ceil((max_width - static_cast<int>(str.length())) / 2.0);
+	int right_pad = max_width - (left_pad + static_cast<int>(str.length()));
+	return {left_pad, right_pad};
 }
 }  // namespace ufo
