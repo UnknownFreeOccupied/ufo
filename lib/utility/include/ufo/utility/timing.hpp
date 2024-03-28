@@ -72,6 +72,32 @@ class Timing : public Timer
 
 	Timing(std::string const& tag);
 
+	Timing(std::string const& tag, std::initializer_list<Timing> init);
+
+	Timing(Timing const& other);
+
+	Timing(Timing&& other);
+
+	Timing& operator=(Timing const& rhs);
+
+	Timing& operator=(Timing&& rhs);
+
+	friend void swap(Timing& a, Timing& b)
+	{
+		if (&a != &b) {
+			WriteLock lhs_lk(a.mutex_, std::defer_lock);
+			WriteLock rhs_lk(b.mutex_, std::defer_lock);
+			std::lock(lhs_lk, rhs_lk);
+			using std::swap;
+			swap(a.timings_, b.timings_);
+			swap(a.tag_, b.tag_);
+			swap(a.color_, b.color_);
+			swap(a.started_id_, b.started_id_);
+		}
+	}
+
+	Timing& start();
+
 	Timing& start(std::string const& tag);
 
 	Timing& start(std::string const& tag, std::string const& color);
@@ -83,6 +109,10 @@ class Timing : public Timer
 	std::size_t stop(std::size_t levels);
 
 	void stopAll();
+
+	Timing const& operator[](std::string const& tag) const;
+
+	Timing& operator[](std::string const& tag);
 
 	std::string const& tag() const;
 
@@ -151,7 +181,7 @@ class Timing : public Timer
 		    std::vector<std::string>{"StDev"s},     std::vector<std::string>{"Min"s},
 		    std::vector<std::string>{"Max"s},       std::vector<std::string>{"Samples"s}};
 
-		auto timers = timings(first_as_tag);
+		auto timers = timings();
 
 		addTags(data[0], timers, start_numbering_level, stop_numbering_level);
 		addTotal<Period>(data[1], timers, precision);
@@ -233,6 +263,10 @@ class Timing : public Timer
 	                      int precision            = 4) const;
 
  private:
+	Timing(Timing const& other, ReadLock rhs_lk);
+
+	Timing(Timing&& other, WriteLock rhs_lk);
+
 	struct TimingNL {
 		Timing const* timing;
 		std::size_t   num;
@@ -244,7 +278,7 @@ class Timing : public Timer
 		}
 	};
 
-	std::vector<TimingNL> timings(bool skip_first) const;
+	std::vector<TimingNL> timings() const;
 
 	void timingsRecurs(std::vector<TimingNL>& data, std::size_t num, int level) const;
 

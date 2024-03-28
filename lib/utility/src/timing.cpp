@@ -12,6 +12,50 @@ namespace ufo
 
 Timing::Timing(std::string const& tag) : tag_(tag) {}
 
+Timing::Timing(std::string const& tag, std::initializer_list<Timing> init)
+    : timings_(init), tag_(tag)
+{
+}
+
+Timing::Timing(Timing const& other) : Timing(other, ReadLock(other.mutex_)) {}
+
+Timing::Timing(Timing&& other) : Timing(std::move(other), WriteLock(other.mutex_)) {}
+
+Timing& Timing::operator=(Timing const& rhs)
+{
+	if (this != &rhs) {
+		WriteLock lhs_lk(mutex_, std::defer_lock);
+		ReadLock  rhs_lk(rhs.mutex_, std::defer_lock);
+		std::lock(lhs_lk, rhs_lk);
+		timings_    = rhs.timings_;
+		tag_        = rhs.tag_;
+		color_      = rhs.color_;
+		started_id_ = rhs.started_id_;
+	}
+	return *this;
+}
+
+Timing& Timing::operator=(Timing&& rhs)
+{
+	if (this != &rhs) {
+		WriteLock lhs_lk(mutex_, std::defer_lock);
+		WriteLock rhs_lk(rhs.mutex_, std::defer_lock);
+		std::lock(lhs_lk, rhs_lk);
+		timings_    = std::move(rhs.timings_);
+		tag_        = std::move(rhs.tag_);
+		color_      = std::move(rhs.color_);
+		started_id_ = std::move(rhs.started_id_);
+	}
+	return *this;
+}
+
+Timing& Timing::start()
+{
+	Timer::start();
+	started_id_ = std::this_thread::get_id();
+	return *this;
+}
+
 Timing& Timing::start(std::string const& tag)
 {
 	WriteLock lock(mutex_);
@@ -64,6 +108,8 @@ Timing& Timing::start(std::string const& tag, std::string const& color)
 
 void Timing::reset()
 {
+	WriteLock lock(mutex_);
+
 	Timer::reset();
 	timings_.clear();
 }
@@ -107,7 +153,7 @@ std::size_t Timing::stop(std::size_t levels)
 		}
 	}
 
-	if (std::this_thread::get_id() == started_id_) {
+	if (std::this_thread::get_id() == started_id_ && stopped_levels < levels) {
 		++stopped_levels;
 		Timer::stop();
 		started_id_ = {};
@@ -131,6 +177,28 @@ void Timing::stopAll()
 		Timer::stop();
 		started_id_ = {};
 	}
+}
+
+Timing const& Timing::operator[](std::string const& tag) const
+{
+	ReadLock lock(mutex_);
+	for (Timing const& t : timings_) {
+		if (tag == t.tag()) {
+			return t;
+		}
+	}
+	throw std::out_of_range("Tag '" + tag + "' does not exist");
+}
+
+Timing& Timing::operator[](std::string const& tag)
+{
+	WriteLock lock(mutex_);
+	for (Timing& t : timings_) {
+		if (tag == t.tag()) {
+			return t;
+		}
+	}
+	return timings_.emplace_back(tag);
 }
 
 std::string const& Timing::tag() const { return tag_; }
@@ -181,17 +249,35 @@ void Timing::printNanoseconds(bool first_as_tag, bool random_colors, bool bold,
 // Private functions
 //
 
-std::vector<Timing::TimingNL> Timing::timings(bool skip_first) const
+Timing::Timing(Timing const& other, ReadLock /* rhs_lk */)
+    : timings_(other.timings_)
+    , tag_(other.tag_)
+    , color_(other.color_)
+    , started_id_(other.started_id_)
+{
+}
+
+Timing::Timing(Timing&& other, WriteLock /* rhs_lk */)
+    : timings_(std::move(other.timings_))
+    , tag_(std::move(other.tag_))
+    , color_(std::move(other.color_))
+    , started_id_(std::move(other.started_id_))
+{
+}
+
+std::vector<Timing::TimingNL> Timing::timings() const
 {
 	ReadLock lock(mutex_);
 
 	std::vector<TimingNL> data;
 
-	if (!skip_first) {
+	int level;
+	if (0 != Timer::numSamples() || Timer::active()) {
+		level = 1;
 		data.emplace_back(this, 0, 0);
+	} else {
+		level = 0;
 	}
-
-	int level = skip_first ? 0 : 1;
 
 	std::size_t i{1};
 	for (auto& t : timings_) {
