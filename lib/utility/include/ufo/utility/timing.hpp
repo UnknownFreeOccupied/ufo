@@ -72,7 +72,11 @@ class Timing : public Timer
 
 	Timing(std::string const& tag);
 
+	Timing(char const* tag);
+
 	Timing(std::string const& tag, std::initializer_list<Timing> init);
+
+	Timing(char const* tag, std::initializer_list<Timing> init);
 
 	Timing(Timing const& other);
 

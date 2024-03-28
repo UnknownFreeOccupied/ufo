@@ -12,7 +12,14 @@ namespace ufo
 
 Timing::Timing(std::string const& tag) : tag_(tag) {}
 
+Timing::Timing(char const* tag) : tag_(tag) {}
+
 Timing::Timing(std::string const& tag, std::initializer_list<Timing> init)
+    : timings_(init), tag_(tag)
+{
+}
+
+Timing::Timing(char const* tag, std::initializer_list<Timing> init)
     : timings_(init), tag_(tag)
 {
 }
@@ -68,6 +75,17 @@ Timing& Timing::start(std::string const& tag)
 
 	for (Timing& t : timings_) {
 		if (tag == t.tag()) {
+			if (t.active()) {
+				std::stringstream ss;
+				ss << std::this_thread::get_id();
+				std::string my_id = ss.str();
+				ss.clear();
+				ss << t.started_id_;
+				std::string started_id = ss.str();
+				throw std::runtime_error(
+				    "Trying to start a timer from thread=" + my_id +
+				    " which has already been started by thread=" + started_id);
+			}
 			static_cast<Timer&>(t).start();
 			t.started_id_ = std::this_thread::get_id();
 			return t;
@@ -92,6 +110,17 @@ Timing& Timing::start(std::string const& tag, std::string const& color)
 
 	for (Timing& t : timings_) {
 		if (tag == t.tag()) {
+			if (t.active()) {
+				std::stringstream ss;
+				ss << std::this_thread::get_id();
+				std::string my_id = ss.str();
+				ss.clear();
+				ss << t.started_id_;
+				std::string started_id = ss.str();
+				throw std::runtime_error(
+				    "Trying to start a timer from thread=" + my_id +
+				    " which has already been started by thread=" + started_id);
+			}
 			static_cast<Timer&>(t).start();
 			t.started_id_ = std::this_thread::get_id();
 			t.color_      = color;
