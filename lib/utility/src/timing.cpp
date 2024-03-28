@@ -12,45 +12,44 @@ namespace ufo
 
 Timing::Timing(std::string const& tag) : tag_(tag) {}
 
-Timing& Timing::start(std::string const& tag, std::thread::id const thread_id)
+Timing& Timing::start(std::string const& tag)
 {
 	WriteLock lock(mutex_);
 
 	for (Timing& t : timings_) {
-		if (thread_id == t.started_id_) {
-			return t.start(tag, thread_id);
+		if (std::this_thread::get_id() == t.started_id_) {
+			return t.start(tag);
 		}
 	}
 
 	for (Timing& t : timings_) {
 		if (tag == t.tag()) {
 			static_cast<Timer&>(t).start();
-			t.started_id_ = thread_id;
+			t.started_id_ = std::this_thread::get_id();
 			return t;
 		}
 	}
 
 	Timing& t = timings_.emplace_back(tag);
 	static_cast<Timer&>(t).start();
-	t.started_id_ = thread_id;
+	t.started_id_ = std::this_thread::get_id();
 	return t;
 }
 
-Timing& Timing::start(std::string const& tag, std::string const& color,
-                      std::thread::id const thread_id)
+Timing& Timing::start(std::string const& tag, std::string const& color)
 {
 	WriteLock lock(mutex_);
 
 	for (Timing& t : timings_) {
-		if (thread_id == t.started_id_) {
-			return t.start(tag, color, thread_id);
+		if (std::this_thread::get_id() == t.started_id_) {
+			return t.start(tag, color);
 		}
 	}
 
 	for (Timing& t : timings_) {
 		if (tag == t.tag()) {
 			static_cast<Timer&>(t).start();
-			t.started_id_ = thread_id;
+			t.started_id_ = std::this_thread::get_id();
 			t.color_      = color;
 			return t;
 		}
@@ -58,7 +57,7 @@ Timing& Timing::start(std::string const& tag, std::string const& color,
 
 	Timing& t = timings_.emplace_back(tag);
 	static_cast<Timer&>(t).start();
-	t.started_id_ = thread_id;
+	t.started_id_ = std::this_thread::get_id();
 	t.color_      = color;
 	return t;
 }
@@ -69,19 +68,19 @@ void Timing::reset()
 	timings_.clear();
 }
 
-bool Timing::stop(std::thread::id const thread_id)
+bool Timing::stop()
 {
 	WriteLock lock(mutex_);
 
 	for (Timing& t : timings_) {
-		if (thread_id == t.started_id_) {
-			if (t.stop(thread_id)) {
+		if (std::this_thread::get_id() == t.started_id_) {
+			if (t.stop()) {
 				return true;
 			}
 		}
 	}
 
-	if (thread_id == started_id_) {
+	if (std::this_thread::get_id() == started_id_) {
 		Timer::stop();
 		started_id_ = {};
 		return true;
@@ -90,7 +89,7 @@ bool Timing::stop(std::thread::id const thread_id)
 	return false;
 }
 
-std::size_t Timing::stop(std::size_t levels, std::thread::id const thread_id)
+std::size_t Timing::stop(std::size_t levels)
 {
 	if (0 == levels) {
 		return 0;
@@ -100,15 +99,15 @@ std::size_t Timing::stop(std::size_t levels, std::thread::id const thread_id)
 
 	std::size_t stopped_levels{};
 	for (Timing& t : timings_) {
-		if (thread_id == t.started_id_) {
-			stopped_levels = t.stop(levels, thread_id);
+		if (std::this_thread::get_id() == t.started_id_) {
+			stopped_levels = t.stop(levels);
 			if (levels == stopped_levels) {
 				return stopped_levels;
 			}
 		}
 	}
 
-	if (thread_id == started_id_) {
+	if (std::this_thread::get_id() == started_id_) {
 		++stopped_levels;
 		Timer::stop();
 		started_id_ = {};
@@ -117,18 +116,18 @@ std::size_t Timing::stop(std::size_t levels, std::thread::id const thread_id)
 	return stopped_levels;
 }
 
-void Timing::stopAll(std::thread::id const thread_id)
+void Timing::stopAll()
 {
 	WriteLock lock(mutex_);
 
 	for (Timing& t : timings_) {
-		if (thread_id == t.started_id_) {
-			t.stopAll(thread_id);
+		if (std::this_thread::get_id() == t.started_id_) {
+			t.stopAll();
 			break;
 		}
 	}
 
-	if (thread_id == started_id_) {
+	if (std::this_thread::get_id() == started_id_) {
 		Timer::stop();
 		started_id_ = {};
 	}

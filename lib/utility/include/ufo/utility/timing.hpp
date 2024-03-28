@@ -72,20 +72,17 @@ class Timing : public Timer
 
 	Timing(std::string const& tag);
 
-	Timing& start(std::string const&    tag,
-	              std::thread::id const thread_id = std::this_thread::get_id());
+	Timing& start(std::string const& tag);
 
-	Timing& start(std::string const& tag, std::string const& color,
-	              std::thread::id const thread_id = std::this_thread::get_id());
+	Timing& start(std::string const& tag, std::string const& color);
 
 	void reset();
 
-	bool stop(std::thread::id const thread_id = std::this_thread::get_id());
+	bool stop();
 
-	std::size_t stop(std::size_t           levels,
-	                 std::thread::id const thread_id = std::this_thread::get_id());
+	std::size_t stop(std::size_t levels);
 
-	void stopAll(std::thread::id const thread_id = std::this_thread::get_id());
+	void stopAll();
 
 	std::string const& tag() const;
 
