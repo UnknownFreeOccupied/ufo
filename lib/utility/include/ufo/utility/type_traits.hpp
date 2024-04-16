@@ -135,6 +135,23 @@ using is_base_of_template = typename is_base_of_template_impl<Base, Derived>::ty
 
 template <template <class, std::size_t> class Base, class Derived>
 inline constexpr bool is_base_of_template_v = is_base_of_template<Base, Derived>::value;
+
+//
+// Is unique
+//
+
+template <class...>
+struct is_unique : std::true_type {
+};
+
+template <class T, class... Rest>
+struct is_unique<T, Rest...> {
+	static constexpr bool value =
+	    (!std::is_same_v<T, Rest> && ...) && is_unique<Rest...>::value;
+};
+
+template <class T, class... Rest>
+inline constexpr bool is_unique_v = is_unique<T, Rest...>::value;
 }  // namespace ufo
 
 #endif  // UFO_UTILITY_TYPE_TRAITS
