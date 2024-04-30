@@ -9,6 +9,7 @@ include("${PROJECT_SOURCE_DIR}/3rdparty/catch2/catch2.cmake")
 add_executable(ufoutility_tests
 	compression_test.cpp
 	iterator_wrapper_test.cpp
+	morton_test.cpp
 )
 
 target_link_libraries(ufoutility_tests PRIVATE UFO::Utility Catch2::Catch2WithMain)
