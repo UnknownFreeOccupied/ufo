@@ -55,7 +55,7 @@
 
 namespace ufo
 {
-#if defined(UFO_PARALLEL)
+#if defined(UFO_TBB)
 namespace execution = std::execution;
 
 template <class T>
