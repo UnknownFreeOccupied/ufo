@@ -61,10 +61,35 @@ namespace execution = std::execution;
 template <class T>
 using is_execution_policy = std::is_execution_policy<T>;
 #else
-enum class execution { seq, par, par_unseq };
+namespace execution
+{
+// sequenced execution policy
+class sequenced_policy
+{
+};
+
+// parallel execution policy
+class parallel_policy
+{
+};
+
+// parallel and unsequenced execution policy
+class parallel_unsequenced_policy
+{
+};
+
+// execution policy objects
+inline constexpr sequenced_policy            seq{};
+inline constexpr parallel_policy             par{};
+inline constexpr parallel_unsequenced_policy par_unseq{};
+}  // namespace execution
 
 template <class T>
-using is_execution_policy = std::is_same<execution, T>;
+struct is_execution_policy
+    : std::disjunction<std::is_same<execution::sequenced_policy, T>,
+                       std::is_same<execution::parallel_policy, T>,
+                       std::is_same<execution::parallel_unsequenced_policy, T>> {
+};
 #endif
 
 template <class T>
