@@ -47,10 +47,21 @@
 
 namespace ufo
 {
+/*!
+ * @brief Converts an enumeration to its underlying type.
+ *
+ * Converts an enumeration to its underlying type. Equivalent to return
+ * static_cast<std::underlying_type_t<Enum>>(e);.
+ *
+ * @note Same as in C++23: https://en.cppreference.com/w/cpp/utility/to_underlying
+ *
+ * @param e enumeration value to convert
+ * @return The integer value of the underlying type of Enum, converted from e.
+ */
 template <class Enum>
 constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept
 {
-	return static_cast<std::underlying_type<Enum>>(e);
+	return static_cast<std::underlying_type_t<Enum>>(e);
 }
 }  // namespace ufo
 
