@@ -45,6 +45,7 @@
 // UFO
 #include <ufo/geometry/shape/aabb.hpp>
 #include <ufo/geometry/shape/bs.hpp>
+#include <ufo/geometry/shape/capsule.hpp>
 #include <ufo/geometry/shape/frustum.hpp>
 #include <ufo/geometry/shape/line_segment.hpp>
 #include <ufo/geometry/shape/obb.hpp>
@@ -77,6 +78,12 @@ template <std::size_t Dim, class T>
 	auto distance_squared = distanceSquared(closest_point, b.center);
 	auto radius_squared   = b.radius * b.radius;
 	return distance_squared <= radius_squared;
+}
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(AABB<Dim, T> const& a, Capsule<Dim, T> const& b)
+{
+	// TODO: Implement
 }
 
 template <class T>
@@ -221,6 +228,12 @@ template <std::size_t Dim, class T>
 	return distance_squared <= (radius_sum * radius_sum);
 }
 
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(BS<Dim, T> const& a, Capsule<Dim, T> const& b)
+{
+	// TODO: Implement
+}
+
 template <class T>
 [[nodiscard]] constexpr bool intersects(BS<3, T> const& a, Frustum<T> const& b)
 {
@@ -280,6 +293,75 @@ template <std::size_t Dim, class T>
 
 /**************************************************************************************
 |                                                                                     |
+|                                       Capsule                                       |
+|                                                                                     |
+**************************************************************************************/
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(Capsule<Dim, T> const& a, AABB<Dim, T> const& b)
+{
+	return intersects(b, a);
+}
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(Capsule<Dim, T> const& a, BS<Dim, T> const& b)
+{
+	return intersects(b, a);
+}
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(Capsule<Dim, T> const& a,
+                                        Capsule<Dim, T> const& b)
+{
+	// TODO: Implement
+}
+
+template <class T>
+[[nodiscard]] constexpr bool intersects(Capsule<3, T> const& a, Frustum<T> const& b)
+{
+	// TODO: Implement
+}
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(Capsule<Dim, T> const&     a,
+                                        LineSegment<Dim, T> const& b)
+{
+	// TODO: Implement
+}
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(Capsule<Dim, T> const& a, OBB<Dim, T> const& b)
+{
+	// TODO: Implement
+}
+
+template <class T>
+[[nodiscard]] constexpr bool intersects(Capsule<3, T> const& a, Plane<T> const& b)
+{
+	// TODO: Implement
+}
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(Capsule<Dim, T> const& a, Ray<Dim, T> const& b)
+{
+	// TODO: Implement
+}
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(Capsule<Dim, T> const&  a,
+                                        Triangle<Dim, T> const& b)
+{
+	// TODO: Implement
+}
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(Capsule<Dim, T> const& a, Vec<Dim, T> const& b)
+{
+	// TODO: Implement
+}
+
+/**************************************************************************************
+|                                                                                     |
 |                                       Frustum                                       |
 |                                                                                     |
 **************************************************************************************/
@@ -292,6 +374,12 @@ template <class T>
 
 template <class T>
 [[nodiscard]] constexpr bool intersects(Frustum<T> const& a, BS<3, T> const& b)
+{
+	return intersects(b, a);
+}
+
+template <class T>
+[[nodiscard]] constexpr bool intersects(Frustum<T> const& a, Capsule<3, T> const& b)
 {
 	return intersects(b, a);
 }
@@ -363,6 +451,13 @@ template <std::size_t Dim, class T>
 
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr bool intersects(LineSegment<Dim, T> const& a, BS<Dim, T> const& b)
+{
+	return intersects(b, a);
+}
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(LineSegment<Dim, T> const& a,
+                                        Capsule<Dim, T> const&     b)
 {
 	return intersects(b, a);
 }
@@ -509,6 +604,12 @@ template <std::size_t Dim, class T>
 
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr bool intersects(OBB<Dim, T> const& a, BS<Dim, T> const& b)
+{
+	return intersects(b, a);
+}
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(OBB<Dim, T> const& a, Capsule<Dim, T> const& b)
 {
 	return intersects(b, a);
 }
@@ -670,6 +771,12 @@ template <class T>
 }
 
 template <class T>
+[[nodiscard]] constexpr bool intersects(Plane<T> const& a, Capsule<3, T> const& b)
+{
+	return intersects(b, a);
+}
+
+template <class T>
 [[nodiscard]] constexpr bool intersects(Plane<T> const& a, Frustum<T> const& b)
 {
 	return intersects(b, a);
@@ -739,6 +846,12 @@ template <std::size_t Dim, class T>
 	return intersects(b, a);
 }
 
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(Ray<Dim, T> const& a, Capsule<Dim, T> const& b)
+{
+	return intersects(b, a);
+}
+
 template <class T>
 [[nodiscard]] constexpr bool intersects(Ray<3, T> const& a, Frustum<T> const& b)
 {
@@ -804,6 +917,13 @@ template <std::size_t Dim, class T>
 	return intersects(b, a);
 }
 
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(Triangle<Dim, T> const& a,
+                                        Capsule<Dim, T> const&  b)
+{
+	return intersects(b, a);
+}
+
 template <class T>
 [[nodiscard]] constexpr bool intersects(Triangle<3, T> const& a, Frustum<T> const& b)
 {
@@ -862,6 +982,12 @@ template <std::size_t Dim, class T>
 
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr bool intersects(Vec<Dim, T> const& a, BS<Dim, T> const& b)
+{
+	return intersects(b, a);
+}
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(Vec<Dim, T> const& a, Capsule<Dim, T> const& b)
 {
 	return intersects(b, a);
 }

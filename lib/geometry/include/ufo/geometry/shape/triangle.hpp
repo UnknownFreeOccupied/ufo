@@ -66,7 +66,7 @@ struct Triangle {
 	{
 	}
 	template <class U>
-	constexpr Triangle(Triangle<Dim, U> const& other) noexcept
+	constexpr explicit Triangle(Triangle<Dim, U> const& other) noexcept
 	    : points{Vec<Dim, T>(other[0]), Vec<Dim, T>(other[1]), Vec<Dim, T>(other[2])}
 	{
 	}

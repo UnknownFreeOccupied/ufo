@@ -45,21 +45,30 @@
 // UFO
 #include <ufo/geometry/shape/aabb.hpp>
 #include <ufo/geometry/shape/bs.hpp>
+#include <ufo/geometry/shape/capsule.hpp>
 #include <ufo/geometry/shape/frustum.hpp>
 #include <ufo/geometry/shape/line_segment.hpp>
 #include <ufo/geometry/shape/obb.hpp>
 #include <ufo/geometry/shape/plane.hpp>
 #include <ufo/geometry/shape/ray.hpp>
 #include <ufo/geometry/shape/triangle.hpp>
+#include <ufo/math/utility.hpp>
 #include <ufo/math/vec.hpp>
 
 // STL
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <limits>
 
 namespace ufo
 {
+/**************************************************************************************
+|                                                                                     |
+|                                         Min                                         |
+|                                                                                     |
+**************************************************************************************/
+
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr Vec<Dim, T> min(AABB<Dim, T> a)
 {
@@ -70,6 +79,12 @@ template <std::size_t Dim, class T>
 [[nodiscard]] constexpr Vec<Dim, T> min(BS<Dim, T> a)
 {
 	return a.center - a.radius;
+}
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr Vec<Dim, T> min(Capsule<Dim, T> a)
+{
+	return min(a.start, a.end) - a.radius;
 }
 
 template <class T>
@@ -121,10 +136,16 @@ template <std::size_t Dim, class T>
 }
 
 template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> max(Triangle<Dim, T> a)
+[[nodiscard]] constexpr Vec<Dim, T> min(Triangle<Dim, T> a)
 {
 	return min(a[0], min(a[1], a[2]));
 }
+
+/**************************************************************************************
+|                                                                                     |
+|                                         Max                                         |
+|                                                                                     |
+**************************************************************************************/
 
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr Vec<Dim, T> max(AABB<Dim, T> a)
@@ -136,6 +157,12 @@ template <std::size_t Dim, class T>
 [[nodiscard]] constexpr Vec<Dim, T> max(BS<Dim, T> a)
 {
 	return a.center + a.radius;
+}
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr Vec<Dim, T> max(Capsule<Dim, T> a)
+{
+	return max(a.start, a.end) + a.radius;
 }
 
 template <class T>
@@ -190,6 +217,75 @@ template <std::size_t Dim, class T>
 [[nodiscard]] constexpr Vec<Dim, T> max(Triangle<Dim, T> a)
 {
 	return max(a[0], max(a[1], a[2]));
+}
+
+/**************************************************************************************
+|                                                                                     |
+|                                       Corners                                       |
+|                                                                                     |
+**************************************************************************************/
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr std::array<Vec<Dim, T>, ipow(2, Dim)> corners(
+    AABB<Dim, T> const& a)
+{
+	auto min = ufo::min(a);
+	auto max = ufo::max(a);
+	if constexpr (1 == Dim) {
+		return {min, max};
+	} else if constexpr (2 == Dim) {
+		// clang-format off
+		return {Vec<Dim, T>(min[0], min[1]), 
+		        Vec<Dim, T>(max[0], min[1]), 
+						Vec<Dim, T>(min[0], max[1]), 
+						Vec<Dim, T>(max[0], max[1])};
+		// clang-format on
+	} else if constexpr (3 == Dim) {
+		// clang-format off
+		return {Vec<Dim, T>(min[0], min[1], min[2]), 
+		        Vec<Dim, T>(max[0], min[1], min[2]), 
+						Vec<Dim, T>(min[0], max[1], min[2]),
+		        Vec<Dim, T>(max[0], max[1], min[2]), 
+		        Vec<Dim, T>(min[0], min[1], max[2]), 
+		        Vec<Dim, T>(max[0], min[1], max[2]), 
+		        Vec<Dim, T>(min[0], max[1], max[2]),
+		        Vec<Dim, T>(max[0], max[1], max[2])};
+		// clang-format on
+	} else if constexpr (4 == Dim) {
+		// clang-format off
+		return {Vec<Dim, T>(min[0], min[1], min[2], min[3]), 
+		        Vec<Dim, T>(max[0], min[1], min[2], min[3]), 
+						Vec<Dim, T>(min[0], max[1], min[2], min[3]),
+		        Vec<Dim, T>(max[0], max[1], min[2], min[3]), 
+		        Vec<Dim, T>(min[0], min[1], max[2], min[3]), 
+		        Vec<Dim, T>(max[0], min[1], max[2], min[3]), 
+		        Vec<Dim, T>(min[0], max[1], max[2], min[3]),
+		        Vec<Dim, T>(max[0], max[1], max[2], min[3]),
+						Vec<Dim, T>(min[0], min[1], min[2], max[3]), 
+		        Vec<Dim, T>(max[0], min[1], min[2], max[3]), 
+						Vec<Dim, T>(min[0], max[1], min[2], max[3]),
+		        Vec<Dim, T>(max[0], max[1], min[2], max[3]), 
+		        Vec<Dim, T>(min[0], min[1], max[2], max[3]), 
+		        Vec<Dim, T>(max[0], min[1], max[2], max[3]), 
+		        Vec<Dim, T>(min[0], max[1], max[2], max[3]),
+		        Vec<Dim, T>(max[0], max[1], max[2], max[3])};
+		// clang-format on
+	} else {
+		// Error
+	}
+}
+
+template <class T>
+[[nodiscard]] constexpr std::array<Vec<3, T>, 8> corners(Frustum<T> const& a)
+{
+	return corners(AABB<3, T>(min(a), max(a)));
+}
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr std::array<Vec<Dim, T>, ipow(2, Dim)> corners(
+    OBB<Dim, T> const& a)
+{
+	return corners(AABB<Dim, T>(min(a), max(a)));
 }
 }  // namespace ufo
 

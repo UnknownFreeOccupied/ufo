@@ -39,45 +39,69 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_GEOMETRY_CAPSULE_HPP
-#define UFO_GEOMETRY_CAPSULE_HPP
+#ifndef UFO_GEOMETRY_SHAPE_CAPSULE_HPP
+#define UFO_GEOMETRY_SHAPE_CAPSULE_HPP
 
 // UFO
-#include <ufo/geometry/point.hpp>
+#include <ufo/math/vec.hpp>
+
+// STL
+#include <cstddef>
 
 namespace ufo
 {
+template <std::size_t Dim = 3, class T = float>
 struct Capsule {
-	Point start;
-	Point end;
-	float radius{};
+	Vec<Dim, T> start;
+	Vec<Dim, T> end;
+	T           radius{};
 
-	constexpr Capsule() noexcept = default;
+	constexpr Capsule() noexcept               = default;
+	constexpr Capsule(Capsule const&) noexcept = default;
 
-	constexpr Capsule(Point start, Point end, float radius) noexcept
+	constexpr Capsule(Vec<Dim, T> start, Vec<Dim, T> end, T radius) noexcept
 	    : start(start), end(end), radius(radius)
 	{
 	}
 
-	constexpr bool operator==(Capsule const& rhs) const noexcept
+	template <class U>
+	constexpr explicit Capsule(Capsule<Dim, U> const& other) noexcept
+	    : start(other.start), end(other.end), radius(static_cast<T>(other.radius))
 	{
-		return rhs.start == start && rhs.end == end && rhs.radius == radius;
-	}
-
-	constexpr bool operator!=(Capsule const& rhs) const noexcept { return !(*this == rhs); }
-
-	constexpr Point min() const noexcept
-	{
-		return Point(std::min(start.x, end.x) - radius, std::min(start.y, end.y) - radius,
-		             std::min(start.z, end.z) - radius);
-	}
-
-	constexpr Point max() const noexcept
-	{
-		return Point(std::max(start.x, end.x) + radius, std::max(start.y, end.y) + radius,
-		             std::max(start.z, end.z) + radius);
 	}
 };
+
+using Capsule2 = Capsule<2, float>;
+using Capsule3 = Capsule<3, float>;
+using Capsule4 = Capsule<4, float>;
+
+using Capsule2d = Capsule<2, double>;
+using Capsule3d = Capsule<3, double>;
+using Capsule4d = Capsule<4, double>;
+
+/*!
+ * @brief Compare two Capsules.
+ *
+ * @param lhs,rhs The Capsules to compare
+ * @return `true` if they compare equal, `false` otherwise.
+ */
+template <std::size_t Dim, class T>
+bool operator==(Capsule<Dim, T> const& lhs, Capsule<Dim, T> const& rhs)
+{
+	return lhs.start == rhs.start && lhs.end == rhs.end && lhs.radius == rhs.radius;
+}
+
+/*!
+ * @brief Compare two Capsules.
+ *
+ * @param lhs,rhs The Capsules to compare
+ * @return `true` if they do not compare equal, `false` otherwise.
+ */
+template <std::size_t Dim, class T>
+bool operator!=(Capsule<Dim, T> const& lhs, Capsule<Dim, T> const& rhs)
+{
+	return !(lhs == rhs);
+}
 }  // namespace ufo
 
-#endif  // UFO_GEOMETRY_CAPSULE_HPP
+#endif  // UFO_GEOMETRY_SHAPE_CAPSULE_HPP
