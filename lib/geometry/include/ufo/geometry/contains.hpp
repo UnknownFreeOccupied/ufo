@@ -165,7 +165,7 @@ template <std::size_t Dim, class T>
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr bool contains(BS<Dim, T> const& a, OBB<Dim, T> const& b)
 {
-	return contains(a, min(b)()) && contains(a, max(b)());
+	return contains(a, min(b)) && contains(a, max(b));
 }
 
 template <class T>
