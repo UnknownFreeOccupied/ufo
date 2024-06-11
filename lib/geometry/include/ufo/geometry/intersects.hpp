@@ -81,18 +81,19 @@ template <std::size_t Dim, class T>
 }
 
 // template <std::size_t Dim, class T>
-// [[nodiscard]] constexpr bool intersects(AABB<Dim, T> const& a, Capsule<Dim, T> const& b)
+// [[nodiscard]] constexpr bool intersects(AABB<Dim, T> const& a, Capsule<Dim, T> const&
+// b)
 // {
 // 	// TODO: Implement
 // }
 
-template <class T>
-[[nodiscard]] constexpr bool intersects(AABB<3, T> const& a, Frustum<T> const& b)
-{
-	return 0 <= detail::classify(a, b.bottom) && 0 <= detail::classify(a, b.far) &&
-	       0 <= detail::classify(a, b.left) && 0 <= detail::classify(a, b.near) &&
-	       0 <= detail::classify(a, b.right) && 0 <= detail::classify(a, b.top);
-}
+// template <class T>
+// [[nodiscard]] constexpr bool intersects(AABB<3, T> const& a, Frustum<T> const& b)
+// {
+// 	return 0 <= detail::classify(a, b.bottom) && 0 <= detail::classify(a, b.far) &&
+// 	       0 <= detail::classify(a, b.left) && 0 <= detail::classify(a, b.near) &&
+// 	       0 <= detail::classify(a, b.right) && 0 <= detail::classify(a, b.top);
+// }
 
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr bool intersects(AABB<Dim, T> const&        a,
@@ -127,7 +128,8 @@ template <std::size_t Dim, class T>
 // 	// 	test[6 + i * 3 + 2] = Point::cross(test[i], test[5]);
 // 	// }
 
-// 	// return std::all_of(std::cbegin(test), std::cend(test), [&aabb, &obb](auto const& t) {
+// 	// return std::all_of(std::cbegin(test), std::cend(test), [&aabb, &obb](auto const& t)
+// {
 // 	// 	return overlapOnAxis(aabb, obb, t);
 // 	// });
 // }
@@ -152,7 +154,8 @@ template <std::size_t Dim, class T>
 }
 
 // template <std::size_t Dim, class T>
-// [[nodiscard]] constexpr bool intersects(AABB<Dim, T> const& a, Triangle<Dim, T> const& b)
+// [[nodiscard]] constexpr bool intersects(AABB<Dim, T> const& a, Triangle<Dim, T> const&
+// b)
 // {
 // 	// TODO: Implement
 
@@ -391,7 +394,8 @@ template <class T>
 // }
 
 // template <class T>
-// [[nodiscard]] constexpr bool intersects(Frustum<T> const& a, LineSegment<3, T> const& b)
+// [[nodiscard]] constexpr bool intersects(Frustum<T> const& a, LineSegment<3, T> const&
+// b)
 // {
 // 	// TODO: Implement
 // }
@@ -724,7 +728,8 @@ template <std::size_t Dim, class T>
 // }
 
 // template <std::size_t Dim, class T>
-// [[nodiscard]] constexpr bool intersects(OBB<Dim, T> const& a, Triangle<Dim, T> const& b)
+// [[nodiscard]] constexpr bool intersects(OBB<Dim, T> const& a, Triangle<Dim, T> const&
+// b)
 // {
 // 	// TODO: Implement
 // }
@@ -797,8 +802,8 @@ template <class T>
 template <class T>
 [[nodiscard]] constexpr bool intersects(Plane<T> const& a, Plane<T> const& b)
 {
-	auto d = cross(plane_1.normal, plane_2.normal);
-	return 0 != dot(d, d);
+	auto d = cross(a.normal, b.normal);
+	return T(0) != dot(d, d);
 }
 
 // template <class T>
@@ -884,7 +889,8 @@ template <class T>
 // }
 
 // template <std::size_t Dim, class T>
-// [[nodiscard]] constexpr bool intersects(Ray<Dim, T> const& a, Triangle<Dim, T> const& b)
+// [[nodiscard]] constexpr bool intersects(Ray<Dim, T> const& a, Triangle<Dim, T> const&
+// b)
 // {
 // 	// TODO: Implement
 // }
@@ -963,7 +969,8 @@ template <std::size_t Dim, class T>
 // }
 
 // template <std::size_t Dim, class T>
-// [[nodiscard]] constexpr bool intersects(Triangle<Dim, T> const& a, Vec<Dim, T> const& b)
+// [[nodiscard]] constexpr bool intersects(Triangle<Dim, T> const& a, Vec<Dim, T> const&
+// b)
 // {
 // 	// TODO: Implement
 // }
