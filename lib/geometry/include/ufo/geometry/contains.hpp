@@ -224,17 +224,18 @@ template <std::size_t Dim, class T>
 	return true;
 }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(Capsule<Dim, T> const& a, BS<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(Capsule<Dim, T> const& a, BS<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(Capsule<Dim, T> const& a, Capsule<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(Capsule<Dim, T> const& a, Capsule<Dim, T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
 template <class T>
 [[nodiscard]] constexpr bool contains(Capsule<3, T> const& a, Frustum<T> const& b)
@@ -306,17 +307,17 @@ template <class T>
 	return true;
 }
 
-template <class T>
-[[nodiscard]] constexpr bool contains(Frustum<T> const& a, BS<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(Frustum<T> const& a, BS<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr bool contains(Frustum<T> const& a, Capsule<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(Frustum<T> const& a, Capsule<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
 template <class T>
 [[nodiscard]] constexpr bool contains(Frustum<T> const& a, Frustum<T> const& b)
@@ -364,11 +365,11 @@ template <class T>
 	return contains(a, b[0]) && contains(a, b[1]) && contains(a, b[2]);
 }
 
-template <class T>
-[[nodiscard]] constexpr bool contains(Frustum<T> const& a, Vec<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(Frustum<T> const& a, Vec<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
 /**************************************************************************************
 |                                                                                     |
@@ -376,43 +377,46 @@ template <class T>
 |                                                                                     |
 **************************************************************************************/
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(LineSegment<Dim, T> const& a, AABB<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(LineSegment<Dim, T> const& a, AABB<Dim, T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(LineSegment<Dim, T> const& a, BS<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(LineSegment<Dim, T> const& a, BS<Dim, T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(LineSegment<Dim, T> const& a,
-                                      Capsule<Dim, T> const&     b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(LineSegment<Dim, T> const& a,
+//                                       Capsule<Dim, T> const&     b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr bool contains(LineSegment<3, T> const& a, Frustum<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(LineSegment<3, T> const& a, Frustum<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(LineSegment<Dim, T> const& a,
-                                      LineSegment<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(LineSegment<Dim, T> const& a,
+//                                       LineSegment<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(LineSegment<Dim, T> const& a, OBB<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(LineSegment<Dim, T> const& a, OBB<Dim, T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
 template <class T>
 [[nodiscard]] constexpr bool contains(LineSegment<3, T> const& a, Plane<T> const& b)
@@ -426,18 +430,19 @@ template <std::size_t Dim, class T>
 	return false;
 }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(LineSegment<Dim, T> const& a,
-                                      Triangle<Dim, T> const&    b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(LineSegment<Dim, T> const& a,
+//                                       Triangle<Dim, T> const&    b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(LineSegment<Dim, T> const& a, Vec<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(LineSegment<Dim, T> const& a, Vec<Dim, T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
 /**************************************************************************************
 |                                                                                     |
@@ -456,17 +461,17 @@ template <std::size_t Dim, class T>
 	return true;
 }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(OBB<Dim, T> const& a, BS<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(OBB<Dim, T> const& a, BS<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(OBB<Dim, T> const& a, Capsule<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(OBB<Dim, T> const& a, Capsule<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
 template <class T>
 [[nodiscard]] constexpr bool contains(OBB<3, T> const& a, Frustum<T> const& b)
@@ -514,11 +519,11 @@ template <std::size_t Dim, class T>
 	return contains(a, b[0]) && contains(a, b[1]) && contains(a, b[2]);
 }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(OBB<Dim, T> const& a, Vec<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(OBB<Dim, T> const& a, Vec<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
 /**************************************************************************************
 |                                                                                     |
@@ -526,65 +531,65 @@ template <std::size_t Dim, class T>
 |                                                                                     |
 **************************************************************************************/
 
-template <class T>
-[[nodiscard]] constexpr bool contains(Plane<T> const& a, AABB<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(Plane<T> const& a, AABB<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr bool contains(Plane<T> const& a, BS<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(Plane<T> const& a, BS<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr bool contains(Plane<T> const& a, Capsule<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(Plane<T> const& a, Capsule<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr bool contains(Plane<T> const& a, Frustum<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(Plane<T> const& a, Frustum<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr bool contains(Plane<T> const& a, LineSegment<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(Plane<T> const& a, LineSegment<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr bool contains(Plane<T> const& a, OBB<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(Plane<T> const& a, OBB<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr bool contains(Plane<T> const& a, Plane<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(Plane<T> const& a, Plane<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr bool contains(Plane<T> const& a, Ray<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(Plane<T> const& a, Ray<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr bool contains(Plane<T> const& a, Triangle<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(Plane<T> const& a, Triangle<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr bool contains(Plane<T> const& a, Vec<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(Plane<T> const& a, Vec<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
 /**************************************************************************************
 |                                                                                     |
@@ -592,41 +597,42 @@ template <class T>
 |                                                                                     |
 **************************************************************************************/
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(Ray<Dim, T> const& a, AABB<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(Ray<Dim, T> const& a, AABB<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(Ray<Dim, T> const& a, BS<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(Ray<Dim, T> const& a, BS<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(Ray<Dim, T> const& a, Capsule<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(Ray<Dim, T> const& a, Capsule<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr bool contains(Ray<3, T> const& a, Frustum<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(Ray<3, T> const& a, Frustum<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(Ray<Dim, T> const& a, LineSegment<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(Ray<Dim, T> const& a, LineSegment<Dim, T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(Ray<Dim, T> const& a, OBB<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(Ray<Dim, T> const& a, OBB<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
 template <class T>
 [[nodiscard]] constexpr bool contains(Ray<3, T> const& a, Plane<T> const& b)
@@ -640,11 +646,11 @@ template <std::size_t Dim, class T>
 	return a == b;
 }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(Ray<Dim, T> const& a, Triangle<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(Ray<Dim, T> const& a, Triangle<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr bool contains(Ray<Dim, T> const& a, Vec<Dim, T> const& b)
@@ -662,42 +668,43 @@ template <std::size_t Dim, class T>
 |                                                                                     |
 **************************************************************************************/
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(Triangle<Dim, T> const& a, AABB<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(Triangle<Dim, T> const& a, AABB<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(Triangle<Dim, T> const& a, BS<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(Triangle<Dim, T> const& a, BS<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(Triangle<Dim, T> const& a, Capsule<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(Triangle<Dim, T> const& a, Capsule<Dim, T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr bool contains(Triangle<3, T> const& a, Frustum<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr bool contains(Triangle<3, T> const& a, Frustum<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(Triangle<Dim, T> const&    a,
-                                      LineSegment<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(Triangle<Dim, T> const&    a,
+//                                       LineSegment<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(Triangle<Dim, T> const& a, OBB<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(Triangle<Dim, T> const& a, OBB<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
 template <class T>
 [[nodiscard]] constexpr bool contains(Triangle<3, T> const& a, Plane<T> const& b)
@@ -711,18 +718,18 @@ template <std::size_t Dim, class T>
 	return false;
 }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(Triangle<Dim, T> const& a,
-                                      Triangle<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(Triangle<Dim, T> const& a,
+//                                       Triangle<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr bool contains(Triangle<Dim, T> const& a, Vec<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr bool contains(Triangle<Dim, T> const& a, Vec<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
 /**************************************************************************************
 |                                                                                     |

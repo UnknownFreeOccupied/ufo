@@ -65,66 +65,67 @@ namespace ufo
 |                                                                                     |
 **************************************************************************************/
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const& a,
-                                                 AABB<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const& a,
+//                                                  AABB<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const& a,
-                                                 BS<Dim, T> const&   b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const& a,
+//                                                  BS<Dim, T> const&   b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const&    a,
-                                                 Capsule<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const&    a,
+//                                                  Capsule<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(AABB<3, T> const& a, Frustum<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(AABB<3, T> const& a, Frustum<T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const&        a,
-                                                 LineSegment<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const&        a,
+//                                                  LineSegment<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const& a,
-                                                 OBB<Dim, T> const&  b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const& a,
+//                                                  OBB<Dim, T> const&  b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(AABB<3, T> const& a, Plane<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(AABB<3, T> const& a, Plane<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const& a,
-                                                 Ray<Dim, T> const&  b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const& a,
+//                                                  Ray<Dim, T> const&  b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const&     a,
-                                                 Triangle<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const&     a,
+//                                                  Triangle<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const& a,
@@ -139,65 +140,67 @@ template <std::size_t Dim, class T>
 |                                                                                     |
 **************************************************************************************/
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(BS<Dim, T> const&   a,
-                                                 AABB<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(BS<Dim, T> const&   a,
+//                                                  AABB<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(BS<Dim, T> const& a, BS<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(BS<Dim, T> const& a, BS<Dim, T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(BS<Dim, T> const&      a,
-                                                 Capsule<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(BS<Dim, T> const&      a,
+//                                                  Capsule<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(AABB<3, T> const& a, Frustum<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(AABB<3, T> const& a, Frustum<T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(BS<Dim, T> const&          a,
-                                                 LineSegment<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(BS<Dim, T> const&          a,
+//                                                  LineSegment<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(BS<Dim, T> const&  a,
-                                                 OBB<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(BS<Dim, T> const&  a,
+//                                                  OBB<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(AABB<3, T> const& a, Plane<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(AABB<3, T> const& a, Plane<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(BS<Dim, T> const&  a,
-                                                 Ray<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(BS<Dim, T> const&  a,
+//                                                  Ray<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const&     a,
-                                                 Triangle<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(AABB<Dim, T> const&     a,
+//                                                  Triangle<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr Vec<Dim, T> closestPoint(BS<Dim, T> const&  a,
@@ -212,73 +215,75 @@ template <std::size_t Dim, class T>
 |                                                                                     |
 **************************************************************************************/
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const& a,
-                                                 AABB<Dim, T> const&    b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const& a,
+//                                                  AABB<Dim, T> const&    b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const& a,
-                                                 BS<Dim, T> const&      b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const& a,
+//                                                  BS<Dim, T> const&      b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const& a,
-                                                 Capsule<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const& a,
+//                                                  Capsule<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(AABB<3, T> const& a, Frustum<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(AABB<3, T> const& a, Frustum<T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const&     a,
-                                                 LineSegment<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const&     a,
+//                                                  LineSegment<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const& a,
-                                                 OBB<Dim, T> const&     b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const& a,
+//                                                  OBB<Dim, T> const&     b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Capsule<3, T> const& a, Plane<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Capsule<3, T> const& a, Plane<T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const& a,
-                                                 Ray<Dim, T> const&     b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const& a,
+//                                                  Ray<Dim, T> const&     b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const&  a,
-                                                 Triangle<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const&  a,
+//                                                  Triangle<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const& a,
-                                                 Vec<Dim, T> const&     b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Capsule<Dim, T> const& a,
+//                                                  Vec<Dim, T> const&     b)
+// {
+// 	// TODO: Implement
+// }
 
 /**************************************************************************************
 |                                                                                     |
@@ -286,68 +291,70 @@ template <std::size_t Dim, class T>
 |                                                                                     |
 **************************************************************************************/
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, AABB<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, AABB<3, T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, BS<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, BS<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const&    a,
-                                               Capsule<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const&    a,
+//                                                Capsule<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, Frustum<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, Frustum<T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const&        a,
-                                               LineSegment<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const&        a,
+//                                                LineSegment<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, OBB<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, OBB<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, Plane<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, Plane<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, Ray<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, Ray<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const&     a,
-                                               Triangle<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const&     a,
+//                                                Triangle<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, Vec<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, Vec<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
 /**************************************************************************************
 |                                                                                     |
@@ -355,68 +362,68 @@ template <class T>
 |                                                                                     |
 **************************************************************************************/
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(LineSegment<Dim, T> const& a,
-                                                 AABB<Dim, T> const&        b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(LineSegment<Dim, T> const& a,
+//                                                  AABB<Dim, T> const&        b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(LineSegment<Dim, T> const& a,
-                                                 BS<Dim, T> const&          b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(LineSegment<Dim, T> const& a,
+//                                                  BS<Dim, T> const&          b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(LineSegment<Dim, T> const& a,
-                                                 Capsule<Dim, T> const&     b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(LineSegment<Dim, T> const& a,
+//                                                  Capsule<Dim, T> const&     b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(LineSegment<3, T> const& a,
-                                               Frustum<T> const&        b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(LineSegment<3, T> const& a,
+//                                                Frustum<T> const&        b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(LineSegment<Dim, T> const& a,
-                                                 LineSegment<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(LineSegment<Dim, T> const& a,
+//                                                  LineSegment<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(LineSegment<Dim, T> const& a,
-                                                 OBB<Dim, T> const&         b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(LineSegment<Dim, T> const& a,
+//                                                  OBB<Dim, T> const&         b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(LineSegment<3, T> const& a,
-                                               Plane<T> const&          b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(LineSegment<3, T> const& a,
+//                                                Plane<T> const&          b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(LineSegment<Dim, T> const& a,
-                                                 Ray<Dim, T> const&         b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(LineSegment<Dim, T> const& a,
+//                                                  Ray<Dim, T> const&         b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(LineSegment<Dim, T> const& a,
-                                                 Triangle<Dim, T> const&    b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(LineSegment<Dim, T> const& a,
+//                                                  Triangle<Dim, T> const&    b)
+// {
+// 	// TODO: Implement
+// }
 
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr Vec<Dim, T> closestPoint(LineSegment<Dim, T> const& a,
@@ -433,93 +440,93 @@ template <std::size_t Dim, class T>
 |                                                                                     |
 **************************************************************************************/
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const&  a,
-                                                 AABB<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const&  a,
+//                                                  AABB<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const& a,
-                                                 BS<Dim, T> const&  b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const& a,
+//                                                  BS<Dim, T> const&  b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const&     a,
-                                                 Capsule<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const&     a,
+//                                                  Capsule<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(OBB<3, T> const& a, Frustum<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(OBB<3, T> const& a, Frustum<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const&         a,
-                                                 LineSegment<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const&         a,
+//                                                  LineSegment<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const& a,
-                                                 OBB<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const& a,
+//                                                  OBB<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(OBB<3, T> const& a, Plane<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(OBB<3, T> const& a, Plane<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const& a,
-                                                 Ray<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const& a,
+//                                                  Ray<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const&      a,
-                                                 Triangle<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const&      a,
+//                                                  Triangle<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const& a,
-                                                 Vec<Dim, T> const& b)
-{
-	// TODO: Implement
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(OBB<Dim, T> const& a,
+//                                                  Vec<Dim, T> const& b)
+// {
+// 	// TODO: Implement
 
-	// Point result = obb.center;
-	// Point dir    = point - obb.center;
+// 	// Point result = obb.center;
+// 	// Point dir    = point - obb.center;
 
-	// std::array<float, 9> obb_rot_matrix = obb.rotation.rotMatrix();
+// 	// std::array<float, 9> obb_rot_matrix = obb.rotation.rotMatrix();
 
-	// for (std::size_t i{}; 3 > i; ++i) {
-	// 	Point axis(obb_rot_matrix[i * 3], obb_rot_matrix[(i * 3) + 1],
-	// 	           obb_rot_matrix[(i * 3) + 2]);
-	// 	float distance = Point::dot(dir, axis);
-	// 	if (distance > obb.half_size[i]) {
-	// 		distance = obb.half_size[i];
-	// 	}
-	// 	if (distance < -obb.half_size[i])  // FIXME: Should this be else if?
-	// 	{
-	// 		distance = -obb.half_size[i];
-	// 	}
-	// 	result = result + (axis * distance);
-	// }
-	// return result;
-}
+// 	// for (std::size_t i{}; 3 > i; ++i) {
+// 	// 	Point axis(obb_rot_matrix[i * 3], obb_rot_matrix[(i * 3) + 1],
+// 	// 	           obb_rot_matrix[(i * 3) + 2]);
+// 	// 	float distance = Point::dot(dir, axis);
+// 	// 	if (distance > obb.half_size[i]) {
+// 	// 		distance = obb.half_size[i];
+// 	// 	}
+// 	// 	if (distance < -obb.half_size[i])  // FIXME: Should this be else if?
+// 	// 	{
+// 	// 		distance = -obb.half_size[i];
+// 	// 	}
+// 	// 	result = result + (axis * distance);
+// 	// }
+// 	// return result;
+// }
 
 /**************************************************************************************
 |                                                                                     |
@@ -527,60 +534,62 @@ template <std::size_t Dim, class T>
 |                                                                                     |
 **************************************************************************************/
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, AABB<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, AABB<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, BS<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, BS<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, Capsule<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, Capsule<3, T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, Frustum<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, Frustum<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const&          a,
-                                               LineSegment<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const&          a,
+//                                                LineSegment<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, OBB<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, OBB<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, Plane<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, Plane<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, Ray<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, Ray<3, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, Triangle<3, T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, Triangle<3, T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
 template <class T>
 [[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, Vec<3, T> const& b)
@@ -595,66 +604,66 @@ template <class T>
 |                                                                                     |
 **************************************************************************************/
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Ray<Dim, T> const&  a,
-                                                 AABB<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Ray<Dim, T> const&  a,
+//                                                  AABB<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Ray<Dim, T> const& a,
-                                                 BS<Dim, T> const&  b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Ray<Dim, T> const& a,
+//                                                  BS<Dim, T> const&  b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Ray<Dim, T> const&     a,
-                                                 Capsule<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Ray<Dim, T> const&     a,
+//                                                  Capsule<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Ray<3, T> const& a, Frustum<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Ray<3, T> const& a, Frustum<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Ray<Dim, T> const&         a,
-                                                 LineSegment<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Ray<Dim, T> const&         a,
+//                                                  LineSegment<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Ray<Dim, T> const& a,
-                                                 OBB<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Ray<Dim, T> const& a,
+//                                                  OBB<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Ray<3, T> const& a, Plane<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Ray<3, T> const& a, Plane<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Ray<Dim, T> const& a,
-                                                 Ray<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Ray<Dim, T> const& a,
+//                                                  Ray<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Ray<Dim, T> const&      a,
-                                                 Triangle<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Ray<Dim, T> const&      a,
+//                                                  Triangle<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Ray<Dim, T> const& a,
@@ -670,74 +679,75 @@ template <std::size_t Dim, class T>
 |                                                                                     |
 **************************************************************************************/
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const& a,
-                                                 AABB<Dim, T> const&     b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const& a,
+//                                                  AABB<Dim, T> const&     b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const& a,
-                                                 BS<Dim, T> const&       b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const& a,
+//                                                  BS<Dim, T> const&       b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const& a,
-                                                 Capsule<Dim, T> const&  b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const& a,
+//                                                  Capsule<Dim, T> const&  b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Triangle<3, T> const& a,
-                                               Frustum<T> const&     b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Triangle<3, T> const& a,
+//                                                Frustum<T> const&     b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const&    a,
-                                                 LineSegment<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const&    a,
+//                                                  LineSegment<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const& a,
-                                                 OBB<Dim, T> const&      b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const& a,
+//                                                  OBB<Dim, T> const&      b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Triangle<3, T> const& a, Plane<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Triangle<3, T> const& a, Plane<T> const&
+// b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const& a,
-                                                 Ray<Dim, T> const&      b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const& a,
+//                                                  Ray<Dim, T> const&      b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const& a,
-                                                 Triangle<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const& a,
+//                                                  Triangle<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const& a,
-                                                 Vec<Dim, T> const&      b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Triangle<Dim, T> const& a,
+//                                                  Vec<Dim, T> const&      b)
+// {
+// 	// TODO: Implement
+// }
 
 /**************************************************************************************
 |                                                                                     |
@@ -745,73 +755,73 @@ template <std::size_t Dim, class T>
 |                                                                                     |
 **************************************************************************************/
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const&  a,
-                                                 AABB<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const&  a,
+//                                                  AABB<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const& a,
-                                                 BS<Dim, T> const&  b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const& a,
+//                                                  BS<Dim, T> const&  b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const&     a,
-                                                 Capsule<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const&     a,
+//                                                  Capsule<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Vec<3, T> const& a, Frustum<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Vec<3, T> const& a, Frustum<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const&         a,
-                                                 LineSegment<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const&         a,
+//                                                  LineSegment<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const& a,
-                                                 OBB<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const& a,
+//                                                  OBB<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <class T>
-[[nodiscard]] constexpr Vec<3, T> closestPoint(Vec<3, T> const& a, Plane<T> const& b)
-{
-	// TODO: Implement
-}
+// template <class T>
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Vec<3, T> const& a, Plane<T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const& a,
-                                                 Ray<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const& a,
+//                                                  Ray<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const&      a,
-                                                 Triangle<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const&      a,
+//                                                  Triangle<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 
-template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const& a,
-                                                 Vec<Dim, T> const& b)
-{
-	// TODO: Implement
-}
+// template <std::size_t Dim, class T>
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Vec<Dim, T> const& a,
+//                                                  Vec<Dim, T> const& b)
+// {
+// 	// TODO: Implement
+// }
 }  // namespace ufo
 
 #endif  // UFO_GEOMETRY_CLOSEST_POINT_HPP
