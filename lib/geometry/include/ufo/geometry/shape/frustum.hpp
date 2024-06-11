@@ -66,43 +66,41 @@ struct Frustum {
 
 	constexpr Frustum(Vec<3, T> pos, Vec<3, T> target, Vec<3, T> up, T vertical_angle,
 	                  T horizontal_angle, T near_distance, T far_distance) noexcept
-	    : position(pos)
-	    , target(target)
-	    , up(up)
-	    , vertical_angle(vertical_angle)
-	    , horizontal_angle(horizontal_angle)
-	    , near_distance(near_distance)
-	    , far_distance(far_distance)
+	// : position(pos)
+	// , target(target)
+	// , up(up)
+	// , vertical_angle(vertical_angle)
+	// , horizontal_angle(horizontal_angle)
+	// , near_distance(near_distance)
+	// , far_distance(far_distance)
 	{
-		float ratio = horizontal_angle / vertical_angle;
+		T ratio = horizontal_angle / vertical_angle;
 
 		// FIXME: Check if correct
-		float tang        = std::tan(vertical_angle * 0.5f);
-		float near_height = near_distance * tang;
-		float near_width  = near_height * ratio;
-		float far_height  = far_distance * tang;
-		float far_width   = far_height * ratio;
+		T tang        = std::tan(vertical_angle * static_cast<T>(0.5));
+		T near_height = near_distance * tang;
+		T near_width  = near_height * ratio;
+		T far_height  = far_distance * tang;
+		T far_width   = far_height * ratio;
 
-		Point Z = pos - target;
-		Z.normalize();
+		auto Z = normalize(pos - target);
 
-		Point X = Point::cross(up, Z);
-		X.normalize();
+		auto X = normalize(cross(up, Z));
 
-		Point Y = Point::cross(Z, X);
+		auto Y = cross(Z, X);
 
-		Point nc = pos - Z * near_distance;
-		Point fc = pos - Z * far_distance;
+		auto nc = pos - Z * near_distance;
+		auto fc = pos - Z * far_distance;
 
-		Point near_top_left     = nc + Y * near_height - X * near_width;
-		Point near_top_right    = nc + Y * near_height + X * near_width;
-		Point near_bottom_left  = nc - Y * near_height - X * near_width;
-		Point near_bottom_right = nc - Y * near_height + X * near_width;
+		auto near_top_left     = nc + Y * near_height - X * near_width;
+		auto near_top_right    = nc + Y * near_height + X * near_width;
+		auto near_bottom_left  = nc - Y * near_height - X * near_width;
+		auto near_bottom_right = nc - Y * near_height + X * near_width;
 
-		Point far_top_left     = fc + Y * far_height - X * far_width;
-		Point far_top_right    = fc + Y * far_height + X * far_width;
-		Point far_bottom_left  = fc - Y * far_height - X * far_width;
-		Point far_bottom_right = fc - Y * far_height + X * far_width;
+		auto far_top_left     = fc + Y * far_height - X * far_width;
+		auto far_top_right    = fc + Y * far_height + X * far_width;
+		auto far_bottom_left  = fc - Y * far_height - X * far_width;
+		auto far_bottom_right = fc - Y * far_height + X * far_width;
 
 		top    = Plane(near_top_right, near_top_left, far_top_left);
 		bottom = Plane(near_bottom_left, near_bottom_right, far_bottom_right);
@@ -123,24 +121,24 @@ struct Frustum {
 	{
 	}
 
-	[[nodiscard]] constexpr Plane& operator[](std::size_t pos) noexcept
+	[[nodiscard]] constexpr Plane<T>& operator[](std::size_t pos) noexcept
 	{
 		return (&top)[pos];
 	}
 
-	[[nodiscard]] constexpr Plane const& operator[](std::size_t pos) const noexcept
+	[[nodiscard]] constexpr Plane<T> const& operator[](std::size_t pos) const noexcept
 	{
 		return (&top)[pos];
 	}
 
- private:
-	Point position;
-	Point target;
-	Point up;
-	float vertical_angle{};
-	float horizontal_angle{};
-	float near_distance{};
-	float far_distance{};
+	//  private:
+	// 	Point position;
+	// 	Point target;
+	// 	Point up;
+	// 	float vertical_angle{};
+	// 	float horizontal_angle{};
+	// 	float near_distance{};
+	// 	float far_distance{};
 };
 
 /*!
