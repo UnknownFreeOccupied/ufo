@@ -46,7 +46,7 @@
 #define UFO_MORTON3_HPP
 
 // UFO
-#include <ufo/morton/morton.hpp>
+#include <ufo/morton/detail/morton.hpp>
 
 // STL
 #include <array>

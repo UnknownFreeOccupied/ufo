@@ -47,7 +47,7 @@
 
 // UFO
 #include <ufo/math/vec2.hpp>
-#include <ufo/morton/morton.hpp>
+#include <ufo/morton/detail/morton.hpp>
 
 // STL
 #include <cstdint>

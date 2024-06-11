@@ -42,13 +42,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_MORTON_HPP
-#define UFO_MORTON_HPP
+#ifndef UFO_DETAIL_MORTON_HPP
+#define UFO_DETAIL_MORTON_HPP
 
-// UFO
-#include <ufo/morton/morton1.hpp>
-#include <ufo/morton/morton2.hpp>
-#include <ufo/morton/morton3.hpp>
-#include <ufo/morton/morton4.hpp>
+// STL
+#include <cstddef>
 
-#endif  // UFO_MORTON_HPP
+namespace ufo
+{
+template <std::size_t Dim = 0>
+struct Morton;
+}  // namespace ufo
+
+#endif  // UFO_DETAIL_MORTON_HPP
