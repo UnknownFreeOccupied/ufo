@@ -53,7 +53,7 @@
 #include <ufo/geometry/ray.hpp>
 #include <ufo/geometry/sphere.hpp>
 
-namespace ufo
+namespace ufo::detail
 {
 //
 // Intersects line
@@ -275,6 +275,6 @@ constexpr bool overlapOnAxis(OBB const& obb_1, OBB const& obb_2, Point axis) noe
 	return ((b_min <= a_max) && (a_min <= b_max));
 }
 
-}  // namespace ufo
+}  // namespace ufo::detail
 
 #endif  // UFO_GEOMETRY_HELPER_HPP
