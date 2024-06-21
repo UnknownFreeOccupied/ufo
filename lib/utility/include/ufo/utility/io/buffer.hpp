@@ -46,6 +46,9 @@
 #include <ufo/utility/io/read_buffer.hpp>
 #include <ufo/utility/io/write_buffer.hpp>
 
+// STL
+#include <cstddef>
+
 namespace ufo
 {
 class Buffer
@@ -53,6 +56,8 @@ class Buffer
     , public WriteBuffer
 {
  public:
+	using size_type = std::size_t;
+
 	Buffer() = default;
 
 	virtual ~Buffer();
@@ -65,23 +70,23 @@ class Buffer
 		return write(&t, sizeof(t));
 	}
 
-	Buffer& write(void const* src, std::size_t count) override;
+	Buffer& write(void const* src, size_type count) override;
 
-	Buffer& write(std::istream& in, std::size_t count) override;
+	Buffer& write(std::istream& in, size_type count) override;
 
 	void clear() override;
 
-	[[nodiscard]] std::uint8_t* data() override;
+	[[nodiscard]] std::byte* data() override;
 
-	[[nodiscard]] std::uint8_t const* data() const override;
+	[[nodiscard]] std::byte const* data() const override;
 
 	[[nodiscard]] bool empty() const override;
 
-	[[nodiscard]] std::size_t size() const override;
+	[[nodiscard]] size_type size() const override;
 
-	void reserve(std::size_t new_cap) override;
+	void reserve(size_type new_cap) override;
 
-	void resize(std::size_t new_size) override;
+	void resize(size_type new_size) override;
 };
 }  // namespace ufo
 #endif  // UFO_UTILITY_BUFFER_HPP

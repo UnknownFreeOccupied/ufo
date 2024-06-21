@@ -52,50 +52,54 @@ namespace ufo
 class ReadBuffer
 {
  public:
-	ReadBuffer() = default;
+	using size_type = std::size_t;
 
-	ReadBuffer(std::uint8_t const* data, std::size_t count);
+	ReadBuffer()                  = default;
+	ReadBuffer(ReadBuffer const&) = default;
+	ReadBuffer(ReadBuffer&&)      = default;
+
+	ReadBuffer(std::byte const* data, size_type count);
 
 	virtual ~ReadBuffer() {}
 
-	template <typename T>
+	template <class T>
 	ReadBuffer& read(T& t)
 	{
 		return read(&t, sizeof(t));
 	}
 
-	ReadBuffer& read(void* dest, std::size_t count);
+	ReadBuffer& read(void* dest, size_type count);
 
-	ReadBuffer& read(std::ostream& out, std::size_t count);
+	ReadBuffer& read(std::ostream& out, size_type count);
 
-	template <typename T>
+	template <class T>
 	ReadBuffer& readUnsafe(T& t)
 	{
 		return readUnsafe(&t, sizeof(t));
 	}
 
-	ReadBuffer& readUnsafe(void* dest, std::size_t count);
+	ReadBuffer& readUnsafe(void* dest, size_type count);
 
-	ReadBuffer& readUnsafe(std::ostream& out, std::size_t count);
+	ReadBuffer& readUnsafe(std::ostream& out, size_type count);
 
-	[[nodiscard]] virtual std::uint8_t const* data() const;
+	[[nodiscard]] virtual std::byte const* data() const;
 
 	[[nodiscard]] virtual bool empty() const;
 
-	[[nodiscard]] virtual std::size_t size() const;
+	[[nodiscard]] virtual size_type size() const;
 
-	[[nodiscard]] std::size_t readIndex() const noexcept;
+	[[nodiscard]] size_type readPos() const noexcept;
 
-	void skipRead(std::size_t count) noexcept;
+	void skipRead(size_type count) noexcept;
 
-	void setReadIndex(std::size_t index) noexcept;
+	void setReadPos(size_type pos) noexcept;
 
-	[[nodiscard]] std::size_t readLeft() const noexcept;
+	[[nodiscard]] size_type readLeft() const noexcept;
 
  protected:
-	std::uint8_t const* data_  = nullptr;
-	std::size_t         size_  = 0;
-	std::size_t         index_ = 0;
+	std::byte const* data_ = nullptr;
+	size_type        size_{};
+	size_type        pos_{};
 };
 }  // namespace ufo
 #endif  // UFO_UTILITY_READ_BUFFER_HPP

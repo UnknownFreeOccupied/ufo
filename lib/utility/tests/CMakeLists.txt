@@ -7,7 +7,6 @@ include("${PROJECT_SOURCE_DIR}/3rdparty/catch2/catch2.cmake")
 # # set(CMAKE_CXX_OUTPUT_EXTENSION_REPLACE ON)
 
 add_executable(ufoutility_tests
-	compression_test.cpp
 	iterator_wrapper_test.cpp
 )
 

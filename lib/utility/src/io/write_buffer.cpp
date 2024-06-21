@@ -13,42 +13,41 @@ WriteBuffer::~WriteBuffer()
 	}
 }
 
-WriteBuffer& WriteBuffer::write(void const* src, std::size_t count)
+WriteBuffer& WriteBuffer::write(void const* src, size_type count)
 {
-	if (capacity() < index_ + count) {
-		reserve(index_ + count);
+	if (capacity() < pos_ + count) {
+		reserve(pos_ + count);
 	}
 
-	std::memmove(data_ + index_, src, count);
+	std::memmove(data_ + pos_, src, count);
 
-	index_ += count;
-	size_ = std::max(size_, index_);
+	pos_ += count;
+	size_ = std::max(size_, pos_);
 
 	return *this;
 }
 
-WriteBuffer& WriteBuffer::write(std::istream& in, std::size_t count)
+WriteBuffer& WriteBuffer::write(std::istream& in, size_type count)
 {
-	if (capacity() < index_ + count) {
-		reserve(index_ + count);
+	if (capacity() < pos_ + count) {
+		reserve(pos_ + count);
 	}
 
 	in.read(reinterpret_cast<char*>(data_), static_cast<std::streamsize>(count));
 
-	index_ += count;
-	size_ = std::max(size_, index_);
+	pos_ += count;
+	size_ = std::max(size_, pos_);
 
 	return *this;
 }
 
-void WriteBuffer::reserve(std::size_t new_cap)
+void WriteBuffer::reserve(size_type new_cap)
 {
 	if (cap_ >= new_cap) {
 		return;
 	}
 
-	if (auto p_new =
-	        static_cast<std::uint8_t*>(realloc(data_, new_cap * sizeof(std::uint8_t)))) {
+	if (auto p_new = static_cast<std::byte*>(realloc(data_, new_cap * sizeof(std::byte)))) {
 		data_ = p_new;
 		cap_  = new_cap;
 	} else {
@@ -56,7 +55,7 @@ void WriteBuffer::reserve(std::size_t new_cap)
 	}
 }
 
-void WriteBuffer::resize(std::size_t new_size)
+void WriteBuffer::resize(size_type new_size)
 {
 	reserve(new_size);
 	size_ = new_size;
@@ -64,28 +63,28 @@ void WriteBuffer::resize(std::size_t new_size)
 
 void WriteBuffer::clear()
 {
-	size_  = 0;
-	index_ = 0;
+	size_ = 0;
+	pos_  = 0;
 }
 
-std::uint8_t* WriteBuffer::data() { return data_; }
+std::byte* WriteBuffer::data() { return data_; }
 
-std::uint8_t const* WriteBuffer::data() const { return data_; }
+std::byte const* WriteBuffer::data() const { return data_; }
 
 bool WriteBuffer::empty() const { return 0 == size(); }
 
-std::size_t WriteBuffer::size() const { return size_; }
+WriteBuffer::size_type WriteBuffer::size() const { return size_; }
 
-std::size_t WriteBuffer::capacity() const noexcept { return cap_; }
+WriteBuffer::size_type WriteBuffer::capacity() const noexcept { return cap_; }
 
-std::size_t WriteBuffer::writeIndex() const noexcept { return index_; }
+WriteBuffer::size_type WriteBuffer::writePos() const noexcept { return pos_; }
 
-void WriteBuffer::skipWrite(std::size_t count) noexcept { index_ += count; }
+void WriteBuffer::skipWrite(size_type count) noexcept { pos_ += count; }
 
-void WriteBuffer::setWriteIndex(std::size_t index) noexcept { index_ = index; }
+void WriteBuffer::setWritePos(size_type pos) noexcept { pos_ = pos; }
 
-std::size_t WriteBuffer::writeLeft() const noexcept
+WriteBuffer::size_type WriteBuffer::writeLeft() const noexcept
 {
-	return size_ < index_ ? 0 : index_ - size_;
+	return size_ < pos_ ? 0 : pos_ - size_;
 }
 }  // namespace ufo

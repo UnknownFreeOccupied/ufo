@@ -5,14 +5,14 @@ namespace ufo
 {
 Buffer::~Buffer() {}
 
-Buffer& Buffer::write(void const* src, std::size_t count)
+Buffer& Buffer::write(void const* src, size_type count)
 {
 	WriteBuffer::write(src, count);
 	ReadBuffer::size_ = WriteBuffer::size_;
 	return *this;
 }
 
-Buffer& Buffer::write(std::istream& in, std::size_t count)
+Buffer& Buffer::write(std::istream& in, size_type count)
 {
 	WriteBuffer::write(in, count);
 	ReadBuffer::size_ = WriteBuffer::size_;
@@ -22,25 +22,25 @@ Buffer& Buffer::write(std::istream& in, std::size_t count)
 void Buffer::clear()
 {
 	WriteBuffer::clear();
-	ReadBuffer::size_  = 0;
-	ReadBuffer::index_ = 0;
+	ReadBuffer::size_ = 0;
+	ReadBuffer::pos_  = 0;
 }
 
-std::uint8_t* Buffer::data() { return WriteBuffer::data(); }
+std::byte* Buffer::data() { return WriteBuffer::data(); }
 
-std::uint8_t const* Buffer::data() const { return WriteBuffer::data(); }
+std::byte const* Buffer::data() const { return WriteBuffer::data(); }
 
 bool Buffer::empty() const { return WriteBuffer::empty(); }
 
-std::size_t Buffer::size() const { return WriteBuffer::size(); }
+Buffer::size_type Buffer::size() const { return WriteBuffer::size(); }
 
-void Buffer::reserve(std::size_t new_cap)
+void Buffer::reserve(size_type new_cap)
 {
 	WriteBuffer::reserve(new_cap);
 	ReadBuffer::data_ = WriteBuffer::data_;
 }
 
-void Buffer::resize(std::size_t new_size)
+void Buffer::resize(size_type new_size)
 {
 	WriteBuffer::resize(new_size);
 	ReadBuffer::data_ = WriteBuffer::data_;

@@ -12,11 +12,12 @@ project(ufoutility
 	LANGUAGES CXX
 )
 
+add_subdirectory(3rdparty)
+
 add_library(ufoutility SHARED 
 	src/io/read_buffer.cpp
 	src/io/write_buffer.cpp
 	src/io/buffer.cpp
-	src/compression.cpp
 )
 add_library(UFO::Utility ALIAS ufoutility)
 

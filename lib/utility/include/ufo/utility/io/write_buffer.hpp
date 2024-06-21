@@ -52,6 +52,8 @@ namespace ufo
 class WriteBuffer
 {
  public:
+	using size_type = std::size_t;
+
 	virtual ~WriteBuffer();
 
 	template <typename T>
@@ -60,39 +62,39 @@ class WriteBuffer
 		return write(&t, sizeof(t));
 	}
 
-	virtual WriteBuffer& write(void const* src, std::size_t count);
+	virtual WriteBuffer& write(void const* src, size_type count);
 
-	virtual WriteBuffer& write(std::istream& in, std::size_t count);
+	virtual WriteBuffer& write(std::istream& in, size_type count);
 
-	virtual void reserve(std::size_t new_cap);
+	virtual void reserve(size_type new_cap);
 
-	virtual void resize(std::size_t new_size);
+	virtual void resize(size_type new_size);
 
 	virtual void clear();
 
-	[[nodiscard]] virtual std::uint8_t* data();
+	[[nodiscard]] virtual std::byte* data();
 
-	[[nodiscard]] virtual std::uint8_t const* data() const;
+	[[nodiscard]] virtual std::byte const* data() const;
 
 	[[nodiscard]] virtual bool empty() const;
 
-	[[nodiscard]] virtual std::size_t size() const;
+	[[nodiscard]] virtual size_type size() const;
 
-	[[nodiscard]] std::size_t capacity() const noexcept;
+	[[nodiscard]] size_type capacity() const noexcept;
 
-	[[nodiscard]] std::size_t writeIndex() const noexcept;
+	[[nodiscard]] size_type writePos() const noexcept;
 
-	void skipWrite(std::size_t count) noexcept;
+	void skipWrite(size_type count) noexcept;
 
-	void setWriteIndex(std::size_t index) noexcept;
+	void setWritePos(size_type pos) noexcept;
 
-	[[nodiscard]] std::size_t writeLeft() const noexcept;
+	[[nodiscard]] size_type writeLeft() const noexcept;
 
  protected:
-	std::uint8_t* data_  = nullptr;
-	std::size_t   size_  = 0;
-	std::size_t   cap_   = 0;
-	std::size_t   index_ = 0;
+	std::byte* data_ = nullptr;
+	size_type  size_{};
+	size_type  cap_{};
+	size_type  pos_{};
 };
 }  // namespace ufo
 #endif  // UFO_UTILITY_WRITE_BUFFER_HPP
