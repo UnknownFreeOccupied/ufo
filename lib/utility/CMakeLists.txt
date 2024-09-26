@@ -21,6 +21,15 @@ add_library(ufoutility SHARED
 )
 add_library(UFO::Utility ALIAS ufoutility)
 
+include("${PROJECT_SOURCE_DIR}/3rdparty/tbb/tbb.cmake")
+
+target_link_libraries(ufoutility PUBLIC TBB::tbb)
+
+target_compile_definitions(ufoutility
+	PUBLIC
+		UFO_TBB=1
+)
+
 set_target_properties(ufoutility PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
