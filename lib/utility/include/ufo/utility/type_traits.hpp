@@ -145,6 +145,20 @@ struct contains_type : std::disjunction<std::is_same<T, Ts>...> {
 
 template <class T, class... Ts>
 inline constexpr bool contains_type_v = contains_type<T, Ts...>::value;
+
+//
+// Is one of
+//
+
+template <class T, class... Types>
+struct is_one_of
+    : std::conditional_t<(std::is_same_v<Types, T> || ...), std::true_type,
+                         std::false_type> {
+};
+
+template <class T, class... Types>
+inline constexpr bool is_one_of_v = is_one_of<T, Types...>::value;
+
 }  // namespace ufo
 
 #endif  // UFO_UTILITY_TYPE_TRAITS
