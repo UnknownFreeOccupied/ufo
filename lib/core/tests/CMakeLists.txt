@@ -7,7 +7,7 @@ include("${PROJECT_SOURCE_DIR}/3rdparty/catch2/catch2.cmake")
 # # set(CMAKE_CXX_OUTPUT_EXTENSION_REPLACE ON)
 
 add_executable(ufocore_tests
-	color_test.cpp
+	intensity_test.cpp
 )
 
 target_link_libraries(ufocore_tests PRIVATE UFO::Core Catch2::Catch2WithMain)
