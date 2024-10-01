@@ -52,7 +52,7 @@
 #include <ufo/geometry/shape/plane.hpp>
 #include <ufo/geometry/shape/ray.hpp>
 #include <ufo/geometry/shape/triangle.hpp>
-#include <ufo/math/utility.hpp>
+#include <ufo/math/math.hpp>
 #include <ufo/math/vec.hpp>
 
 // STL
