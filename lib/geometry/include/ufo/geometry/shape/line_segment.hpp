@@ -47,6 +47,7 @@
 
 // STL
 #include <cstddef>
+#include <ostream>
 
 namespace ufo
 {
@@ -104,6 +105,12 @@ template <std::size_t Dim, class T>
 bool operator!=(LineSegment<Dim, T> const& lhs, LineSegment<Dim, T> const& rhs)
 {
 	return !(lhs == rhs);
+}
+
+template <std::size_t Dim, class T>
+std::ostream& operator<<(std::ostream& out, LineSegment<Dim, T> const& ls)
+{
+	return out << "Start: " << ls.start << ", End: " << ls.end;
 }
 }  // namespace ufo
 
