@@ -58,7 +58,7 @@ struct dependent_false {
 };
 
 template <class... T>
-inline constexpr bool dependent_false_v = dependent_false<T...>::value;
+constexpr inline bool dependent_false_v = dependent_false<T...>::value;
 
 //
 // Argument helper
@@ -104,19 +104,41 @@ template <typename F, std::size_t ArgNum>
 using argument = decltype(argument_helper<ArgNum>(std::declval<F>()));
 
 //
+// Is specialization of
+//
+
+template <template <class...> class T, class U>
+struct is_specialization_of : std::false_type {
+};
+
+template <template <class...> class T, class... Us>
+struct is_specialization_of<T, T<Us...>> : std::true_type {
+};
+
+template <template <class...> class T, class... Us>
+constexpr inline bool is_specialization_of_v = is_specialization_of<T, Us...>::value;
+
+//
 // Is pair
 //
 
-template <class>
-struct is_pair : std::false_type {
-};
-
-template <class T, class U>
-struct is_pair<std::pair<T, U>> : std::true_type {
+template <class T>
+struct is_pair : is_specialization_of<std::pair, T> {
 };
 
 template <class T>
-inline constexpr bool is_pair_v = is_pair<T>::value;
+constexpr inline bool is_pair_v = is_pair<T>::value;
+
+//
+// Is tuple
+//
+
+template <class T>
+struct is_tuple : is_specialization_of<std::tuple, T> {
+};
+
+template <class T>
+constexpr inline bool is_tuple_v = is_tuple<T>::value;
 
 //
 // Is unique
@@ -133,7 +155,7 @@ struct is_unique<T, Rest...> {
 };
 
 template <class T, class... Rest>
-inline constexpr bool is_unique_v = is_unique<T, Rest...>::value;
+constexpr inline bool is_unique_v = is_unique<T, Rest...>::value;
 
 //
 // Contains type
@@ -144,7 +166,7 @@ struct contains_type : std::disjunction<std::is_same<T, Ts>...> {
 };
 
 template <class T, class... Ts>
-inline constexpr bool contains_type_v = contains_type<T, Ts...>::value;
+constexpr inline bool contains_type_v = contains_type<T, Ts...>::value;
 
 //
 // Is one of
@@ -157,7 +179,7 @@ struct is_one_of
 };
 
 template <class T, class... Types>
-inline constexpr bool is_one_of_v = is_one_of<T, Types...>::value;
+constexpr inline bool is_one_of_v = is_one_of<T, Types...>::value;
 
 }  // namespace ufo
 
