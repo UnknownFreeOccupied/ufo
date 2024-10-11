@@ -50,6 +50,8 @@
 #include <ufo/morton/detail/morton.hpp>
 
 // STL
+#include <cassert>
+#include <cstddef>
 #include <cstdint>
 
 namespace ufo
@@ -69,6 +71,13 @@ struct Morton<1> {
 	}
 
 	[[nodiscard]] static constexpr Vec1u decode(std::uint_fast64_t c) { return Vec1u(c); }
+
+	[[nodiscard]] static constexpr std::uint_fast64_t decode(std::uint_fast64_t x,
+	                                                         std::size_t        pos)
+	{
+		assert(1 > pos);
+		return compact(x >> pos);
+	}
 
 	[[nodiscard]] static constexpr std::uint_fast64_t spread(std::uint_fast64_t v)
 	{

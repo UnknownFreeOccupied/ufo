@@ -50,6 +50,8 @@
 #include <ufo/morton/detail/morton.hpp>
 
 // STL
+#include <cassert>
+#include <cstddef>
 #include <cstdint>
 
 #if defined(UFO_BMI2)
@@ -90,6 +92,13 @@ struct Morton<2> {
 #else
 		return {compact(x), compact(x >> 1)};
 #endif
+	}
+
+	[[nodiscard]] static constexpr std::uint_fast32_t decode(std::uint_fast64_t x,
+	                                                         std::size_t        pos)
+	{
+		assert(2 > pos);
+		return compact(x >> pos);
 	}
 
 	[[nodiscard]] static constexpr std::uint_fast64_t spread(std::uint_fast32_t v)
