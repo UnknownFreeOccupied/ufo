@@ -46,6 +46,13 @@
 #include <type_traits>
 #if defined(UFO_TBB)
 #include <execution>
+#define UFO_TBB_SEQ       std::execution::seq,
+#define UFO_TBB_PAR       std::execution::par,
+#define UFO_TBB_PAR_UNSEQ std::execution::par_unseq,
+#else
+#define UFO_TBB_SEQ
+#define UFO_TBB_PAR
+#define UFO_TBB_PAR_UNSEQ
 #endif
 
 // OMP
@@ -53,53 +60,91 @@
 #include <omp.h>
 #endif
 
-namespace ufo
+namespace ufo::execution
 {
-#if defined(UFO_TBB)
-namespace execution = std::execution;
+namespace detail
+{
+enum class ExecutionPolicy { NONE, SEQ, TBB, OMP, OFFLOAD };
+}
 
-template <class T>
-using is_execution_policy = std::is_execution_policy<T>;
-#else
-namespace execution
-{
 // sequenced execution policy
-class sequenced_policy
-{
+struct sequenced_policy {
+	static constexpr detail::ExecutionPolicy policy = detail::ExecutionPolicy::SEQ;
+};
+
+struct tbb_policy {
+#if defined(UFO_TBB)
+	static constexpr detail::ExecutionPolicy policy = detail::ExecutionPolicy::TBB;
+#else
+	static constexpr detail::ExecutionPolicy policy = detail::ExecutionPolicy::NONE;
+#endif
+};
+
+struct omp_policy {
+#if defined(UFO_OMP)
+	static constexpr detail::ExecutionPolicy policy = detail::ExecutionPolicy::OMP;
+#else
+	static constexpr detail::ExecutionPolicy policy = detail::ExecutionPolicy::NONE;
+#endif
 };
 
 // parallel execution policy
-class parallel_policy
-{
+struct parallel_policy
+    : tbb_policy
+    , omp_policy {
+#if defined(UFO_TBB)
+	static constexpr detail::ExecutionPolicy policy = detail::ExecutionPolicy::TBB;
+#elif defined(UFO_OMP)
+	static constexpr detail::ExecutionPolicy policy = detail::ExecutionPolicy::OMP;
+#else
+	static constexpr detail::ExecutionPolicy policy = detail::ExecutionPolicy::NONE;
+#endif
 };
 
-// parallel and unsequenced execution policy
-class parallel_unsequenced_policy
-{
+// offload execution policy
+struct offload_policy {
+#if defined(UFO_WEBGPU)
+	static constexpr detail::ExecutionPolicy policy = detail::ExecutionPolicy::OFFLOAD;
+#else
+	static constexpr detail::ExecutionPolicy policy = detail::ExecutionPolicy::NONE;
+#endif
 };
-
-// execution policy objects
-constexpr inline sequenced_policy            seq{};
-constexpr inline parallel_policy             par{};
-constexpr inline parallel_unsequenced_policy par_unseq{};
-}  // namespace execution
 
 template <class T>
 struct is_execution_policy
-    : std::disjunction<std::is_same<execution::sequenced_policy, T>,
-                       std::is_same<execution::parallel_policy, T>,
-                       std::is_same<execution::parallel_unsequenced_policy, T>> {
+    : std::conditional_t<
+          detail::ExecutionPolicy::NONE != std::decay_t<T>::policy,
+          std::disjunction<std::is_same<execution::sequenced_policy, std::decay_t<T>>,
+                           std::is_same<execution::tbb_policy, std::decay_t<T>>,
+                           std::is_same<execution::omp_policy, std::decay_t<T>>,
+                           std::is_same<execution::parallel_policy, std::decay_t<T>>,
+                           std::is_same<execution::offload_policy, std::decay_t<T>>>,
+          std::false_type>
+
+{
 };
-#endif
 
 template <class T>
 constexpr inline bool is_execution_policy_v = is_execution_policy<T>::value;
 
-// // TODO: Implement
-// enum class ExecutionPolicy { SEQ, PAR, OFFLOAD, PAR_TBB, PAR_OMP };
+template <class T>
+constexpr inline bool is_seq_v = detail::ExecutionPolicy::SEQ == std::decay_t<T>::policy;
 
-// enum class ExecutionPolicyExtended : ExecutionPolicy {
-// };
-}  // namespace ufo
+template <class T>
+constexpr inline bool is_tbb_v = detail::ExecutionPolicy::TBB == std::decay_t<T>::policy;
+
+template <class T>
+constexpr inline bool is_omp_v = detail::ExecutionPolicy::OMP == std::decay_t<T>::policy;
+
+template <class T>
+constexpr inline bool is_offload_v =
+    detail::ExecutionPolicy::OFFLOAD == std::decay_t<T>::policy;
+
+constexpr inline sequenced_policy seq{};
+constexpr inline tbb_policy       tbb{};
+constexpr inline omp_policy       omp{};
+constexpr inline parallel_policy  par{};
+constexpr inline offload_policy   offload{};
+}  // namespace ufo::execution
 
 #endif  // UFO_UTILITY_EXECUTION_HPP
