@@ -79,9 +79,9 @@ class parallel_unsequenced_policy
 };
 
 // execution policy objects
-inline constexpr sequenced_policy            seq{};
-inline constexpr parallel_policy             par{};
-inline constexpr parallel_unsequenced_policy par_unseq{};
+constexpr inline sequenced_policy            seq{};
+constexpr inline parallel_policy             par{};
+constexpr inline parallel_unsequenced_policy par_unseq{};
 }  // namespace execution
 
 template <class T>
@@ -93,7 +93,13 @@ struct is_execution_policy
 #endif
 
 template <class T>
-inline constexpr bool is_execution_policy_v = is_execution_policy<T>::value;
+constexpr inline bool is_execution_policy_v = is_execution_policy<T>::value;
+
+// // TODO: Implement
+// enum class ExecutionPolicy { SEQ, PAR, OFFLOAD, PAR_TBB, PAR_OMP };
+
+// enum class ExecutionPolicyExtended : ExecutionPolicy {
+// };
 }  // namespace ufo
 
 #endif  // UFO_UTILITY_EXECUTION_HPP
