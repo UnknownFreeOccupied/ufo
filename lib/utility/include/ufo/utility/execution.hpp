@@ -137,6 +137,9 @@ template <class T>
 constexpr inline bool is_omp_v = detail::ExecutionPolicy::OMP == std::decay_t<T>::policy;
 
 template <class T>
+constexpr inline bool is_par_v = is_tbb_v<T> || is_omp_v<T>;
+
+template <class T>
 constexpr inline bool is_offload_v =
     detail::ExecutionPolicy::OFFLOAD == std::decay_t<T>::policy;
 
