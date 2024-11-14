@@ -12,25 +12,25 @@ project(ufotime
 	LANGUAGES CXX
 )
 
-add_library(ufotime SHARED 
+add_library(Time SHARED 
 	src/timer.cpp
 	src/timing.cpp
 )
-add_library(UFO::Time ALIAS ufotime)
+add_library(UFO::Time ALIAS Time)
 
-set_target_properties(ufotime PROPERTIES
+set_target_properties(Time PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	CXX_STANDARD 17
 	CXX_EXTENSIONS OFF
 )
 
-target_include_directories(ufotime PUBLIC
+target_include_directories(Time PUBLIC
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:include>
 )
 
-target_compile_features(ufotime PUBLIC cxx_std_17)
+target_compile_features(Time PUBLIC cxx_std_17)
 
 include(GNUInstallDirs)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
@@ -40,20 +40,20 @@ install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
 # Only enable tests when we're the root project
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 	# Treat warnings as errors
-	set_target_properties(ufotime PROPERTIES COMPILE_WARNING_AS_ERROR ON)
+	set_target_properties(Time PROPERTIES COMPILE_WARNING_AS_ERROR ON)
 
 	# Turn all warnings on
 	if (MSVC)
-		target_compile_options(ufotime PUBLIC /W4)
+		target_compile_options(Time PUBLIC /W4)
 	else()
-		target_compile_options(ufotime PUBLIC -Wall -Wextra -pedantic)
+		target_compile_options(Time PUBLIC -Wall -Wextra -pedantic)
 	endif()
 
 	add_subdirectory(docs)
   add_subdirectory(tests)
 endif()
 
-install(TARGETS ufotime
+install(TARGETS Time
 	EXPORT ufotimeTargets
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
