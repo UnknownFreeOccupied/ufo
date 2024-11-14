@@ -8,24 +8,24 @@ project(ufocore
 
 add_subdirectory(1stparty)
 
-add_library(ufocore INTERFACE)
-add_library(UFO::Core ALIAS ufocore)
+add_library(Core INTERFACE)
+add_library(UFO::Core ALIAS Core)
 
-set_target_properties(ufocore PROPERTIES
+set_target_properties(Core PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	CXX_STANDARD 17
 	CXX_EXTENSIONS OFF
 )
 
-target_include_directories(ufocore INTERFACE
+target_include_directories(Core INTERFACE
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:include>
 )
 
-target_compile_features(ufocore INTERFACE cxx_std_17)
+target_compile_features(Core INTERFACE cxx_std_17)
 
-target_link_libraries(ufocore INTERFACE UFO::Math)
+target_link_libraries(Core INTERFACE UFO::Math)
 
 include(GNUInstallDirs)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
@@ -37,7 +37,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   add_subdirectory(tests)
 endif()
 
-install(TARGETS ufocore
+install(TARGETS Core
 	EXPORT ufocoreTargets
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
