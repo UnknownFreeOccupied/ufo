@@ -6,35 +6,26 @@ project(ufogeometry
 	LANGUAGES CXX
 )
 
-Include(FetchContent)
+add_subdirectory(1stparty)
 
-FetchContent_Declare(
-  ufomath
-  GIT_REPOSITORY https://github.com/UnknownFreeOccupied/ufomath
-  GIT_TAG        main
-  GIT_PROGRESS   TRUE
-)
+add_library(Geometry INTERFACE)
+add_library(UFO::Geometry ALIAS Geometry)
 
-FetchContent_MakeAvailable(ufomath)
-
-add_library(ufogeometry INTERFACE)
-add_library(UFO::Geometry ALIAS ufogeometry)
-
-set_target_properties(ufogeometry PROPERTIES
+set_target_properties(Geometry PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
 	CXX_STANDARD 17
 	CXX_EXTENSIONS OFF
 )
 
-target_link_libraries(ufogeometry INTERFACE UFO::Math)
+target_link_libraries(Geometry INTERFACE UFO::Math)
 
-target_include_directories(ufogeometry INTERFACE
+target_include_directories(Geometry INTERFACE
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:include>
 )
 
-target_compile_features(ufogeometry INTERFACE cxx_std_17)
+target_compile_features(Geometry INTERFACE cxx_std_17)
 
 include(GNUInstallDirs)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
@@ -46,7 +37,7 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
   add_subdirectory(tests)
 endif()
 
-install(TARGETS ufogeometry
+install(TARGETS Geometry
 	EXPORT ufogeometryTargets
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
