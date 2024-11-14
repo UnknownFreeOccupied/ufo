@@ -12,24 +12,24 @@ option(UFO_DOCS     "Documentation build" OFF)
 
 add_subdirectory(1stparty)
 
-add_library(ufoplan INTERFACE)
-add_library(UFO::Plan ALIAS ufoplan)
+add_library(Plan INTERFACE)
+add_library(UFO::Plan ALIAS Plan)
 
-set_target_properties(ufoplan PROPERTIES
+set_target_properties(Plan PROPERTIES
 	INTERFACE_VERSION ${PROJECT_VERSION}
 	INTERFACE_SOVERSION ${PROJECT_VERSION_MAJOR}
 	INTERFACE_CXX_STANDARD 17
 	INTERFACE_CXX_EXTENSIONS OFF
 )
 
-target_link_libraries(ufoplan INTERFACE UFO::Container UFO::Map UFO::Math)
+target_link_libraries(Plan INTERFACE UFO::Container UFO::Map UFO::Math)
 
-target_include_directories(ufoplan INTERFACE
+target_include_directories(Plan INTERFACE
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 	$<INSTALL_INTERFACE:include>
 )
 
-target_compile_features(ufoplan INTERFACE cxx_std_17)
+target_compile_features(Plan INTERFACE cxx_std_17)
 
 include(GNUInstallDirs)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include/
@@ -44,7 +44,7 @@ if(UFO_DOCS)
 	add_subdirectory(docs)
 endif()
 
-install(TARGETS ufoplan
+install(TARGETS Plan
 	EXPORT ufoplanTargets
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
