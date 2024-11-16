@@ -1,8 +1,0 @@
-@PACKAGE_INIT@
-
-include("${CMAKE_CURRENT_LIST_DIR}/ufoutilityTargets.cmake")
-
-# include("${PROJECT_SOURCE_DIR}/3rdparty/tbb/tbb.cmake")
-find_package(TBB REQUIRED)
-
-check_required_components("ufoutility")
