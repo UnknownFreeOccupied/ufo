@@ -1,8 +1,0 @@
-@PACKAGE_INIT@
-
-include(CMakeFindDependencyMacro)
-find_dependency(ufomath)
-
-include("${CMAKE_CURRENT_LIST_DIR}/ufogeometryTargets.cmake")
-
-check_required_components("ufogeometry")
