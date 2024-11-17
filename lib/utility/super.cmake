@@ -26,11 +26,13 @@ target_compile_definitions(Utility
 		UFO_TBB=1
 )
 
-set_target_properties(Utility PROPERTIES
-	VERSION ${PROJECT_VERSION}
-	SOVERSION ${PROJECT_VERSION_MAJOR}
-	CXX_STANDARD 17
-	CXX_EXTENSIONS OFF
+set_target_properties(Utility 
+	PROPERTIES
+		VERSION ${PROJECT_VERSION}
+		SOVERSION ${PROJECT_VERSION_MAJOR}
+		CXX_STANDARD 17
+		CXX_EXTENSIONS OFF
+		OUTPUT_NAME "UFOUtility"
 )
 
 include(GNUInstallDirs)
