@@ -3,15 +3,6 @@ add_library(UFO::Morton ALIAS Morton)
 
 target_link_libraries(Morton INTERFACE UFO::Math)
 
-set_target_properties(Morton 
-	PROPERTIES
-		INTERFACE_VERSION ${PROJECT_VERSION}
-		INTERFACE_SOVERSION ${PROJECT_VERSION_MAJOR}
-		INTERFACE_CXX_STANDARD 17
-		INTERFACE_CXX_EXTENSIONS OFF
-		OUTPUT_NAME "UFOMorton"
-)
-
 include(GNUInstallDirs)
 
 target_include_directories(Morton 
