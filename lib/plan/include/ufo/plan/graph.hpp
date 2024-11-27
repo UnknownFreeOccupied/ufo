@@ -407,10 +407,9 @@ class PlanGraph
 	template <class Geometry>
 	[[nodiscard]] Node nearestNode(Geometry const& geometry) const
 	{
-		// TODO: Implement
-		// for (auto const& [_, node, dist] : graph_.nearest(geometry)) {
-		// 	return node;
-		// }
+		for (auto const& [_, node] : graph_.nearest(geometry)) {
+			return node;
+		}
 		return Node();
 	}
 
@@ -420,7 +419,7 @@ class PlanGraph
 	{
 		std::vector<Node> res;
 		res.reserve(k);
-		for (auto const& [_, node, dist] : graph_.nearest(geometry)) {
+		for (auto const& [_, node] : graph_.nearest(geometry)) {
 			if (0 == k) {
 				break;
 			}
@@ -434,10 +433,9 @@ class PlanGraph
 	[[nodiscard]] std::vector<Node> intersectingNodes(Geometry const& geometry) const
 	{
 		std::vector<Node> res;
-		// TODO: Implement
-		// for (auto const& [_, node] : graph_.query(pred::Intersects(geometry))) {
-		// 	res.push_back(node);
-		// }
+		for (auto const& [_, node] : graph_.query(pred::Intersects(geometry))) {
+			res.push_back(node);
+		}
 		return res;
 	}
 
