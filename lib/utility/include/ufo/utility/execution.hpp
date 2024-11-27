@@ -110,18 +110,18 @@ struct offload_policy {
 #endif
 };
 
-template <class T>
-struct is_execution_policy
-    : std::conditional_t<
-          detail::ExecutionPolicy::NONE != std::decay_t<T>::policy,
-          std::disjunction<std::is_same<execution::sequenced_policy, std::decay_t<T>>,
-                           std::is_same<execution::tbb_policy, std::decay_t<T>>,
-                           std::is_same<execution::omp_policy, std::decay_t<T>>,
-                           std::is_same<execution::parallel_policy, std::decay_t<T>>,
-                           std::is_same<execution::offload_policy, std::decay_t<T>>>,
-          std::false_type>
+template <class, class = void>
+struct is_execution_policy : std::false_type {
+};
 
-{
+template <class T>
+struct is_execution_policy<
+    T, std::enable_if_t<detail::ExecutionPolicy::NONE != std::decay_t<T>::policy>>
+    : std::disjunction<std::is_same<execution::sequenced_policy, std::decay_t<T>>,
+                       std::is_same<execution::tbb_policy, std::decay_t<T>>,
+                       std::is_same<execution::omp_policy, std::decay_t<T>>,
+                       std::is_same<execution::parallel_policy, std::decay_t<T>>,
+                       std::is_same<execution::offload_policy, std::decay_t<T>>> {
 };
 
 template <class T>
