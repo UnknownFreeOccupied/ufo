@@ -124,32 +124,123 @@ template <std::size_t Dim, class T>
 	return detail::intersectsLine(a, ray, T(0), length);
 }
 
-// template <std::size_t Dim, class T>
-// [[nodiscard]] constexpr bool intersects(AABB<Dim, T> const& a, OBB<Dim, T> const& b)
-// {
-// 	// TODO: Implement
+struct Interval2D {
+	float min;
+	float max;
+};
 
-// 	// std::array<float, 9> obb_rot_matrix = obb.rotation.rotMatrix();
+template <std::size_t Dim, class T>
+Interval2D GetInterval(OBB<Dim, T> const& rect, Vec<Dim, T> const& axis)
+{
+	using Point = Vec<Dim, T>;
 
-// 	// std::array<Point, 15> test = {
-// 	//     Point(1, 0, 0),  // AABB axis 1
-// 	//     Point(0, 1, 0),  // AABB axis 2
-// 	//     Point(0, 0, 1),  // AABB axis 3
-// 	//     Point(obb_rot_matrix[0], obb_rot_matrix[1], obb_rot_matrix[2]),
-// 	//     Point(obb_rot_matrix[3], obb_rot_matrix[4], obb_rot_matrix[5]),
-// 	//     Point(obb_rot_matrix[6], obb_rot_matrix[7], obb_rot_matrix[8])};
+	AABB<Dim, T> nonOrientedRect(Point(rect.center - rect.half_length),
+	                             Point(rect.center + rect.half_length));
+	Point        min     = ufo::min(nonOrientedRect);
+	Point        max     = ufo::max(nonOrientedRect);
+	Point        verts[] = {min, max, Point(min.x, max.y), Point(max.x, min.y)};
 
-// 	// for (std::size_t i{}; 3 > i; ++i) {  // Fill out rest of axis
-// 	// 	test[6 + i * 3 + 0] = Point::cross(test[i], test[3]);
-// 	// 	test[6 + i * 3 + 1] = Point::cross(test[i], test[4]);
-// 	// 	test[6 + i * 3 + 2] = Point::cross(test[i], test[5]);
-// 	// }
+	// float theta = DEG2RAD(rect.rotation);
+	// float zRotation2x2[] = {
+	// 	cosf(theta), sinf(theta),
+	// 	-sinf(theta), cosf(theta) };
 
-// 	// return std::all_of(std::cbegin(test), std::cend(test), [&aabb, &obb](auto const& t)
-// {
-// 	// 	return overlapOnAxis(aabb, obb, t);
-// 	// });
-// }
+	// auto zRotation2x2 = rect.rotation;
+
+	for (int i = 0; i < 4; ++i) {
+		Point rotVector = verts[i] - rect.center;
+		rotVector       = rotVector * rect.rotation;
+		// Multiply(rotVector.asArray, vec2(rotVector.x, rotVector.y).asArray, 1, 2,
+		//          zRotation2x2, 2, 2);
+		verts[i] = rotVector + rect.center;
+	}
+
+	// Set interval first projected vertex
+	Interval2D result;
+
+	result.min = result.max = dot(axis, verts[0]);
+
+	// For all other verts
+	for (int i = 1; i < 4; ++i) {
+		// Project vertex
+		float projection = dot(axis, verts[i]);
+		result.min       = (projection < result.min) ? projection : result.min;
+		result.max       = (projection > result.max) ? projection : result.max;
+	}
+
+	return result;
+}
+
+template <std::size_t Dim, class T>
+Interval2D GetInterval(AABB<Dim, T> const& rect, Vec<Dim, T> const& axis)
+{
+	using Point = Vec<Dim, T>;
+
+	Point min = ufo::min(rect);
+	Point max = ufo::max(rect);
+
+	Point verts[] = {
+	    // Get all vertices of rect
+	    Point(min.x, min.y), Point(min.x, max.y), Point(max.x, max.y), Point(max.x, min.y)};
+
+	// Set interval first projected vertex
+	Interval2D result;
+	result.min = dot(axis, verts[0]);
+	result.max = result.min;
+
+	// For all other verts
+	for (int i = 1; i < 4; ++i) {
+		// Project vertex
+		float projection = dot(axis, verts[i]);
+		result.min       = (projection < result.min) ? projection : result.min;
+		result.max       = (projection > result.max) ? projection : result.max;
+	}
+
+	return result;
+}
+
+template <std::size_t Dim, class T>
+bool overlapOnAxis(AABB<Dim, T> const& a, OBB<Dim, T> const& b, Vec<Dim, T> const& axis)
+{
+	Interval2D aa = GetInterval(a, axis);
+	Interval2D bb = GetInterval(b, axis);
+	return ((bb.min <= aa.max) && (aa.min <= bb.max));
+}
+
+template <std::size_t Dim, class T>
+[[nodiscard]] constexpr bool intersects(AABB<Dim, T> const& a, OBB<Dim, T> const& b)
+{
+	// TODO: Implement
+	using Point = Vec<Dim, T>;
+
+	std::array<Point, 4> test = {Point(1, 0),  // AABB axis 1
+	                             Point(0, 1),  // AABB axis 2
+	                             normalize(Point(b.half_length.x, 0)) * b.rotation,
+	                             normalize(Point(0, b.half_length.y)) * b.rotation};
+
+	return std::all_of(test.begin(), test.end(),
+	                   [&a, &b](auto const& t) { return overlapOnAxis(a, b, t); });
+
+	// std::array<float, 9> obb_rot_matrix = obb.rotation.rotMatrix();
+
+	// std::array<Point, 15> test = {
+	//     Point(1, 0, 0),  // AABB axis 1
+	//     Point(0, 1, 0),  // AABB axis 2
+	//     Point(0, 0, 1),  // AABB axis 3
+	//     Point(obb_rot_matrix[0], obb_rot_matrix[1], obb_rot_matrix[2]),
+	//     Point(obb_rot_matrix[3], obb_rot_matrix[4], obb_rot_matrix[5]),
+	//     Point(obb_rot_matrix[6], obb_rot_matrix[7], obb_rot_matrix[8])};
+
+	// for (std::size_t i{}; 3 > i; ++i) {  // Fill out rest of axis
+	// 	test[6 + i * 3 + 0] = Point::cross(test[i], test[3]);
+	// 	test[6 + i * 3 + 1] = Point::cross(test[i], test[4]);
+	// 	test[6 + i * 3 + 2] = Point::cross(test[i], test[5]);
+	// }
+
+	// return std::all_of(std::cbegin(test), std::cend(test), [&aabb, &obb](auto const& t) {
+	// 	return overlapOnAxis(aabb, obb, t);
+	// });
+}
 
 template <class T>
 [[nodiscard]] constexpr bool intersects(AABB<3, T> const& a, Plane<T> const& b)
