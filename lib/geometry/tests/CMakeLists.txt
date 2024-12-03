@@ -1,4 +1,4 @@
-include("${PROJECT_SOURCE_DIR}/3rdparty/catch2/catch2.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/catch2/catch2.cmake")
 
 # SET(GCC_COVERAGE_COMPILE_FLAGS "-fprofile-arcs -ftest-coverage")
 # SET(GCC_COVERAGE_LINK_FLAGS    "--coverage")
@@ -8,6 +8,8 @@ include("${PROJECT_SOURCE_DIR}/3rdparty/catch2/catch2.cmake")
 
 add_executable(ufogeometry_tests
 	aabb_test.cpp
+	line_test.cpp
+	frustum_test.cpp
 )
 
 target_link_libraries(ufogeometry_tests PRIVATE UFO::Geometry Catch2::Catch2WithMain)
@@ -17,9 +19,9 @@ include(CTest)
 include(Catch)
 catch_discover_tests(ufogeometry_tests)
 
-add_custom_command(
-	TARGET ufogeometry_tests
-	COMMENT "Running UFO geometry tests"
-	POST_BUILD 
-	COMMAND ufogeometry_tests
-)
+# add_custom_command(
+# 	TARGET ufogeometry_tests
+# 	COMMENT "Running UFO geometry tests"
+# 	POST_BUILD 
+# 	COMMAND ufogeometry_tests
+# )
