@@ -43,7 +43,8 @@
 #define UFO_GEOMETRY_FRUSTUM_HPP
 
 // UFO
-#include <ufo/geometry/plane.hpp>
+#include <ufo/geometry/line.hpp>
+#include <ufo/geometry/shape/plane.hpp>
 #include <ufo/math/vec.hpp>
 
 // STL
@@ -73,35 +74,30 @@ struct Frustum<2, T> {
 	constexpr Frustum(Vec<2, T> const& far_right, Vec<2, T> const& far_left,
 	                  Vec<2, T> const& near_left, Vec<2, T> const& near_right)
 	    : left(near_left, far_left)
-	    , right(near_right, far_right)
+	    , right(far_right, near_right)
 	    , far(far_left, far_right)
-	    , near(near_left, near_right)
+	    , near(near_right, near_left)
 	{
 	}
 
 	constexpr Frustum(Vec<2, T> const& pos, Vec<2, T> const& target, T fov, T near_dist,
 	                  T far_dist)
 	{
-		auto dir      = normalize(target - pos);
-		auto half_fov = fov * T(0.5);
+		auto      dir = normalize(target - pos);
+		Vec<2, T> right_dir(dir.y, -dir.x);
+		auto      half_fov        = fov * T(0.5);
+		auto      half_width_near = near_dist * std::tan(half_fov);
+		auto      half_width_far  = far_dist * std::tan(half_fov);
 
-		auto angle = std::atan2(dir.y, dir.x);
-
-		auto angle_r = angle - half_fov;
-		auto angle_l = angle + half_fov;
-
-		Vec<2, T> unit_right(std::cos(angle_r), std::sin(angle_r));
-		Vec<2, T> unit_left(std::cos(angle_l), std::sin(angle_l));
-
-		Vec<2, T> far_right  = unit_right * far_dist;
-		Vec<2, T> far_left   = unit_left * far_dist;
-		Vec<2, T> near_left  = unit_left * near_dist;
-		Vec<2, T> near_right = unit_right * far_dist;
+		Vec<2, T> far_right  = pos + dir * far_dist + half_width_far * right_dir;
+		Vec<2, T> far_left   = pos + dir * far_dist - half_width_far * right_dir;
+		Vec<2, T> near_left  = pos + dir * near_dist - half_width_near * right_dir;
+		Vec<2, T> near_right = pos + dir * near_dist + half_width_near * right_dir;
 
 		left  = Line<2, T>(near_left, far_left);
-		right = Line<2, T>(near_right, far_right);
+		right = Line<2, T>(far_right, near_right);
 		far   = Line<2, T>(far_left, far_right);
-		near  = Line<2, T>(near_left, near_right);
+		near  = Line<2, T>(near_right, near_left);
 	}
 
 	constexpr Frustum(Frustum const&) noexcept = default;
@@ -125,12 +121,12 @@ struct Frustum<3, T> {
 
 	using value_type = T;
 
-	Plane<3, T> top;
-	Plane<3, T> bottom;
-	Plane<3, T> left;
-	Plane<3, T> right;
-	Plane<3, T> far;
-	Plane<3, T> near;
+	Plane<T> top;
+	Plane<T> bottom;
+	Plane<T> left;
+	Plane<T> right;
+	Plane<T> far;
+	Plane<T> near;
 
 	constexpr Frustum() noexcept = default;
 
