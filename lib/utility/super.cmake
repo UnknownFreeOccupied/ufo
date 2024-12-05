@@ -8,7 +8,15 @@ add_library(Utility SHARED
 add_library(UFO::Utility ALIAS Utility)
 
 # include("${PROJECT_SOURCE_DIR}/3rdparty/tbb/tbb.cmake")
-find_package(TBB REQUIRED)
+find_package(TBB)
+
+if(TBB_FOUND)
+	target_link_libraries(Utility PUBLIC TBB::tbb)
+	target_compile_definitions(Utility
+		PUBLIC
+			UFO_TBB=1
+	)
+endif()
 
 # find_package(OpenMP)
 # if(OpenMP_CXX_FOUND)
@@ -18,13 +26,6 @@ find_package(TBB REQUIRED)
 # 				UFO_OMP=1
 # 		)
 # endif()
-
-target_link_libraries(Utility PUBLIC TBB::tbb)
-
-target_compile_definitions(Utility
-	PUBLIC
-		UFO_TBB=1
-)
 
 set_target_properties(Utility 
 	PROPERTIES
