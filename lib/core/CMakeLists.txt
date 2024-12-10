@@ -1,3 +1,7 @@
+option(UFO_CORE_DOCS     "Generate documentation" OFF)
+option(UFO_CORE_TESTING  "Unit testing"           OFF)
+option(UFO_CORE_COVERAGE "Test Coverage"          OFF)
+
 add_library(Core INTERFACE)
 add_library(UFO::Core ALIAS Core)
 
@@ -14,11 +18,11 @@ target_include_directories(Core
 		$<INSTALL_INTERFACE:include>
 )
 
-if(UFO_TESTING)
+if(UFO_TESTING OR UFO_CORE_TESTING)
   add_subdirectory(tests)
 endif()
 
-if(UFO_DOCS)
+if(UFO_DOCS OR UFO_CORE_DOCS)
 	add_subdirectory(docs)
 endif()
 
