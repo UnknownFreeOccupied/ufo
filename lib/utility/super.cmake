@@ -1,4 +1,6 @@
-add_subdirectory(3rdparty)
+option(UFO_UTILITY_DOCS     "Generate documentation" OFF)
+option(UFO_UTILITY_TESTING  "Unit testing"           OFF)
+option(UFO_UTILITY_COVERAGE "Test Coverage"          OFF)
 
 add_library(Utility SHARED 
 	src/io/read_buffer.cpp
