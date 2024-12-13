@@ -9,7 +9,7 @@
 
   <license>BSD</license>
 
-  <url type="website">https://github.com/danielduberg/ufomorton</url>
+  <url type="website">https://github.com/unknownfreeoccupied/ufomorton</url>
 
   <buildtool_depend>cmake</buildtool_depend>
   
