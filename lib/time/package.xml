@@ -9,7 +9,7 @@
 
   <license>BSD</license>
 
-  <url type="website">https://github.com/danielduberg/ufotime</url>
+  <url type="website">https://github.com/unknownfreeoccupied/ufotime</url>
 
   <buildtool_depend>cmake</buildtool_depend>
   
