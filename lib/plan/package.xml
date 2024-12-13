@@ -9,7 +9,7 @@
 
   <license>BSD</license>
 
-  <url type="website">https://github.com/danielduberg/ufoplan</url>
+  <url type="website">https://github.com/unknownfreeoccupied/ufoplan</url>
 
   <buildtool_depend>cmake</buildtool_depend>
   

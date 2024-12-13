@@ -1,6 +1,6 @@
-option(UFO_PLAN_DOCS     "Generate documentation" OFF)
-option(UFO_PLAN_TESTING  "Unit testing"           OFF)
-option(UFO_PLAN_COVERAGE "Test Coverage"          OFF)
+option(UFOPLAN_BUILD_DOCS     "Generate documentation" OFF)
+option(UFOPLAN_BUILD_TESTS    "Unit testing"           OFF)
+option(UFOPLAN_BUILD_COVERAGE "Test Coverage"          OFF)
 
 add_library(Plan INTERFACE)
 add_library(UFO::Plan ALIAS Plan)
@@ -20,11 +20,11 @@ target_include_directories(Plan
 		$<INSTALL_INTERFACE:include>
 )
 
-if(UFO_TESTING OR UFO_PLAN_TESTING)
+if(UFO_BUILD_TESTS OR UFOPLAN_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
 
-if(UFO_DOCS OR UFO_PLAN_DOCS)
+if(UFO_BUILD_DOCS OR UFOPLAN_BUILD_DOCS)
 	add_subdirectory(docs)
 endif()
 
