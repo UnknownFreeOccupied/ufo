@@ -9,7 +9,7 @@
 
   <license>BSD</license>
 
-  <url type="website">https://github.com/danielduberg/ufoutility</url>
+  <url type="website">https://github.com/unknownfreeoccupied/ufoutility</url>
 
   <buildtool_depend>cmake</buildtool_depend>
   

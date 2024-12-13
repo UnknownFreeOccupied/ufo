@@ -1,6 +1,6 @@
-option(UFO_UTILITY_DOCS     "Generate documentation" OFF)
-option(UFO_UTILITY_TESTING  "Unit testing"           OFF)
-option(UFO_UTILITY_COVERAGE "Test Coverage"          OFF)
+option(UFOUTILITY_BUILD_DOCS     "Generate documentation" OFF)
+option(UFOUTILITY_BUILD_TESTS    "Unit testing"           OFF)
+option(UFOUTILITY_BUILD_COVERAGE "Test Coverage"          OFF)
 
 add_library(Utility SHARED 
 	src/io/read_buffer.cpp
@@ -18,6 +18,8 @@ message(CHECK_START "Finding Threading Building Blocks (TBB)")
 find_package(TBB QUIET)
 
 if(TBB_FOUND)
+	# TODO: Check compiler?
+	
 	message(CHECK_PASS "found and enabled")
 	target_link_libraries(Utility PUBLIC TBB::tbb)
 	target_compile_definitions(Utility
