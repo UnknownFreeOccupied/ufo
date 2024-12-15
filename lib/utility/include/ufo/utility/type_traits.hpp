@@ -193,6 +193,25 @@ struct remove_cvref {
 template <class T>
 using remove_cvref_t = typename remove_cvref<T>::type;
 
+//
+// Index
+//
+
+template <class...>
+struct index;
+
+template <class T, class... R>
+struct index<T, T, R...> : std::integral_constant<std::size_t, 0> {
+};
+
+template <class T, class F, class... R>
+struct index<T, F, R...>
+    : std::integral_constant<std::size_t, 1 + index<T, R...>::value> {
+};
+
+template <class T, class... Types>
+constexpr inline std::size_t index_v = index<T, Types...>::value;
+
 }  // namespace ufo
 
 #endif  // UFO_UTILITY_TYPE_TRAITS

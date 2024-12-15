@@ -9,62 +9,6 @@ add_library(Utility SHARED
 )
 add_library(UFO::Utility ALIAS Utility)
 
-message(CHECK_START "Finding parallel processing libraries")
-list(APPEND CMAKE_MESSAGE_INDENT "  ")
-unset(missingParallelLibs)
-
-message(CHECK_START "Finding Threading Building Blocks (TBB)")
-# include("${PROJECT_SOURCE_DIR}/3rdparty/tbb/tbb.cmake")
-find_package(TBB QUIET)
-
-if(TBB_FOUND)
-	# TODO: Check compiler?
-	
-	message(CHECK_PASS "found and enabled")
-	target_link_libraries(Utility PUBLIC TBB::tbb)
-	target_compile_definitions(Utility
-		PUBLIC
-			UFO_TBB=1
-	)
-else()
-	message(CHECK_FAIL "not found and disabled")
-	list(APPEND missingParallelLibs TBB)
-endif()
-
-message(CHECK_START "Finding Grand Central Dispatch (GCD)")
-if(APPLE)
-	message(CHECK_PASS "found and enabled")
-	target_compile_definitions(Utility
-		PUBLIC
-			UFO_GCD=1
-	)
-else()
-	message(CHECK_FAIL "not found and disabled")
-	list(APPEND missingParallelLibs GCD)
-endif()
-
-message(CHECK_START "Finding OpenMP (OMP)")
-find_package(OpenMP QUIET)
-if(OpenMP_CXX_FOUND)
-	message(CHECK_PASS "found and enabled")
-	target_link_libraries(Utility PUBLIC OpenMP::OpenMP_CXX)
-	target_compile_definitions(Utility
-		PUBLIC
-			UFO_OMP=1
-	)
-else()
-	message(CHECK_FAIL "not found and disabled")
-	list(APPEND missingParallelLibs OMP)
-endif()
-
-
-list(POP_BACK CMAKE_MESSAGE_INDENT)
-if(missingParallelLibs)
-  message(CHECK_FAIL "disabled parallel processing libraries: ${missingParallelLibs}")
-else()
-  message(CHECK_PASS "all parallel processing libraries found and enabled")
-endif()
-
 set_target_properties(Utility 
 	PROPERTIES
 		VERSION ${PROJECT_VERSION}
