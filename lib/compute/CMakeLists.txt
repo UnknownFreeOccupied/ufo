@@ -2,10 +2,20 @@ option(UFOCOMPUTE_BUILD_DOCS     "Generate documentation" OFF)
 option(UFOCOMPUTE_BUILD_TESTS    "Unit testing"           OFF)
 option(UFOCOMPUTE_BUILD_COVERAGE "Test Coverage"          OFF)
 
-add_library(Compute INTERFACE)
+# TODO: Make option to make shared or static
+add_library(Compute SHARED
+	src/compute.cpp
+)
 add_library(UFO::Compute ALIAS Compute)
 
-include(GNUInstallDirs)
+set_target_properties(Compute 
+	PROPERTIES
+		VERSION ${PROJECT_VERSION}
+		SOVERSION ${PROJECT_VERSION_MAJOR}
+		CXX_STANDARD 17
+		CXX_EXTENSIONS OFF
+		OUTPUT_NAME "UFOCompute"
+)
 
 include("3rdparty/webgpu/webgpu.cmake")
 
@@ -18,9 +28,17 @@ elseif(APPLE)
 endif()
 
 target_link_libraries(Compute
-	INTERFACE
+	PUBLIC
 		webgpu
 		${OS_LIBRARIES}
+)
+
+include(GNUInstallDirs)
+
+target_include_directories(Compute 
+	PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+		$<INSTALL_INTERFACE:include>
 )
 
 if(UFO_BUILD_TESTS OR UFOCOMPUTE_BUILD_TESTS)
@@ -65,4 +83,9 @@ install(
     "${CMAKE_CURRENT_BINARY_DIR}/Compute-config-version.cmake"
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
   COMPONENT Compute
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+	COMPONENT Compute
+	DESTINATION ${CMAKE_INSTALL_PREFIX}
 )
