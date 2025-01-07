@@ -185,6 +185,10 @@ constexpr inline bool is_one_of_v = is_one_of<T, Types...>::value;
 // Remove const, volatile, and reference
 //
 
+#if __cplusplus >= 201711L
+using std::remove_cvref;
+using std::remove_cvref_t;
+#else
 template <class T>
 struct remove_cvref {
 	using type = std::remove_cv_t<std::remove_reference_t<T>>;
@@ -192,6 +196,7 @@ struct remove_cvref {
 
 template <class T>
 using remove_cvref_t = typename remove_cvref<T>::type;
+#endif
 
 //
 // Index

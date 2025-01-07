@@ -43,10 +43,17 @@
 #define UFO_UTILITY_ENUM_HPP
 
 // STL
+#if __cplusplus >= 202102L
+#include <utility>
+#else
 #include <type_traits>
+#endif
 
 namespace ufo
 {
+#if __cplusplus >= 202102L
+using std::to_underlying;
+#else
 /*!
  * @brief Converts an enumeration to its underlying type.
  *
@@ -63,6 +70,7 @@ constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept
 {
 	return static_cast<std::underlying_type_t<Enum>>(e);
 }
+#endif
 }  // namespace ufo
 
 #endif  // UFO_UTILITY_ENUM_HPP
