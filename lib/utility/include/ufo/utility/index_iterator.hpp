@@ -52,9 +52,9 @@ namespace ufo
 {
 template <class T = std::size_t>
 struct IndexIterator {
-	T first;
-	T last;
-	T inc;
+	T first{};
+	T last{};
+	T inc = T(1);
 
 	class Iterator
 	{
@@ -174,6 +174,8 @@ struct IndexIterator {
 		T pos{};
 		T inc{};
 	};
+
+	constexpr IndexIterator() = default;
 
 	constexpr IndexIterator(T first, T last, T inc = T(1))
 	    : first(first), last(last), inc(inc)
