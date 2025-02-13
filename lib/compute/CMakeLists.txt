@@ -1,6 +1,8 @@
-option(UFOCOMPUTE_BUILD_DOCS     "Generate documentation" OFF)
-option(UFOCOMPUTE_BUILD_TESTS    "Unit testing"           OFF)
-option(UFOCOMPUTE_BUILD_COVERAGE "Test Coverage"          OFF)
+option(UFOCOMPUTE_BUILD_DOCS "Generate documentation" OFF)
+option(UFOCOMPUTE_BUILD_TESTS "Unit testing" OFF)
+option(UFOCOMPUTE_BUILD_COVERAGE "Test Coverage" OFF)
+
+include(GNUInstallDirs)
 
 # TODO: Make option to make shared or static
 add_library(Compute SHARED
@@ -8,7 +10,7 @@ add_library(Compute SHARED
 )
 add_library(UFO::Compute ALIAS Compute)
 
-set_target_properties(Compute 
+set_target_properties(Compute
 	PROPERTIES
 		VERSION ${PROJECT_VERSION}
 		SOVERSION ${PROJECT_VERSION_MAJOR}
@@ -17,9 +19,10 @@ set_target_properties(Compute
 		OUTPUT_NAME "UFOCompute"
 )
 
-include("3rdparty/wgpu-native/wgpu-native.cmake")
+set(WGPU "${CMAKE_CURRENT_SOURCE_DIR}/wgpu")
+set(WGPU_RUNTIME_LIB "${WGPU}/lib/libwgpu_native.so")
 
-if (WIN32)
+if(WIN32)
 	set(OS_LIBRARIES d3dcompiler ws2_32 userenv bcrypt ntdll opengl32)
 elseif(UNIX AND NOT APPLE)
 	set(OS_LIBRARIES "-lm -ldl")
@@ -29,20 +32,20 @@ endif()
 
 target_link_libraries(Compute
 	PUBLIC
-		wgpu_native
+		$<BUILD_INTERFACE:${WGPU_RUNTIME_LIB}>
+		$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/lib/libwgpu_native.so>
 		${OS_LIBRARIES}
 )
 
-include(GNUInstallDirs)
-
-target_include_directories(Compute 
+target_include_directories(Compute
 	PUBLIC
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/wgpu/include>
 		$<INSTALL_INTERFACE:include>
 )
 
 if(UFO_BUILD_TESTS OR UFOCOMPUTE_BUILD_TESTS)
-  add_subdirectory(tests)
+	add_subdirectory(tests)
 endif()
 
 if(UFO_BUILD_DOCS OR UFOCOMPUTE_BUILD_DOCS)
@@ -51,16 +54,16 @@ endif()
 
 install(TARGETS Compute EXPORT Compute-targets
 	COMPONENT Compute
-	LIBRARY  DESTINATION lib
-	ARCHIVE  DESTINATION lib
-	RUNTIME  DESTINATION bin
-  INCLUDES DESTINATION include
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin
+	INCLUDES DESTINATION include
 )
 
 install(EXPORT Compute-targets
-  FILE "Compute-targets.cmake"
-  NAMESPACE UFO::
-  DESTINATION lib/cmake/${PROJECT_NAME}
+	FILE "Compute-targets.cmake"
+	NAMESPACE UFO::
+	DESTINATION lib/cmake/${PROJECT_NAME}
 	COMPONENT Compute
 )
 
@@ -78,14 +81,23 @@ configure_package_config_file(
 )
 
 install(
-  FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/Compute-config.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/Compute-config-version.cmake"
+	FILES
+	"${CMAKE_CURRENT_BINARY_DIR}/Compute-config.cmake"
+	"${CMAKE_CURRENT_BINARY_DIR}/Compute-config-version.cmake"
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-  COMPONENT Compute
+	COMPONENT Compute
 )
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
+	COMPONENT Compute
+	DESTINATION ${CMAKE_INSTALL_PREFIX}
+)
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/wgpu/lib/libwgpu_native.so 
+	COMPONENT Compute
+	DESTINATION lib
+)
+install(DIRECTORY ${WGPU}/include
 	COMPONENT Compute
 	DESTINATION ${CMAKE_INSTALL_PREFIX}
 )
