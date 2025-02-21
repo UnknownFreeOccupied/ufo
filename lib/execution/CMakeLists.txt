@@ -32,17 +32,21 @@ if(TBB_FOUND)
 	set(CMAKE_REQUIRED_LIBRARIES "TBB::tbb")
 
 	check_cxx_source_compiles("
-			#include <oneapi/tbb.h>
-			#include <oneapi/tbb/parallel_for_each.h>
+			// STL
+			#include <cstddef>
 			#include <vector>
+
+			// oneTBB
+			#include <oneapi/tbb.h>
 			
-			struct S {};
+			struct S {
+				std::size_t value;
+			};
 
 			int main() {
-
 				std::vector<S> v(10);
 
-				oneapi::tbb::parallel_for_each(v.begin(), v.end(), [](S const& /* s */, auto const& /* feeder */) {});
+				oneapi::tbb::parallel_for(std::size_t(0), v.size(), [&v](std::size_t i) { v[i].value = i; });
 
 				return 0;
 			}
