@@ -42,7 +42,7 @@ if(TBB_FOUND)
 
 				std::vector<S> v(10);
 
-				oneapi::tbb::parallel_for_each(v.begin(), v.end(), [](S const& s, auto const& /* feeder */) {});
+				oneapi::tbb::parallel_for_each(v.begin(), v.end(), [](S const& /* s */, auto const& /* feeder */) {});
 
 				return 0;
 			}
