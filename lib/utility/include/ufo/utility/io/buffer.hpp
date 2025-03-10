@@ -58,9 +58,7 @@ class Buffer
  public:
 	using size_type = std::size_t;
 
-	Buffer() = default;
-
-	virtual ~Buffer();
+	virtual ~Buffer() = default;
 
 	// TODO: Implement
 

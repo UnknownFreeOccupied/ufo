@@ -3,8 +3,6 @@
 
 namespace ufo
 {
-Buffer::~Buffer() {}
-
 Buffer& Buffer::write(void const* src, size_type count)
 {
 	WriteBuffer::write(src, count);
@@ -37,12 +35,12 @@ Buffer::size_type Buffer::size() const { return WriteBuffer::size(); }
 void Buffer::reserve(size_type new_cap)
 {
 	WriteBuffer::reserve(new_cap);
-	ReadBuffer::data_ = WriteBuffer::data_;
+	ReadBuffer::data_ = WriteBuffer::data();
 }
 
 void Buffer::resize(size_type new_size)
 {
 	WriteBuffer::resize(new_size);
-	ReadBuffer::data_ = WriteBuffer::data_;
+	ReadBuffer::data_ = WriteBuffer::data();
 }
 }  // namespace ufo
