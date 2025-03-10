@@ -56,6 +56,8 @@
 // GCD (Grand Central Dispatch)
 #if defined(UFO_PAR_GCD)
 #include <dispatch/dispatch.h>
+#else
+#define __block
 #endif
 
 // oneTBB (Threading Building Blocks)
