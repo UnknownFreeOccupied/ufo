@@ -70,15 +70,13 @@ class BitSet
 	using value_type = T;
 
  private:
-	static constexpr T ALL_SET = ~(std::uint64_t(-1) << N);
+	static constexpr T ALL_SET = ~((~std::uint64_t(0)) << N);
 
  public:
 	struct Reference {
 		friend class BitSet<N>;
 
 	 public:
-		~Reference() {}
-
 		constexpr Reference& operator=(bool x) noexcept
 		{
 			set_ ^= static_cast<T>(-static_cast<T>(x) ^ set_) & index_;
@@ -110,7 +108,7 @@ class BitSet
 
 	constexpr BitSet() noexcept = default;
 
-	constexpr BitSet(T val) noexcept : set_(val) { assert(ALL_SET >= val); }
+	constexpr BitSet(T val) noexcept : set_(val & ALL_SET) {}
 
 	template <class CharT, class Traits, class Alloc>
 	explicit BitSet(std::basic_string<CharT, Traits, Alloc> const&              str,
@@ -141,7 +139,7 @@ class BitSet
 		return (set_ >> pos) & T(1);
 	}
 
-	[[nodiscard]] Reference operator[](std::size_t pos)
+	[[nodiscard]] constexpr Reference operator[](std::size_t pos)
 	{
 		assert(N > pos);
 		return Reference(set_, pos);
@@ -221,6 +219,8 @@ class BitSet
 		assert(N > pos);
 		set_ ^= static_cast<T>(T(1) << pos);
 	}
+
+	[[nodiscard]] constexpr T data() const { return set_; }
 
  public:  // TODO: Make private
 	T set_{};
