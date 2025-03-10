@@ -43,6 +43,8 @@
 #define UFO_UTILITY_TYPE_TRAITS
 
 // STL
+#include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -169,19 +171,6 @@ template <class T, class... Ts>
 constexpr inline bool contains_type_v = contains_type<T, Ts...>::value;
 
 //
-// Is one of
-//
-
-template <class T, class... Types>
-struct is_one_of
-    : std::conditional_t<(std::is_same_v<Types, T> || ...), std::true_type,
-                         std::false_type> {
-};
-
-template <class T, class... Types>
-constexpr inline bool is_one_of_v = is_one_of<T, Types...>::value;
-
-//
 // Remove const, volatile, and reference
 //
 
@@ -217,6 +206,20 @@ struct index<T, F, R...>
 template <class T, class... Types>
 constexpr inline std::size_t index_v = index<T, Types...>::value;
 
+//
+// String
+//
+
+template <class T>
+struct is_string
+    : public std::disjunction<std::is_same<char*, remove_cvref_t<T>>,
+                              std::is_same<char const*, remove_cvref_t<T>>,
+                              std::is_same<std::string, remove_cvref_t<T>>,
+                              std::is_same<std::string_view, remove_cvref_t<T>>> {
+};
+
+template <class T>
+constexpr inline bool is_string_v = is_string<T>::value;
 }  // namespace ufo
 
 #endif  // UFO_UTILITY_TYPE_TRAITS
