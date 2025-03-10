@@ -60,7 +60,10 @@ class ReadBuffer
 
 	ReadBuffer(std::byte const* data, size_type count);
 
-	virtual ~ReadBuffer() {}
+	virtual ~ReadBuffer() = default;
+
+	ReadBuffer& operator=(ReadBuffer const&) = default;
+	ReadBuffer& operator=(ReadBuffer&&)      = default;
 
 	template <class T>
 	ReadBuffer& read(T& t)
@@ -71,6 +74,8 @@ class ReadBuffer
 	ReadBuffer& read(void* dest, size_type count);
 
 	ReadBuffer& read(std::ostream& out, size_type count);
+
+	bool readLine(std::string& line);
 
 	template <class T>
 	ReadBuffer& readUnsafe(T& t)
@@ -90,9 +95,9 @@ class ReadBuffer
 
 	[[nodiscard]] size_type readPos() const noexcept;
 
-	void skipRead(size_type count) noexcept;
+	void readPos(size_type pos) noexcept;
 
-	void setReadPos(size_type pos) noexcept;
+	void readSkip(size_type count) noexcept;
 
 	[[nodiscard]] size_type readLeft() const noexcept;
 

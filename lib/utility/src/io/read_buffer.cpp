@@ -2,6 +2,7 @@
 #include <ufo/utility/io/read_buffer.hpp>
 
 // STL
+#include <algorithm>
 #include <cstring>
 
 namespace ufo
@@ -30,6 +31,18 @@ ReadBuffer& ReadBuffer::read(std::ostream& out, size_type count)
 	return readUnsafe(out, count);
 }
 
+bool ReadBuffer::readLine(std::string& line)
+{
+	// FIXME: Implement correct
+	std::byte const* it = std::find_if(data_ + pos_, data_ + size_, [](std::byte b) {
+		return '\n' == static_cast<char>(b);
+	});
+	line.assign(reinterpret_cast<char const*>(data_ + pos_),
+	            reinterpret_cast<char const*>(it));
+	pos_ = std::min(size_, pos_ + line.size() + 1);
+	return pos_ != size_;
+}
+
 ReadBuffer& ReadBuffer::readUnsafe(void* dest, size_type count)
 {
 	std::memmove(dest, data_ + pos_, count);
@@ -52,9 +65,9 @@ ReadBuffer::size_type ReadBuffer::size() const { return size_; }
 
 ReadBuffer::size_type ReadBuffer::readPos() const noexcept { return pos_; }
 
-void ReadBuffer::skipRead(size_type count) noexcept { pos_ += count; }
+void ReadBuffer::readPos(size_type pos) noexcept { pos_ = pos; }
 
-void ReadBuffer::setReadPos(size_type pos) noexcept { pos_ = pos; }
+void ReadBuffer::readSkip(size_type count) noexcept { pos_ += count; }
 
 ReadBuffer::size_type ReadBuffer::readLeft() const noexcept
 {
