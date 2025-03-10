@@ -42,6 +42,14 @@
 #ifndef UFO_UTILITY_MACROS
 #define UFO_UTILITY_MACROS
 
+#define UFO_REPEAT_2(M, N)   M(N) M(N + 1)
+#define UFO_REPEAT_4(M, N)   UFO_REPEAT_2(M, N) UFO_REPEAT_2(M, N + 2)
+#define UFO_REPEAT_8(M, N)   UFO_REPEAT_4(M, N) UFO_REPEAT_4(M, N + 4)
+#define UFO_REPEAT_16(M, N)  UFO_REPEAT_8(M, N) UFO_REPEAT_8(M, N + 8)
+#define UFO_REPEAT_32(M, N)  UFO_REPEAT_16(M, N) UFO_REPEAT_16(M, N + 16)
+#define UFO_REPEAT_64(M, N)  UFO_REPEAT_32(M, N) UFO_REPEAT_32(M, N + 32)
+#define UFO_REPEAT_128(M, N) UFO_REPEAT_64(M, N) UFO_REPEAT_64(M, N + 64)
+
 #define UFO_MIN(a, b)            ((a) < (b) ? (a) : (b))
 #define UFO_MAX(a, b)            ((a < b) ? (b) : (a))
 #define UFO_CLAMP(v, lo, hi)     UFO_MAX(lo, UFO_MIN(hi, v))
