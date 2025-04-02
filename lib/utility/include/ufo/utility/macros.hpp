@@ -51,7 +51,7 @@
 #define UFO_REPEAT_128(M, N) UFO_REPEAT_64(M, N) UFO_REPEAT_64(M, N + 64)
 
 #define UFO_MIN(a, b)            ((a) < (b) ? (a) : (b))
-#define UFO_MAX(a, b)            ((a < b) ? (b) : (a))
+#define UFO_MAX(a, b)            ((a) < (b) ? (b) : (a))
 #define UFO_CLAMP(v, lo, hi)     UFO_MAX(lo, UFO_MIN(hi, v))
 #define UFO_MIN_PAIR_FIRST(a, b) ((a).first < (b).first ? (a) : (b))
 #define UFO_MAX_PAIR_FIRST(a, b) ((a).first < (b).first ? (b) : (a))
