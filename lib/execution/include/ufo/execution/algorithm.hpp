@@ -180,41 +180,33 @@ RandomIt2 transform(ExecutionPolicy&& policy, RandomIt1 first1, RandomIt1 last1,
 	}
 }
 
-// template <class InputIt1, class InputIt2, class OutputIt, class BinaryOp>
-// OutputIt transform(InputIt1 first1, InputIt1 last1, InputIt2 first2, OutputIt d_first,
-//                    BinaryOp binary_op)
-// {
-// 	return std::transform(first1, last1, first2, d_first, binary_op);
-// }
+template <class InputIt1, class InputIt2, class OutputIt, class BinaryOp>
+OutputIt transform(InputIt1 first1, InputIt1 last1, InputIt2 first2, OutputIt d_first,
+                   BinaryOp binary_op)
+{
+	return std::transform(first1, last1, first2, d_first, binary_op);
+}
 
-// template <
-//     class ExecutionPolicy, class ForwardIt1, class ForwardIt2, class ForwardIt3,
-//     class BinaryOp,
-//     std::enable_if_t<execution::is_execution_policy_v<ExecutionPolicy>, bool> = true>
-// ForwardIt3 transform(ExecutionPolicy&& policy, ForwardIt1 first1, ForwardIt1 last1,
-//                      ForwardIt2 first2, ForwardIt3 d_first, BinaryOp binary_op)
-// {
-// 	if constexpr (execution::is_stl_v<ExecutionPolicy>) {
-// 		return std::transform(execution::to_stl_t<ExecutionPolicy>(), first1, last1, first2,
-// 		                      d_first, binary_op);
-// 	}
-// #if defined(UFO_PAR_GCD)
-// 	else if constexpr (execution::is_gcd_v<ExecutionPolicy>) {
-// 		// TODO: Implement
-// 	}
-// #endif
-// #if defined(UFO_PAR_TBB)
-// 	else if constexpr (execution::is_tbb_v<ExecutionPolicy>) {
-// 		// TODO: Implement
-// 	}
-// #endif
-// 	else if constexpr (execution::is_omp_v<ExecutionPolicy>) {
-// 		// TODO: Implement
-// 	} else {
-// 		static_assert(dependent_false_v<ExecutionPolicy>,
-// 		              "create not implemented for the execution policy");
-// 	}
-// }
+template <
+    class ExecutionPolicy, class RandomIt1, class RandomIt2, class RandomIt3,
+    class BinaryOp,
+    std::enable_if_t<execution::is_execution_policy_v<ExecutionPolicy>, bool> = true>
+RandomIt3 transform(ExecutionPolicy&& policy, RandomIt1 first1, RandomIt1 last1,
+                    RandomIt2 first2, RandomIt3 d_first, BinaryOp binary_op)
+{
+	if constexpr (execution::is_stl_v<ExecutionPolicy>) {
+		return std::transform(execution::toSTL(std::forward<ExecutionPolicy>(policy)), first1,
+		                      last1, first2, d_first, binary_op);
+	} else {
+		std::size_t s = std::distance(first1, last1);
+		for_each(std::forward<ExecutionPolicy>(policy), std::size_t(0), s,
+		         [first1, first2, d_first, binary_op](std::size_t i) {
+			         d_first[i] = binary_op(first1[i], first2[i]);
+		         });
+
+		return d_first + s;
+	}
+}
 }  // namespace ufo
 
 #endif  // UFO_EXECUTION_ALGORITHM_HPP
