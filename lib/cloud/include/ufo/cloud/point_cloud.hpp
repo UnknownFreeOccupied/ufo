@@ -96,7 +96,7 @@ template <
 void transformInPlace(ExecutionPolicy&& policy, Transform<Dim, T> const& t,
                       PointCloud<Dim, T, Rest...>& pc)
 {
-	transformInPlace(std::forward<ExecutionPolicy>(policy), t, get<0>(pc));
+	transformInPlace(std::forward<ExecutionPolicy>(policy), t, pc.template view<0>());
 }
 
 //

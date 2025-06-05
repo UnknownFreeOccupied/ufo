@@ -43,10 +43,10 @@
 #define UFO_CLOUD_UFO_HPP
 
 // UFO
-#include <ufo/math/transform.hpp>
-#include <ufo/math/vec.hpp>
 #include <ufo/cloud/cloud.hpp>
 #include <ufo/execution/execution.hpp>
+#include <ufo/math/transform.hpp>
+#include <ufo/math/vec.hpp>
 #include <ufo/vision/color.hpp>
 
 // STL
@@ -152,7 +152,7 @@ namespace detail
 template <class T, class Cloud>
 void writeCloudUFO(std::ostream& out, Cloud const& cloud)
 {
-	auto const& data = get<T>(cloud);
+	auto data = cloud.template view<T>();
 
 	out << data.size() << ' ' << sizeof(T) << ' ';
 
@@ -206,13 +206,13 @@ void readCloudUFO(std::istream& in, Cloud<T...>& cloud)
 		if ("vec3f" == type) {
 			max_num_elements = std::max(max_num_elements, num_elements);
 
-			auto& data = get<Vec3f>(cloud);
+			auto data = cloud.template view<Vec3f>();
 			data.resize(num_elements);
 			in.read(reinterpret_cast<char*>(data.data()), num_elements * element_size);
 		} else if ("color" == type) {
 			max_num_elements = std::max(max_num_elements, num_elements);
 
-			auto& data = get<Color>(cloud);
+			auto data = cloud.template view<Color>();
 			data.resize(num_elements);
 			in.read(reinterpret_cast<char*>(data.data()), num_elements * element_size);
 
@@ -226,7 +226,7 @@ void readCloudUFO(std::istream& in, Cloud<T...>& cloud)
 		}
 	}
 
-	(get<T>(cloud).resize(max_num_elements), ...);
+	cloud.reisze(max_num_elements);
 }
 
 template <class... T, std::size_t Dim, class T2>
@@ -269,13 +269,13 @@ void readCloudUFO(std::istream& in, Cloud<T...>& cloud, Transform<Dim, T2>& pose
 		} else if ("vec3f" == type) {
 			max_num_elements = std::max(max_num_elements, num_elements);
 
-			auto& data = get<Vec3f>(cloud);
+			auto data = cloud.template view<Vec3f>();
 			data.resize(num_elements);
 			in.read(reinterpret_cast<char*>(data.data()), num_elements * element_size);
 		} else if ("color" == type) {
 			max_num_elements = std::max(max_num_elements, num_elements);
 
-			auto& data = get<Color>(cloud);
+			auto data = cloud.template view<Color>();
 			data.resize(num_elements);
 			in.read(reinterpret_cast<char*>(data.data()), num_elements * element_size);
 
@@ -289,7 +289,7 @@ void readCloudUFO(std::istream& in, Cloud<T...>& cloud, Transform<Dim, T2>& pose
 		}
 	}
 
-	(get<T>(cloud).resize(max_num_elements), ...);
+	cloud.resize(max_num_elements);
 }
 
 template <class... T>
