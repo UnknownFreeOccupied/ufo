@@ -1,16 +1,15 @@
-option(UFOMORTON_BUILD_DOCS     "Generate documentation" OFF)
-option(UFOMORTON_BUILD_TESTS    "Unit testing"           OFF)
-option(UFOMORTON_BUILD_COVERAGE "Test Coverage"          OFF)
+option(UFOMORTON_BUILD_DOCS "Generate documentation" OFF)
+option(UFOMORTON_BUILD_TESTS "Unit testing" OFF)
+option(UFOMORTON_BUILD_COVERAGE "Test Coverage" OFF)
 
-option(UFOMORTON_ENABLE_BMI2 "Enable BMI2 instruction set (if available)" OFF)
+option(UFOMORTON_BMI2 "Enable BMI2 instruction set (if available)" OFF)
 
 add_library(Morton INTERFACE)
 add_library(UFO::Morton ALIAS Morton)
 
 target_link_libraries(Morton INTERFACE UFO::Math)
 
-if(UFOMORTON_ENABLE_BMI2)
-
+if(UFOMORTON_BMI2)
 	message(CHECK_START "Checking BMI2 instruction set support")
 
 	include(CheckCXXSourceCompiles)
@@ -38,19 +37,18 @@ if(UFOMORTON_ENABLE_BMI2)
 	endif()
 
 	cmake_pop_check_state()
-
 endif()
 
 include(GNUInstallDirs)
 
-target_include_directories(Morton 
+target_include_directories(Morton
 	INTERFACE
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
 		$<INSTALL_INTERFACE:include>
 )
 
 if(UFO_BUILD_TESTS OR UFOMORTON_BUILD_TESTS)
-  add_subdirectory(tests)
+	add_subdirectory(tests)
 endif()
 
 if(UFO_BUILD_DOCS OR UFOMORTON_BUILD_DOCS)
@@ -59,16 +57,16 @@ endif()
 
 install(TARGETS Morton EXPORT Morton-targets
 	COMPONENT Morton
-	LIBRARY  DESTINATION lib
-	ARCHIVE  DESTINATION lib
-	RUNTIME  DESTINATION bin
-  INCLUDES DESTINATION include
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	RUNTIME DESTINATION bin
+	INCLUDES DESTINATION include
 )
 
 install(EXPORT Morton-targets
-  FILE "Morton-targets.cmake"
-  NAMESPACE UFO::
-  DESTINATION lib/cmake/${PROJECT_NAME}
+	FILE "Morton-targets.cmake"
+	NAMESPACE UFO::
+	DESTINATION lib/cmake/${PROJECT_NAME}
 	COMPONENT Morton
 )
 
@@ -86,11 +84,11 @@ configure_package_config_file(
 )
 
 install(
-  FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/Morton-config.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/Morton-config-version.cmake"
+	FILES
+	"${CMAKE_CURRENT_BINARY_DIR}/Morton-config.cmake"
+	"${CMAKE_CURRENT_BINARY_DIR}/Morton-config-version.cmake"
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-  COMPONENT Morton
+	COMPONENT Morton
 )
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
