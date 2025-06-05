@@ -364,6 +364,27 @@ struct Camera {
 		}
 	}
 };
+
+inline bool operator==(Camera const& lhs, Camera const& rhs)
+{
+	return lhs.pose == rhs.pose && lhs.rows == rhs.rows && lhs.cols == rhs.cols &&
+	       lhs.vertical_fov == rhs.vertical_fov && lhs.near_clip == rhs.near_clip &&
+	       lhs.far_clip == rhs.far_clip && lhs.zoom == rhs.zoom && lhs.up == rhs.up &&
+	       lhs.projection_type == rhs.projection_type && lhs.w == rhs.w;
+}
+
+inline bool operator!=(Camera const& lhs, Camera const& rhs) { return !(lhs == rhs); }
+
+inline std::ostream& operator<<(std::ostream& os, Camera const& camera)
+{
+	os << "Pose: " << camera.pose << '\n';
+	os << "Rows: " << camera.rows << ", Cols: " << camera.cols << '\n';
+	os << "Vertical FoV: " << camera.vertical_fov << '\n';
+	os << "Near clip: " << camera.near_clip << ", Far clip: " << camera.far_clip << '\n';
+	os << "Zoom: " << camera.zoom << '\n';
+	os << "Up: " << camera.up << '\n';
+	return os;
+}
 }  // namespace ufo
 
 #endif  // UFO_VISION_CAMERA_HPP
