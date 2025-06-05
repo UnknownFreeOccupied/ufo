@@ -188,11 +188,11 @@ InputOutputIt transformInPlace(Transform<Dim, T> const& t, InputOutputIt first,
 }
 
 template <std::size_t Dim, class T, class Range>
-void transformInPlace(Transform<Dim, T> const& t, Range& range)
+void transformInPlace(Transform<Dim, T> const& t, Range&& range)
 {
 	using std::begin;
 	using std::end;
-	transformInPlace(t, begin(range), end(range));
+	transformInPlace(t, begin(std::forward<Range>(range)), end(std::forward<Range>(range)));
 }
 
 template <
@@ -207,11 +207,12 @@ RandomInOutIt transformInPlace(ExecutionPolicy&& policy, Transform<Dim, T> const
 template <
     class ExecutionPolicy, std::size_t Dim, class T, class Range,
     std::enable_if_t<execution::is_execution_policy_v<ExecutionPolicy>, bool> = true>
-void transformInPlace(ExecutionPolicy&& policy, Transform<Dim, T> const& t, Range& range)
+void transformInPlace(ExecutionPolicy&& policy, Transform<Dim, T> const& t, Range&& range)
 {
 	using std::begin;
 	using std::end;
-	transformInPlace(std::forward<ExecutionPolicy>(policy), t, begin(range), end(range));
+	transformInPlace(std::forward<ExecutionPolicy>(policy), t,
+	                 begin(std::forward<Range>(range)), end(std::forward<Range>(range)));
 }
 
 template <std::size_t Dim, class T>
