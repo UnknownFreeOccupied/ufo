@@ -46,6 +46,8 @@
 #include <ufo/math/numbers.hpp>
 
 // STL
+#include <cassert>
+#include <cmath>
 #include <type_traits>
 
 namespace ufo
@@ -98,6 +100,19 @@ template <class T>
 [[nodiscard]] constexpr T lerp(T const& x, T const& y, T const& a)
 {
 	return mix(x, y, a);
+}
+
+template <class T>
+[[nodiscard]] T probabilityToLogit(T probability)
+{
+	assert(T(0) <= probability && T(1) >= probability);
+	return std::log(probability / (T(1) - probability));
+}
+
+template <class T>
+[[nodiscard]] T logitToProbability(T logit)
+{
+	return T(1) / (T(1) + std::exp(-logit));
 }
 }  // namespace ufo
 
