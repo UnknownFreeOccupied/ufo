@@ -56,13 +56,14 @@ namespace ufo::pred
 template <class... Preds>
 struct Or {
 	Or(Preds&&... preds) : preds(std::forward<Preds>(preds)...) {}
+	Or(Preds const&... preds) : preds(preds...) {}
 
 	std::tuple<Preds...> preds;
 };
 
 template <class PredLeft, class PredRight,
-          std::enable_if_t<!is_specialization_of_v<Or, PredLeft> &&
-                               !is_specialization_of_v<Or, PredRight>,
+          std::enable_if_t<!is_specialization_of_v<Or, remove_cvref_t<PredLeft>> &&
+                               !is_specialization_of_v<Or, remove_cvref_t<PredRight>>,
                            bool> = true>
 constexpr Or<remove_cvref_t<PredLeft>, remove_cvref_t<PredRight>> operator||(
     PredLeft&& p1, PredRight&& p2)
@@ -74,44 +75,81 @@ template <class... PredsLeft, class... PredsRight>
 constexpr Or<PredsLeft..., PredsRight...> operator||(Or<PredsLeft...>&&  p1,
                                                      Or<PredsRight...>&& p2)
 {
-	return {std::tuple_cat(std::move(p1.preds), std::move(p2.preds))};
+	return std::apply(
+	    [](auto&&... xs) {
+		    return Or<PredsLeft..., PredsRight...>(std::forward<decltype(xs)>(xs)...);
+	    },
+	    std::tuple_cat(std::move(p1.preds), std::move(p2.preds)));
 }
 
 template <class... PredsLeft, class... PredsRight>
 constexpr Or<PredsLeft..., PredsRight...> operator||(Or<PredsLeft...> const&  p1,
                                                      Or<PredsRight...> const& p2)
 {
-	return {std::tuple_cat(p1.preds, p2.preds)};
+	return std::apply(
+	    [](auto&&... xs) {
+		    return Or<PredsLeft..., PredsRight...>(std::forward<decltype(xs)>(xs)...);
+	    },
+	    std::tuple_cat(p1.preds, p2.preds));
 }
 
-template <class... PredsLeft, class PredRight>
+template <
+    class... PredsLeft, class PredRight,
+    std::enable_if_t<!is_specialization_of_v<Or, remove_cvref_t<PredRight>>, bool> = true>
 constexpr Or<PredsLeft..., remove_cvref_t<PredRight>> operator||(Or<PredsLeft...>&& p1,
                                                                  PredRight&&        p2)
 {
-	return {
-	    std::tuple_cat(std::move(p1.preds), std::make_tuple(std::forward<PredRight>(p2)))};
+	return std::apply(
+	    [](auto&&... xs) {
+		    return Or<PredsLeft..., remove_cvref_t<PredRight>>(
+		        std::forward<decltype(xs)>(xs)...);
+	    },
+	    std::tuple_cat(std::move(p1.preds), std::make_tuple(std::forward<PredRight>(p2))));
 }
 
-template <class... PredsLeft, class PredRight>
+template <
+    class... PredsLeft, class PredRight,
+    std::enable_if_t<!is_specialization_of_v<Or, remove_cvref_t<PredRight>>, bool> = true>
 constexpr Or<PredsLeft..., remove_cvref_t<PredRight>> operator||(
     Or<PredsLeft...> const& p1, PredRight&& p2)
 {
-	return {std::tuple_cat(p1.preds, std::make_tuple(std::forward<PredRight>(p2)))};
+	return std::apply(
+	    [](auto&&... xs) {
+		    return Or<PredsLeft..., remove_cvref_t<PredRight>>(
+		        std::forward<decltype(xs)>(xs)...);
+	    },
+	    std::tuple_cat(p1.preds, std::make_tuple(std::forward<PredRight>(p2))));
 }
 
-template <class PredLeft, class... PredsRight>
+template <
+    class PredLeft, class... PredsRight,
+    std::enable_if_t<!is_specialization_of_v<Or, remove_cvref_t<PredLeft>>, bool> = true>
 constexpr Or<remove_cvref_t<PredLeft>, PredsRight...> operator||(PredLeft&&          p1,
                                                                  Or<PredsRight...>&& p2)
 {
 	return {
 	    std::tuple_cat(std::make_tuple(std::forward<PredLeft>(p1)), std::move(p2.preds))};
+
+	return std::apply(
+	    [](auto&&... xs) {
+		    return Or<remove_cvref_t<PredLeft>, PredsRight...>(
+		        std::forward<decltype(xs)>(xs)...);
+	    },
+	    std::tuple_cat(std::make_tuple(std::forward<PredLeft>(p1)), std::move(p2.preds)));
 }
 
-template <class PredLeft, class... PredsRight>
+template <
+    class PredLeft, class... PredsRight,
+    std::enable_if_t<!is_specialization_of_v<Or, remove_cvref_t<PredLeft>>, bool> = true>
 constexpr Or<remove_cvref_t<PredLeft>, PredsRight...> operator||(
     PredLeft&& p1, Or<PredsRight...> const& p2)
 {
-	return {std::tuple_cat(std::make_tuple(std::forward<PredLeft>(p1)), p2.preds)};
+	return std::apply(
+	    [](auto&&... xs) {
+		    return Or<remove_cvref_t<PredLeft>, PredsRight...>(
+		        std::forward<decltype(xs)>(xs)...);
+	    },
+	    std::tuple_cat(std::make_tuple(std::forward<PredLeft>(p1)), p2.preds));
 }
 
 template <class... Preds>

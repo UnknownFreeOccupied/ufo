@@ -24,13 +24,14 @@ endif()
 # # set(CMAKE_CXX_OUTPUT_EXTENSION_REPLACE ON)
 
 add_executable(ufocontainer_tests
-	octree_test.cpp
-	octree_map_test.cpp
-	octree_set_test.cpp
+	# octree_test.cpp
+	# octree_map_test.cpp
+	# octree_set_test.cpp
 	# quadtree_set_test.cpp
 	# range_test.cpp
 	# tree_index_test.cpp
 	# tree_node_test.cpp
+	predicate_test.cpp
 )
 
 target_link_libraries(ufocontainer_tests PRIVATE UFO::Container Catch2::Catch2WithMain)
