@@ -1,0 +1,9 @@
+# This file is configured by the submodule and included by the top-level Config.cmake
+if(NOT TARGET wgpu_native)
+    add_library(wgpu_native SHARED IMPORTED)
+    set_target_properties(wgpu_native PROPERTIES
+        IMPORTED_LOCATION "${PACKAGE_PREFIX_DIR}/lib/libwgpu_native.so"
+        INTERFACE_INCLUDE_DIRECTORIES "${PACKAGE_PREFIX_DIR}/include"
+    )
+    message(STATUS "Defined imported target wgpu_native with location: ${PACKAGE_PREFIX_DIR}/lib/libwgpu_native.so")
+endif()

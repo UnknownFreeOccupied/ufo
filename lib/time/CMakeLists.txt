@@ -1,0 +1,48 @@
+option(UFOTIME_BUILD_DOCS     "Generate documentation" OFF)
+option(UFOTIME_BUILD_TESTS    "Unit testing"           OFF)
+option(UFOTIME_BUILD_COVERAGE "Test Coverage"          OFF)
+
+include(GNUInstallDirs)
+
+add_library(Time SHARED 
+	src/timer.cpp
+	src/timing.cpp
+)
+add_library(UFO::Time ALIAS Time)
+
+set_target_properties(Time 
+	PROPERTIES
+		VERSION ${PROJECT_VERSION}
+		SOVERSION ${PROJECT_VERSION_MAJOR}
+		CXX_STANDARD 17
+		CXX_EXTENSIONS OFF
+		OUTPUT_NAME "UFOTime"
+)
+
+target_include_directories(Time 
+	PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+if(UFO_BUILD_TESTS OR UFOTIME_BUILD_TESTS)
+  add_subdirectory(tests)
+endif()
+
+if(UFO_BUILD_DOCS OR UFOTIME_BUILD_DOCS)
+	add_subdirectory(docs)
+endif()
+
+install(TARGETS Time 
+	EXPORT UFO-targets
+	COMPONENT Time
+	LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR}
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+	COMPONENT Time
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
