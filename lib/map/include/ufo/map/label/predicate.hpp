@@ -39,11 +39,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_MAP_LABEL_LABEL_PREDICATE_HPP
-#define UFO_MAP_LABEL_LABEL_PREDICATE_HPP
+#ifndef UFO_MAP_LABEL_PREDICATE_HPP
+#define UFO_MAP_LABEL_PREDICATE_HPP
 
 // UFO
 #include <ufo/map/label/predicate/label.hpp>
-#include <ufo/map/label/predicate/label_map.hpp>
+// #include <ufo/map/label/predicate/label_map.hpp>
 
-#endif  // UFO_MAP_LABEL_LABEL_PREDICATE_HPP
+#endif  // UFO_MAP_LABEL_PREDICATE_HPP

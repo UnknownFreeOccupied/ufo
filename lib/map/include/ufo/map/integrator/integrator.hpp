@@ -110,6 +110,9 @@ class Integrator
 	// A single miss in a void region will set the occupancy to min
 	bool void_region_instant_min_occupancy = true;
 
+	// Label to be ignored when updating LabelMap
+	std::uint32_t ignore_label = 0;
+
 	bool propagate      = false;
 	bool prune          = true;
 	bool reset_modified = true;
@@ -157,6 +160,13 @@ class Integrator
 		if constexpr (Map::hasMapTypes(MapType::COLOR) && contains_type_v<Color, Data>) {
 			// TODO: Make correct
 			map.colorSet(node, data.template get<Color>(), false);
+		}
+
+		if constexpr (Map::hasMapTypes(MapType::LABEL)) {
+			auto l = data.template get<Label>();
+			if (l.label != ignore_label) {
+				map.labelSet(node, l.label, false);
+			}
 		}
 
 		// TODO: Add more map types

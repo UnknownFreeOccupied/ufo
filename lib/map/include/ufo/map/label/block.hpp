@@ -38,67 +38,57 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef UFO_MAP_LABEL_PREDICATE_LABEL_HPP
-#define UFO_MAP_LABEL_PREDICATE_LABEL_HPP
+#ifndef UFO_MAP_LABEL_BLOCK_HPP
+#define UFO_MAP_LABEL_BLOCK_HPP
 
 // UFO
-#include <ufo/container/tree/index.hpp>
-#include <ufo/container/tree/predicate/filter.hpp>
-#include <ufo/container/tree/predicate/predicate_compare.hpp>
+#include <ufo/utility/create_array.hpp>
 
-namespace ufo::pred
+// STL
+#include <array>
+#include <cassert>
+#include <cstddef>
+
+namespace ufo
 {
-template <bool Negated = false>
-struct Label {
+struct LabelElement {
 	using label_t = std::uint32_t;
-	label_t label;
+	
+	label_t label{};
 
-	Label(label_t label) : label(label) {}
+	LabelElement() noexcept                   = default;
+	LabelElement(LabelElement const&) noexcept = default;
 
- protected:
-	template <class T>
-	friend class Filter;
+	LabelElement(label_t label) noexcept : label(label) {}
+
+	LabelElement& operator=(LabelElement const&) noexcept = default;
 };
 
-template <bool Negated>
-Label<!Negated> operator!(Label<Negated> p)
-{
-	return {p.label};
-}
+template <std::size_t BF>
+struct LabelBlock {
+	using label_t = LabelElement::label_t;
 
-template <bool Negated>
-struct Filter<Label<Negated>> : public FilterBase<Label<Negated>> {
-	using Pred = Label<Negated>;
+	std::array<LabelElement, BF> data;
 
-	template <class Tree>
-	static constexpr void init(Pred& p, Tree const& t)
+	constexpr LabelBlock() = default;
+
+	constexpr LabelBlock(label_t label) : data(createArray<BF>(LabelElement(label))) {}
+
+	constexpr LabelBlock(LabelElement const& parent) : data(createArray<BF>(parent)) {}
+
+	constexpr void fill(LabelElement const& parent) { data.fill(parent); }
+
+	[[nodiscard]] constexpr LabelElement& operator[](std::size_t pos)
 	{
+		assert(BF > pos);
+		return data[pos];
 	}
 
-	template <class Tree, class Node>
-	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const& t,
-	                                               Node n)
+	[[nodiscard]] constexpr LabelElement const& operator[](std::size_t pos) const
 	{
-		if constexpr (Negated) {
-			return t.label(n) != p.label;
-		} else {
-			return t.label(n) == p.label;
-		}
-	}
-
-	template <class Tree, class Node>
-	[[nodiscard]] static constexpr bool traversable(Pred const& p, Tree const& t,
-	                                                Node n)
-	{
-		if constexpr (Negated) {
-			return true;
-		} else {
-			return (t.label(n) & p.label) == p.label;
-		}
+		assert(BF > pos);
+		return data[pos];
 	}
 };
-// };
-}  // namespace ufo::pred
-
-#endif  // UFO_MAP_LABEL_PREDICATE_LABEL_HPP
+}  // namespace ufo
+#endif  // UFO_MAP_LABEL_BLOCK_HPP
