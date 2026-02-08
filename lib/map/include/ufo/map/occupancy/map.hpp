@@ -127,7 +127,7 @@ class OccupancyMap
 	          std::enable_if_t<Tree::template is_node_type_v<NodeType>, bool> = true>
 	[[nodiscard]] occupancy_t occupancy(NodeType node) const
 	{
-		return occupancy(occupancyLogit(node));
+		return logitToProbability(occupancyLogit(node));
 	}
 
 	/**************************************************************************************
@@ -173,7 +173,7 @@ class OccupancyMap
 	{
 		assert(0 <= value && 1 >= value);
 
-		occupancySetLogit(node, occupancyLogit(value), propagate);
+		occupancySetLogit(node, probabilityToLogit(value), propagate);
 	}
 
 	template <class NodeType, class UnaryOp,
@@ -231,7 +231,7 @@ class OccupancyMap
 	void occupancyUpdate(NodeType node, UnaryOp&& unary_op, bool propagate = true)
 	{
 		occupancyUpdateLogit(
-		    node, [this, &unary_op](Index node) { return occupancyLogit(unary_op(node)); },
+		    node, [&unary_op](Index node) { return probabilityToLogit(unary_op(node)); },
 		    propagate);
 	}
 
@@ -239,7 +239,7 @@ class OccupancyMap
 	          std::enable_if_t<Tree::template is_node_type_v<NodeType>, bool> = true>
 	void occupancyUpdate(NodeType node, occupancy_t change, bool propagate = true)
 	{
-		occupancyUpdateLogit(node, occupancyLogit(change), propagate);
+		occupancyUpdateLogit(node, probabilityToLogit(change), propagate);
 	}
 
 	template <class NodeType,
@@ -247,8 +247,9 @@ class OccupancyMap
 	void occupancyUpdate(NodeType node, occupancy_t change, occupancy_t min_clamp_thres,
 	                     occupancy_t max_clamp_thres, bool propagate = true)
 	{
-		occupancyUpdateLogit(node, occupancyLogit(change), occupancyLogit(min_clamp_thres),
-		                     occupancyLogit(max_clamp_thres), propagate);
+		occupancyUpdateLogit(node, probabilityToLogit(change),
+		                     probabilityToLogit(min_clamp_thres),
+		                     probabilityToLogit(max_clamp_thres), propagate);
 	}
 
 	/**************************************************************************************
@@ -334,9 +335,9 @@ class OccupancyMap
 	// Sensor model
 	//
 
-	[[nodiscard]] constexpr occupancy_t occupiedThres() const noexcept
+	[[nodiscard]] occupancy_t occupiedThres() const noexcept
 	{
-		return occupancy(occupiedThresLogit());
+		return logitToProbability(occupiedThresLogit());
 	}
 
 	[[nodiscard]] constexpr logit_t occupiedThresLogit() const noexcept
@@ -344,9 +345,9 @@ class OccupancyMap
 		return occupied_thres_logit_;
 	}
 
-	[[nodiscard]] constexpr occupancy_t freeThres() const noexcept
+	[[nodiscard]] occupancy_t freeThres() const noexcept
 	{
-		return occupancy(freeThresLogit());
+		return logitToProbability(freeThresLogit());
 	}
 
 	[[nodiscard]] constexpr logit_t freeThresLogit() const noexcept
@@ -364,8 +365,8 @@ class OccupancyMap
 		// FIXME: Should add a warning that these are very computational expensive to
 		// call since the whole tree has to be updated
 
-		occupancySetThresLogit(occupancyLogit(occupied_thres), occupancyLogit(free_thres),
-		                       propagate);
+		occupancySetThresLogit(probabilityToLogit(occupied_thres),
+		                       probabilityToLogit(free_thres), propagate);
 	}
 
 	// FIXME: Look at
