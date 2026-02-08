@@ -192,10 +192,16 @@ TEST_CASE("OccupancyMap")
 		float occ_thres  = 0.7f;
 		float free_thres = 0.3f;
 
+		float occ_thres_logit  = probabilityToLogit(occ_thres);
+		float free_thres_logit = probabilityToLogit(free_thres);
+
 		map.occupancySetThres(occ_thres, free_thres);
 
 		REQUIRE(occ_thres == Catch::Approx(map.occupiedThres()));
 		REQUIRE(free_thres == Catch::Approx(map.freeThres()));
+
+		REQUIRE(occ_thres_logit == Catch::Approx(map.occupiedThresLogit()));
+		REQUIRE(free_thres_logit == Catch::Approx(map.freeThresLogit()));
 	}
 
 	SECTION("Occupancy Threshold Logit Set")
@@ -205,9 +211,15 @@ TEST_CASE("OccupancyMap")
 		float occ_thres  = 0.7f;
 		float free_thres = 0.3f;
 
-		map.occupancySetThresLogit(occ_thres, free_thres);
+		float occ_thres_logit  = probabilityToLogit(occ_thres);
+		float free_thres_logit = probabilityToLogit(free_thres);
 
-		REQUIRE(occ_thres == Catch::Approx(map.occupiedThresLogit()));
-		REQUIRE(free_thres == Catch::Approx(map.freeThresLogit()));
+		map.occupancySetThresLogit(occ_thres_logit, free_thres_logit);
+
+		REQUIRE(occ_thres_logit == Catch::Approx(map.occupiedThresLogit()));
+		REQUIRE(free_thres_logit == Catch::Approx(map.freeThresLogit()));
+
+		REQUIRE(occ_thres == Catch::Approx(map.occupiedThres()));
+		REQUIRE(free_thres == Catch::Approx(map.freeThres()));
 	}
 }
