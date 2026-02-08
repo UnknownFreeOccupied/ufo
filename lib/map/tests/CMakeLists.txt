@@ -26,7 +26,7 @@ endif()
 add_executable(ufomap_tests
 	# map_test.cpp
 	# integration_test.cpp
-	# occupancy_map_test.cpp
+	occupancy_map_test.cpp
 	# labels_map_test.cpp
 	label_map_test.cpp
 )
