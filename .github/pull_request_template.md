@@ -32,7 +32,7 @@ Please describe the tests that you ran to verify your changes. Provide instructi
 * SDK:
 -->
 
-# Checklist:
+# Checklist
 
 <!--
 - [ ] My code follows the style guidelines of this project
