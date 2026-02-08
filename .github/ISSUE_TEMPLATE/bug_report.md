@@ -25,7 +25,7 @@ If applicable, add screenshots to help explain your problem.
 
 ### Desktop (please complete the following information):
  - OS: [e.g., Ubuntu 24.04, macOS 26, Windows 11]
- - UFO version:
+ - App/Package version: [e.g., 1.2.3]
 
 ### Additional context
 Add any other context about the problem here.
