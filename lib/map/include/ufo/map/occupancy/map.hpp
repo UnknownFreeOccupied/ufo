@@ -335,7 +335,7 @@ class OccupancyMap
 	// Sensor model
 	//
 
-	[[nodiscard]] constexpr occupancy_t occupiedThres() const noexcept
+	[[nodiscard]] occupancy_t occupiedThres() const noexcept
 	{
 		return logitToProbability(occupiedThresLogit());
 	}
@@ -345,7 +345,7 @@ class OccupancyMap
 		return occupied_thres_logit_;
 	}
 
-	[[nodiscard]] constexpr occupancy_t freeThres() const noexcept
+	[[nodiscard]] occupancy_t freeThres() const noexcept
 	{
 		return logitToProbability(freeThresLogit());
 	}
