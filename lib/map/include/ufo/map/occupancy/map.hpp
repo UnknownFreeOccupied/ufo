@@ -231,8 +231,7 @@ class OccupancyMap
 	void occupancyUpdate(NodeType node, UnaryOp&& unary_op, bool propagate = true)
 	{
 		occupancyUpdateLogit(
-		    node,
-		    [this, &unary_op](Index node) { return probabilityToLogit(unary_op(node)); },
+		    node, [&unary_op](Index node) { return probabilityToLogit(unary_op(node)); },
 		    propagate);
 	}
 
