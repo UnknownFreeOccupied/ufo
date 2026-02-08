@@ -23,7 +23,7 @@ TEST_CASE("OccupancyMap")
 		REQUIRE(!map.containsUnknown(coord));
 		REQUIRE(!map.containsFree(coord));
 		REQUIRE(map.containsOccupied(coord));
-		REQUIRE(occ == Catch::Approx(map.occupancy(coord)));
+		REQUIRE(map.occupancy(coord) == Catch::Approx(occ));
 		REQUIRE(logit == Catch::Approx(map.occupancyLogit(coord)));
 	}
 
@@ -40,8 +40,8 @@ TEST_CASE("OccupancyMap")
 		REQUIRE(!map.containsUnknown(coord));
 		REQUIRE(!map.containsFree(coord));
 		REQUIRE(map.containsOccupied(coord));
-		REQUIRE(occ == Catch::Approx(map.occupancy(coord)));
-		REQUIRE(logit == Catch::Approx(map.occupancyLogit(coord)));
+		REQUIRE(map.occupancy(coord) == Catch::Approx(occ));
+		REQUIRE(map.occupancyLogit(coord) == Catch::Approx(logit));
 	}
 
 	SECTION("Occupancy Update")
@@ -53,33 +53,33 @@ TEST_CASE("OccupancyMap")
 		float     occ   = 0.95f;
 		float     logit = probabilityToLogit(occ);
 
-		REQUIRE(0.5f == Catch::Approx(map.occupancy(coord)));
-		REQUIRE(0.5f == Catch::Approx(map.occupancy(coord_r)));
+		REQUIRE(map.occupancy(coord) == Catch::Approx(0.5f));
+		REQUIRE(map.occupancy(coord_r) == Catch::Approx(0.5f));
 
 		map.occupancyUpdate(coord, occ, false);
 
 		REQUIRE(!map.containsUnknown(coord));
 		REQUIRE(!map.containsFree(coord));
 		REQUIRE(map.containsOccupied(coord));
-		REQUIRE(occ == Catch::Approx(map.occupancy(coord)));
+		REQUIRE(map.occupancy(coord) == Catch::Approx(occ));
 
-		REQUIRE(0.5f == Catch::Approx(map.occupancy(coord_r)));
+		REQUIRE(map.occupancy(coord_r) == Catch::Approx(0.5f));
 
 		map.propagate();
 
-		REQUIRE(occ == Catch::Approx(map.occupancy(coord_r)));
+		REQUIRE(map.occupancy(coord_r) == Catch::Approx(occ));
 
 		float occ2   = 0.8f;
 		float logit2 = probabilityToLogit(occ2);
 
 		map.occupancyUpdateLogit(coord, logit2, false);
 
-		REQUIRE(logitToProbability(logit + logit2) == Catch::Approx(map.occupancy(coord)));
-		REQUIRE(occ == Catch::Approx(map.occupancy(coord_r)));
+		REQUIRE(map.occupancy(coord) == Catch::Approx(logitToProbability(logit + logit2)));
+		REQUIRE(map.occupancy(coord_r) == Catch::Approx(occ));
 
 		map.propagate();
 
-		REQUIRE(logitToProbability(logit + logit2) == Catch::Approx(map.occupancy(coord_r)));
+		REQUIRE(map.occupancy(coord_r) == Catch::Approx(logitToProbability(logit + logit2)));
 
 		REQUIRE(!map.containsUnknown(coord));
 		REQUIRE(!map.containsFree(coord));
@@ -93,23 +93,22 @@ TEST_CASE("OccupancyMap")
 		Vec3f     coord(0, 0, 0);
 		TreeCoord coord_r(coord, 2);
 		float     occ   = 0.95f;
-		float     logit = probabilityToLogit(occ);
 
-		REQUIRE(0.5f == Catch::Approx(map.occupancy(coord)));
-		REQUIRE(0.5f == Catch::Approx(map.occupancy(coord_r)));
+		REQUIRE(map.occupancy(coord) == Catch::Approx(0.5f));
+		REQUIRE(map.occupancy(coord_r) == Catch::Approx(0.5f));
 
 		map.occupancyUpdate(coord, occ, 0.7f, 0.9f, false);
 
 		REQUIRE(!map.containsUnknown(coord));
 		REQUIRE(!map.containsFree(coord));
 		REQUIRE(map.containsOccupied(coord));
-		REQUIRE(0.9f == Catch::Approx(map.occupancy(coord)));
+		REQUIRE(map.occupancy(coord) == Catch::Approx(0.9f));
 
-		REQUIRE(0.5f == Catch::Approx(map.occupancy(coord_r)));
+		REQUIRE(map.occupancy(coord_r) == Catch::Approx(0.5f));
 
 		map.propagate();
 
-		REQUIRE(0.9f == Catch::Approx(map.occupancy(coord_r)));
+		REQUIRE(map.occupancy(coord_r) == Catch::Approx(0.9f));
 	}
 
 	SECTION("Occupancy Update UnaryOp")
@@ -119,21 +118,20 @@ TEST_CASE("OccupancyMap")
 		Vec3f     coord(0, 0, 0);
 		TreeCoord coord_r(coord, 2);
 		float     occ   = 0.95f;
-		float     logit = probabilityToLogit(occ);
 
-		REQUIRE(0.5f == Catch::Approx(map.occupancy(coord)));
+		REQUIRE(map.occupancy(coord) == Catch::Approx(0.5f));
 
 		map.occupancyUpdate(coord, [occ](TreeIndex) { return occ; }, false);
 
 		REQUIRE(!map.containsUnknown(coord));
 		REQUIRE(!map.containsFree(coord));
 		REQUIRE(map.containsOccupied(coord));
-		REQUIRE(occ == Catch::Approx(map.occupancy(coord)));
-		REQUIRE(0.5f == Catch::Approx(map.occupancy(coord_r)));
+		REQUIRE(map.occupancy(coord) == Catch::Approx(occ));
+		REQUIRE(map.occupancy(coord_r) == Catch::Approx(0.5f));
 
 		map.propagate();
 
-		REQUIRE(occ == Catch::Approx(map.occupancy(coord_r)));
+		REQUIRE(map.occupancy(coord_r) == Catch::Approx(occ));
 	}
 
 	SECTION("Occupancy Update Logit UnaryOp")
@@ -145,19 +143,19 @@ TEST_CASE("OccupancyMap")
 		float     occ   = 0.95f;
 		float     logit = probabilityToLogit(occ);
 
-		REQUIRE(0.5f == Catch::Approx(map.occupancy(coord)));
+		REQUIRE(map.occupancy(coord) == Catch::Approx(0.5f));
 
 		map.occupancyUpdateLogit(coord, [logit](TreeIndex) { return logit; }, false);
 
 		REQUIRE(!map.containsUnknown(coord));
 		REQUIRE(!map.containsFree(coord));
 		REQUIRE(map.containsOccupied(coord));
-		REQUIRE(occ == Catch::Approx(map.occupancy(coord)));
-		REQUIRE(0.5f == Catch::Approx(map.occupancy(coord_r)));
+		REQUIRE(map.occupancy(coord) == Catch::Approx(occ));
+		REQUIRE(map.occupancy(coord_r) == Catch::Approx(0.5f));
 
 		map.propagate();
 
-		REQUIRE(occ == Catch::Approx(map.occupancy(coord_r)));
+		REQUIRE(map.occupancy(coord_r) == Catch::Approx(occ));
 	}
 
 	SECTION("Occupancy Update Logit with Clamping")
@@ -169,7 +167,7 @@ TEST_CASE("OccupancyMap")
 		float     occ   = 0.95f;
 		float     logit = probabilityToLogit(occ);
 
-		REQUIRE(0.5f == Catch::Approx(map.occupancy(coord)));
+		REQUIRE(map.occupancy(coord) == Catch::Approx(0.5f));
 
 		map.occupancyUpdateLogit(coord, logit, probabilityToLogit(0.7f),
 		                         probabilityToLogit(0.9f), false);
@@ -177,12 +175,12 @@ TEST_CASE("OccupancyMap")
 		REQUIRE(!map.containsUnknown(coord));
 		REQUIRE(!map.containsFree(coord));
 		REQUIRE(map.containsOccupied(coord));
-		REQUIRE(0.9f == Catch::Approx(map.occupancy(coord)));
-		REQUIRE(0.5f == Catch::Approx(map.occupancy(coord_r)));
+		REQUIRE(map.occupancy(coord) == Catch::Approx(0.9f));
+		REQUIRE(map.occupancy(coord_r) == Catch::Approx(0.5f));
 
 		map.propagate();
 
-		REQUIRE(0.9f == Catch::Approx(map.occupancy(coord_r)));
+		REQUIRE(map.occupancy(coord_r) == Catch::Approx(0.9f));
 	}
 
 	SECTION("Occupancy Threshold Set")
@@ -197,11 +195,11 @@ TEST_CASE("OccupancyMap")
 
 		map.occupancySetThres(occ_thres, free_thres);
 
-		REQUIRE(occ_thres == Catch::Approx(map.occupiedThres()));
-		REQUIRE(free_thres == Catch::Approx(map.freeThres()));
+		REQUIRE(map.occupiedThres() == Catch::Approx(occ_thres));
+		REQUIRE(map.freeThres() == Catch::Approx(free_thres));
 
-		REQUIRE(occ_thres_logit == Catch::Approx(map.occupiedThresLogit()));
-		REQUIRE(free_thres_logit == Catch::Approx(map.freeThresLogit()));
+		REQUIRE(map.occupiedThresLogit() == Catch::Approx(occ_thres_logit));
+		REQUIRE(map.freeThresLogit() == Catch::Approx(free_thres_logit));
 	}
 
 	SECTION("Occupancy Threshold Logit Set")
@@ -216,10 +214,10 @@ TEST_CASE("OccupancyMap")
 
 		map.occupancySetThresLogit(occ_thres_logit, free_thres_logit);
 
-		REQUIRE(occ_thres_logit == Catch::Approx(map.occupiedThresLogit()));
-		REQUIRE(free_thres_logit == Catch::Approx(map.freeThresLogit()));
+		REQUIRE(map.occupiedThresLogit() == Catch::Approx(occ_thres_logit));
+		REQUIRE(map.freeThresLogit() == Catch::Approx(free_thres_logit));
 
-		REQUIRE(occ_thres == Catch::Approx(map.occupiedThres()));
-		REQUIRE(free_thres == Catch::Approx(map.freeThres()));
+		REQUIRE(map.occupiedThres() == Catch::Approx(occ_thres));
+		REQUIRE(map.freeThres() == Catch::Approx(free_thres));
 	}
 }
