@@ -4,7 +4,11 @@
 Please include a summary of the change and which issue is fixed. Please also include relevant motivation and context. List any dependencies that are required for this change.
 -->
 
-Fixes # (issue)
+<!-- If this pull request fixes one or more issues, uncomment the line below
+     and replace 123 with the relevant issue number(s), for example:
+     "Fixes #123" or "Fixes #123, Fixes #456".
+Fixes #123
+-->
 
 ## Type of change
 
