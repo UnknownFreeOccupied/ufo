@@ -9,6 +9,7 @@ add_library(UFO::Cloud ALIAS Cloud)
 
 target_link_libraries(Cloud 
 	INTERFACE
+		UFO::Container
 		UFO::Execution
 		UFO::Utility
 )

@@ -27,8 +27,8 @@ add_executable(ufomath_tests
 	mat2x2_test.cpp
 	mat3x3_test.cpp
 	mat4x4_test.cpp
-	pose2_test.cpp
-	pose3_test.cpp
+	transform2_test.cpp
+	transform3_test.cpp
 	quat_test.cpp
 	vec1_test.cpp
 	vec2_test.cpp

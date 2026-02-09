@@ -11,11 +11,11 @@ TEST_CASE("Morton2")
 {
 	ufo::Vec2u v(0, 1);
 
-	auto c = ufo::Morton<v.size()>::encode(v);
+	auto c = ufo::Morton<v.size()>::encode64(v);
 
-	auto v2 = ufo::Morton<v.size()>::decode(c);
+	auto v2 = ufo::Morton<v.size()>::decode64(c);
 
-	std::cout << all(v == v2) << std::endl;
+	std::cout << (v == v2) << std::endl;
 
 	// using namespace ufo;
 

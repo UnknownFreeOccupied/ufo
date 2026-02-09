@@ -4,11 +4,8 @@
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-// WebGPU
-#include <webgpu/webgpu.h>
-
-// WGPU-native
-#include <webgpu/wgpu.h>
+// UFO
+#include <ufo/compute/compute.hpp>
 
 // STL
 #include <array>
@@ -211,7 +208,8 @@ TEST_CASE("Compute")
 
 	wgpuBufferMapAsync(staging_buffer, WGPUMapMode_Read, 0, numbers_size, handleBufferMap,
 	                   nullptr);
-	wgpuDevicePoll(device, true, nullptr);
+
+	// TODO: Look at: wgpuDevicePoll(device, true, nullptr);
 
 	uint32_t* buf =
 	    static_cast<uint32_t*>(wgpuBufferGetMappedRange(staging_buffer, 0, numbers_size));

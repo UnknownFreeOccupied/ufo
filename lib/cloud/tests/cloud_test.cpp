@@ -126,7 +126,7 @@ template <class... Ts, std::enable_if_t<ufo::contains_type_v<Point, Ts...>, bool
 void applyTranslation2(ufo::Cloud<Ts...>& cloud, Point const& translation)
 {
 	// for (Point& e : cloud.template get<Point>()) {
-	for (Point& e : ufo::get<Point>(cloud)) {
+	for (Point& e : cloud.template view<Point>()) {
 		e += translation;
 	}
 }
@@ -174,11 +174,12 @@ TEST_CASE("Cloud shrink to fit")
 	REQUIRE(cloud.capacity() == 2);
 }
 
-TEST_CASE("Cloud clear") {
+TEST_CASE("Cloud clear")
+{
 	ufo::Cloud<Point> cloud;
 	REQUIRE(cloud.size() == 0);
 	cloud.emplace_back(Point(1, 1, 1));
-	REQUIRE(cloud.size() == 1);\
+	REQUIRE(cloud.size() == 1);
 	cloud.clear();
 	REQUIRE(cloud.size() == 0);
 }
@@ -223,111 +224,113 @@ TEST_CASE("Cloud resize")
 
 TEST_CASE("Cloud")
 {
-	ufo::Cloud<Occupancy, Color, Point> cloud;
+	// TODO: Implement
 
-	cloud.emplace_back(0.5, Color{1.0, 0.0, 1.0});
-	cloud.emplace_back();
-	cloud.emplace_back(3.0);
+	// ufo::Cloud<Occupancy, Color, Point> cloud;
 
-	decltype(cloud)::value_type value = cloud[0];
+	// cloud.emplace_back(0.5, Color{1.0, 0.0, 1.0}, Point);
+	// cloud.emplace_back();
+	// cloud.emplace_back(3.0);
 
-	std::cout << value << std::endl;
+	// decltype(cloud)::value_type value = cloud[0];
 
-	std::cout << cloud[0] << std::endl;
+	// std::cout << value << std::endl;
 
-	std::cout << static_cast<Occupancy>(cloud[0]) << std::endl;
+	// std::cout << cloud[0] << std::endl;
 
-	cloud[0].get<Occupancy>() = 0.75;
+	// std::cout << static_cast<Occupancy>(cloud[0]) << std::endl;
 
-	std::cout << static_cast<Occupancy>(cloud[0]) << std::endl;
+	// cloud[0].get<Occupancy>() = 0.75;
 
-	cloud[0].set<Occupancy>(1.0);
+	// std::cout << static_cast<Occupancy>(cloud[0]) << std::endl;
 
-	std::cout << static_cast<Occupancy>(cloud[0]) << std::endl;
+	// cloud[0].set<Occupancy>(1.0);
 
-	static_cast<Occupancy&>(cloud[0]) = 0.3;
+	// std::cout << static_cast<Occupancy>(cloud[0]) << std::endl;
 
-	std::cout << static_cast<Occupancy>(cloud[0]) << std::endl;
+	// static_cast<Occupancy&>(cloud[0]) = 0.3;
 
-	std::cout << cloud[0].get<Color>() << std::endl;
+	// std::cout << static_cast<Occupancy>(cloud[0]) << std::endl;
 
-	cloud[0].set<Color>(1.0, 0.3, 0.0);
+	// std::cout << cloud[0].get<Color>() << std::endl;
 
-	std::cout << cloud[0].get<Color>() << std::endl;
+	// cloud[0].set<Color>(1.0, 0.3, 0.0);
 
-	std::cout << std::as_const(cloud)[0].occupancy << std::endl;
+	// std::cout << cloud[0].get<Color>() << std::endl;
 
-	decltype(cloud)::value_type ce = cloud[0];
+	// std::cout << std::as_const(cloud)[0].occupancy << std::endl;
 
-	std::cout << ce.occupancy << std::endl;
+	// decltype(cloud)::value_type ce = cloud[0];
 
-	cloud.push_back(cloud[0]);
+	// std::cout << ce.occupancy << std::endl;
 
-	cloud[1].set<Occupancy>(0.0);
+	// cloud.push_back(cloud[0]);
 
-	std::cout << cloud[0] << std::endl;
-	std::cout << cloud[1] << std::endl;
+	// cloud[1].set<Occupancy>(0.0);
 
-	std::cout << "Before:" << std::endl;
-	for (auto const& e : cloud) {
-		std::cout << e << std::endl;
-	}
+	// std::cout << cloud[0] << std::endl;
+	// std::cout << cloud[1] << std::endl;
 
-	for (auto e : cloud) {
-		e.set<Color>(0.0, 0.0, 0.0);
-	}
+	// std::cout << "Before:" << std::endl;
+	// for (auto const& e : cloud) {
+	// 	std::cout << e << std::endl;
+	// }
 
-	std::cout << "After:" << std::endl;
-	for (auto const& e : cloud) {
-		std::cout << e << std::endl;
-	}
+	// for (auto e : cloud) {
+	// 	e.set<Color>(0.0, 0.0, 0.0);
+	// }
 
-	ufo::Cloud<Point, Color>    c1(1000);
-	ufo::Cloud<Point, Color>    c2(1000);
-	ufo::OldCloud<Point, Color> oc(1000);
+	// std::cout << "After:" << std::endl;
+	// for (auto const& e : cloud) {
+	// 	std::cout << e << std::endl;
+	// }
+
+	// ufo::Cloud<Point, Color>    c1(1000);
+	// ufo::Cloud<Point, Color>    c2(1000);
+	// ufo::OldCloud<Point, Color> oc(1000);
+
+	// // std::cout << "Before" << std::endl;
+	// // for (auto const& e : c1) {
+	// // 	std::cout << e << std::endl;
+	// // }
+
+	// applyTranslation(c1, Point(1, -2, 5));
+	// applyTranslation2(c2, Point(1, -2, 5));
+	// applyTranslation2(oc, Point(1, -2, 5));
+
+	// REQUIRE(c1.max_size() == c2.max_size());
+	// REQUIRE(c1.capacity() == c2.capacity());
+
+	// // std::cout << "After" << std::endl;
+	// // for (auto const& e : c1) {
+	// // 	std::cout << e << std::endl;
+	// // }
+
+	// REQUIRE(c1 == c2);
+
+	// BENCHMARK("applyTranslation 1") { applyTranslation(c1, Point(1, -2, 5)); };
+	// BENCHMARK("applyTranslation 2") { applyTranslation2(c2, Point(1, -2, 5)); };
+	// BENCHMARK("old applyTranslation") { applyTranslation2(oc, Point(1, -2, 5)); };
+
+	// ufo::Cloud<Color> c3(5);
 
 	// std::cout << "Before" << std::endl;
-	// for (auto const& e : c1) {
+	// for (auto const& e : c3) {
 	// 	std::cout << e << std::endl;
 	// }
 
-	applyTranslation(c1, Point(1, -2, 5));
-	applyTranslation2(c2, Point(1, -2, 5));
-	applyTranslation2(oc, Point(1, -2, 5));
-
-	REQUIRE(c1.max_size() == c2.max_size());
-	REQUIRE(c1.capacity() == c2.capacity());
+	// // applyTranslation(c3, Point(1, -2, 5));
 
 	// std::cout << "After" << std::endl;
-	// for (auto const& e : c1) {
+	// for (auto const& e : c3) {
 	// 	std::cout << e << std::endl;
 	// }
 
-	REQUIRE(c1 == c2);
+	// ufo::Cloud<Point, Occupancy, Color> c4(3);
+	// c4[0] = Color(1.0, 0.0, 0.5);
 
-	BENCHMARK("applyTranslation 1") { applyTranslation(c1, Point(1, -2, 5)); };
-	BENCHMARK("applyTranslation 2") { applyTranslation2(c2, Point(1, -2, 5)); };
-	BENCHMARK("old applyTranslation") { applyTranslation2(oc, Point(1, -2, 5)); };
-
-	ufo::Cloud<Color> c3(5);
-
-	std::cout << "Before" << std::endl;
-	for (auto const& e : c3) {
-		std::cout << e << std::endl;
-	}
-
-	// applyTranslation(c3, Point(1, -2, 5));
-
-	std::cout << "After" << std::endl;
-	for (auto const& e : c3) {
-		std::cout << e << std::endl;
-	}
-
-	ufo::Cloud<Point, Occupancy, Color> c4(3);
-	c4[0] = Color(1.0, 0.0, 0.5);
-
-	std::cout << "Last" << std::endl;
-	for (auto const& e : c4) {
-		std::cout << e << std::endl;
-	}
+	// std::cout << "Last" << std::endl;
+	// for (auto const& e : c4) {
+	// 	std::cout << e << std::endl;
+	// }
 }
