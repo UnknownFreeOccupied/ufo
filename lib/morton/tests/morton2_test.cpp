@@ -15,7 +15,7 @@ TEST_CASE("Morton2")
 
 	auto v2 = ufo::Morton<v.size()>::decode64(c);
 
-	std::cout << (v == v2) << std::endl;
+	REQUIRE(v == v2);
 
 	// using namespace ufo;
 
