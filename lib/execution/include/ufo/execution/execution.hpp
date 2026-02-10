@@ -276,7 +276,7 @@ constexpr inline omp_parallel_policy             omp_par{};
 constexpr inline omp_parallel_unsequenced_policy omp_par_unseq{};
 
 template <class ExecutionPolicy>
-[[nodiscard]] constexpr auto&& toSTL(ExecutionPolicy&& policy)
+[[nodiscard]] constexpr auto&& toSTL([[maybe_unused]] ExecutionPolicy&& policy)
 {
 #if defined(UFO_PAR_STL)
 	if constexpr (is_stl_v<ExecutionPolicy>) {
