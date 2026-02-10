@@ -22,9 +22,15 @@ unset(foundParallelLibs)
 unset(missingParallelLibs)
 
 message(CHECK_START "Finding Threading Building Blocks (TBB)")
-message(CHECK_PASS "has TBB")
-
-list(APPEND foundParallelLibs TBB)
+if(TARGET TBB::tbb)
+	message(CHECK_PASS "found and enabled")
+	target_link_libraries(Execution INTERFACE TBB::tbb)
+	target_compile_definitions(Execution INTERFACE UFO_PAR_TBB=1)
+	list(APPEND foundParallelLibs TBB)
+else()
+	message(CHECK_FAIL "not found and disabled")
+	list(APPEND missingParallelLibs TBB)
+endif()
 
 message(CHECK_START "Checking Standard Template Library (STL) parallel support")
 
@@ -47,7 +53,7 @@ if(HAVE_STL_PAR)
 	message(CHECK_PASS "has native support")
 	target_compile_definitions(Execution INTERFACE UFO_PAR_STL=1)
 	list(APPEND foundParallelLibs STL)
-else()
+elseif(TARGET TBB::tbb)
 	set(CMAKE_REQUIRED_LIBRARIES "TBB::tbb")
 	check_cxx_source_compiles("
 			#include <algorithm>

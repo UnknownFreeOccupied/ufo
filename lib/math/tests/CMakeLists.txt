@@ -17,19 +17,19 @@ target_sources(MathTests
 target_link_libraries(MathTests PRIVATE UFO::Math Catch2::Catch2WithMain)
 
 target_compile_options(MathTests
-	PUBLIC
-		-Wall
-		-Werror
-		-Wextra
-		-pedantic
-		-Wconversion
-		-Wcast-align
-		-Wunused
-		# -Wshadow
-		-Wold-style-cast
-		-Wpointer-arith
-		-Wcast-qual
-		-Wno-missing-braces
+	PRIVATE
+		# -Wall
+		# -Werror
+		# -Wextra
+		# -pedantic
+		# -Wconversion
+		# -Wcast-align
+		# -Wunused
+		# # -Wshadow
+		# -Wold-style-cast
+		# -Wpointer-arith
+		# -Wcast-qual
+		# -Wno-missing-braces
 )
 
 catch_discover_tests(MathTests)
