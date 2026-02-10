@@ -486,11 +486,12 @@ template <std::size_t Dim, class T, class F>
 	return a + (b - a) * t;
 }
 
-template <std::size_t Dim, class T, class F>
-[[nodiscard]] constexpr Vec<Dim, T> slerp(Vec<Dim, T> a, Vec<Dim, T> b, F t)
-{
-	// TODO: Implement
-}
+// TODO: Implement
+// template <std::size_t Dim, class T, class F>
+// [[nodiscard]] constexpr Vec<Dim, T> slerp(Vec<Dim, T> a, Vec<Dim, T> b, F t)
+// {
+// 	// TODO: Implement
+// }
 
 template <std::size_t Dim, class T, class U>
 [[nodiscard]] constexpr Vec<Dim, T> mix(Vec<Dim, T> const& x, Vec<Dim, T> const& y,
