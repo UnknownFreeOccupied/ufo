@@ -1,6 +1,6 @@
-option(UFOVIZ_BUILD_DOCS "Generate documentation" OFF)
-option(UFOVIZ_BUILD_TESTS "Unit testing" OFF)
-option(UFOVIZ_BUILD_COVERAGE "Test Coverage" OFF)
+option(UFO_VIZ_BUILD_DOCS "Generate documentation" ON)
+option(UFO_VIZ_BUILD_TESTS "Unit testing" ON)
+option(UFO_VIZ_BUILD_COVERAGE "Test Coverage" ON)
 
 add_subdirectory(apps)
 
@@ -55,11 +55,11 @@ else()
 	)
 endif()
 
-if(UFO_BUILD_TESTS OR UFOVIZ_BUILD_TESTS)
+if(UFO_BUILD_TESTS AND UFO_VIZ_BUILD_TESTS)
 	add_subdirectory(tests)
 endif()
 
-if(UFO_BUILD_DOCS OR UFOVIZ_BUILD_DOCS)
+if(UFO_BUILD_DOCS AND UFO_VIZ_BUILD_DOCS)
 	add_subdirectory(docs)
 endif()
 

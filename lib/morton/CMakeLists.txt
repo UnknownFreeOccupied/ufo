@@ -1,8 +1,8 @@
-option(UFOMORTON_BUILD_DOCS "Generate documentation" OFF)
-option(UFOMORTON_BUILD_TESTS "Unit testing" OFF)
-option(UFOMORTON_BUILD_COVERAGE "Test Coverage" OFF)
+option(UFO_MORTON_BUILD_DOCS "Generate documentation" ON)
+option(UFO_MORTON_BUILD_TESTS "Unit testing" ON)
+option(UFO_MORTON_BUILD_COVERAGE "Test Coverage" ON)
 
-option(UFOMORTON_BMI2 "Enable BMI2 instruction set (if available)" OFF)
+option(UFO_MORTON_BMI2 "Enable BMI2 instruction set (if available)" OFF)
 
 include(GNUInstallDirs)
 
@@ -48,11 +48,11 @@ target_include_directories(Morton
 		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-if(UFO_BUILD_TESTS OR UFOMORTON_BUILD_TESTS)
+if(UFO_BUILD_TESTS AND UFO_MORTON_BUILD_TESTS)
 	add_subdirectory(tests)
 endif()
 
-if(UFO_BUILD_DOCS OR UFOMORTON_BUILD_DOCS)
+if(UFO_BUILD_DOCS AND UFO_MORTON_BUILD_DOCS)
 	add_subdirectory(docs)
 endif()
 

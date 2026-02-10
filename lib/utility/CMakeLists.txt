@@ -1,3 +1,7 @@
+option(UFO_UTILITY_BUILD_DOCS     "Generate documentation" ON)
+option(UFO_UTILITY_BUILD_TESTS    "Unit testing"           ON)
+option(UFO_UTILITY_BUILD_COVERAGE "Test Coverage"          ON)
+
 # --- ufo/utility/CMakeLists.txt ---
 include(GNUInstallDirs)
 
@@ -11,8 +15,6 @@ add_library(Utility STATIC
 add_library(UFO::Utility ALIAS Utility)
 
 # 2. Dependencies
-find_package(TBB) #should ideally be in the root Dependencies.cmake
-# but we link it here.
 target_link_libraries(Utility PUBLIC TBB::tbb)
 
 target_compile_definitions(Utility
@@ -35,6 +37,14 @@ target_include_directories(Utility
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
+
+if(UFO_BUILD_TESTS AND UFO_UTILITY_BUILD_TESTS)
+  add_subdirectory(tests)
+endif()
+
+if(UFO_BUILD_DOCS AND UFO_UTILITY_BUILD_DOCS)
+	add_subdirectory(docs)
+endif()
 
 # 5. Global Install (Simplified)
 # We add this target to the shared 'UFO-targets' export set

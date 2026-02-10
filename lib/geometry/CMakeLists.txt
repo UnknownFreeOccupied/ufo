@@ -1,6 +1,6 @@
-option(UFOGEOMETRY_BUILD_DOCS     "Generate documentation" OFF)
-option(UFOGEOMETRY_BUILD_TESTS    "Unit testing"           OFF)
-option(UFOGEOMETRY_BUILD_COVERAGE "Test Coverage"          OFF)
+option(UFO_GEOMETRY_BUILD_DOCS     "Generate documentation" ON)
+option(UFO_GEOMETRY_BUILD_TESTS    "Unit testing"           ON)
+option(UFO_GEOMETRY_BUILD_COVERAGE "Test Coverage"          ON)
 
 include(GNUInstallDirs)
 
@@ -18,11 +18,11 @@ target_include_directories(Geometry
 		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-if(UFO_BUILD_TESTS OR UFOGEOMETRY_BUILD_TESTS)
+if(UFO_BUILD_TESTS AND UFO_GEOMETRY_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
 
-if(UFO_BUILD_DOCS OR UFOGEOMETRY_BUILD_DOCS)
+if(UFO_BUILD_DOCS AND UFO_GEOMETRY_BUILD_DOCS)
 	add_subdirectory(docs)
 endif()
 

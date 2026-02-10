@@ -1,6 +1,6 @@
-option(UFOCORE_BUILD_DOCS     "Generate documentation" OFF)
-option(UFOCORE_BUILD_TESTS    "Unit testing"           OFF)
-option(UFOCORE_BUILD_COVERAGE "Test Coverage"          OFF)
+option(UFO_CORE_BUILD_DOCS     "Generate documentation" ON)
+option(UFO_CORE_BUILD_TESTS    "Unit testing"           ON)
+option(UFO_CORE_BUILD_COVERAGE "Test Coverage"          ON)
 
 include(GNUInstallDirs)
 
@@ -18,11 +18,11 @@ target_include_directories(Core
 		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-if(UFO_BUILD_TESTS OR UFOCORE_BUILD_TESTS)
+if(UFO_BUILD_TESTS AND UFO_CORE_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
 
-if(UFO_BUILD_DOCS OR UFOCORE_BUILD_DOCS)
+if(UFO_BUILD_DOCS AND UFO_CORE_BUILD_DOCS)
 	add_subdirectory(docs)
 endif()
 
