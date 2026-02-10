@@ -1,0 +1,83 @@
+# Add 'documentation' label to any changes within 'docs' folder or any subfolders, or to any markdown file
+documentation:
+- changed-files:
+  - any-glob-to-any-file: ['docs/**', '**/*.md']
+
+# Add 'enhancement' label to any PR where the head branch name starts with `feature` or has a `feature` section in the name
+enhancement:
+ - head-branch: ['^feature', 'feature']
+
+# Add 'test' label to any changes within a 'tests' folder or any subfolders
+test:
+- changed-files:
+  - any-glob-to-any-file: '**/tests/**'
+
+# Add 'lib-cloud' label to any changes within the cloud library 
+lib-cloud:
+- changed-files:
+  - any-glob-to-any-file: lib/cloud/**
+
+# Add 'lib-compute' label to any changes within the cloud library 
+lib-compute:
+- changed-files:
+  - any-glob-to-any-file: lib/compute/**
+
+# Add 'lib-container' label to any changes within the cloud library 
+lib-container:
+- changed-files:
+  - any-glob-to-any-file: lib/container/**
+
+# Add 'lib-core' label to any changes within the cloud library 
+lib-core:
+- changed-files:
+  - any-glob-to-any-file: lib/core/**
+
+# Add 'lib-execution' label to any changes within the cloud library 
+lib-execution:
+- changed-files:
+  - any-glob-to-any-file: lib/execution/**
+
+# Add 'lib-geometry' label to any changes within the cloud library 
+lib-geometry:
+- changed-files:
+  - any-glob-to-any-file: lib/geometry/**
+
+# Add 'lib-map' label to any changes within the cloud library 
+lib-map:
+- changed-files:
+  - any-glob-to-any-file: lib/map/**
+
+# Add 'lib-math' label to any changes within the cloud library 
+lib-math:
+- changed-files:
+  - any-glob-to-any-file: lib/math/**
+
+# Add 'lib-morton' label to any changes within the cloud library 
+lib-morton:
+- changed-files:
+  - any-glob-to-any-file: lib/morton/**
+
+# Add 'lib-plan' label to any changes within the cloud library 
+lib-plan:
+- changed-files:
+  - any-glob-to-any-file: lib/plan/**
+
+# Add 'lib-time' label to any changes within the cloud library 
+lib-time:
+- changed-files:
+  - any-glob-to-any-file: lib/time/**
+
+# Add 'lib-utility' label to any changes within the cloud library 
+lib-utility:
+- changed-files:
+  - any-glob-to-any-file: lib/utility/**
+
+# Add 'lib-vision' label to any changes within the cloud library 
+lib-vision:
+- changed-files:
+  - any-glob-to-any-file: lib/vision/**
+
+# Add 'lib-viz' label to any changes within the cloud library 
+lib-viz:
+- changed-files:
+  - any-glob-to-any-file: lib/viz/**
