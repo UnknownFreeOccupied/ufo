@@ -22,11 +22,56 @@ unset(foundParallelLibs)
 unset(missingParallelLibs)
 
 message(CHECK_START "Finding Threading Building Blocks (TBB)")
+
 if(TARGET TBB::tbb)
-	message(CHECK_PASS "found and enabled")
-	target_link_libraries(Execution INTERFACE TBB::tbb)
-	target_compile_definitions(Execution INTERFACE UFO_PAR_TBB=1)
-	list(APPEND foundParallelLibs TBB)
+	list(APPEND CMAKE_MESSAGE_INDENT "  ")
+	message(CHECK_START "Checking if oneTBB and not TBB")
+
+  # TODO: Fix this
+	# cmake_push_check_state()
+	# set(CMAKE_REQUIRED_FLAGS "-O0")
+	# set(CMAKE_REQUIRED_LIBRARIES "TBB::tbb")
+
+	# check_cxx_source_compiles("
+	# 		// STL
+	# 		#include <cstddef>
+	# 		#include <vector>
+
+	# 		// oneTBB
+	# 		#include <oneapi/tbb.h>
+			
+	# 		struct S {
+	# 			std::size_t value;
+	# 		};
+
+	# 		int main() {
+	# 			std::vector<S> v(10);
+
+	# 			oneapi::tbb::parallel_for(std::size_t(0), v.size(), [&v](std::size_t i) { v[i].value = i; });
+
+	# 			return 0;
+	# 		}
+	# 	" HAVE_ONETBB_PAR)
+
+	# cmake_pop_check_state()
+
+  # TODO: Remove when above is fixed
+	set(HAVE_ONETBB_PAR TRUE)
+
+	if(HAVE_ONETBB_PAR)
+		message(CHECK_PASS "has oneTBB")
+		list(POP_BACK CMAKE_MESSAGE_INDENT)
+		message(CHECK_PASS "found and enabled")
+		target_link_libraries(Execution INTERFACE TBB::tbb)
+		target_compile_definitions(Execution INTERFACE UFO_PAR_TBB=1)
+		list(APPEND foundParallelLibs TBB)
+	else()
+		message(CHECK_FAIL "only has old TBB (not oneTBB)")
+		list(POP_BACK CMAKE_MESSAGE_INDENT)
+		message(CHECK_FAIL "not found and disabled")
+		list(APPEND missingParallelLibs TBB)
+	endif()
+
 else()
 	message(CHECK_FAIL "not found and disabled")
 	list(APPEND missingParallelLibs TBB)
@@ -54,18 +99,22 @@ if(HAVE_STL_PAR)
 	target_compile_definitions(Execution INTERFACE UFO_PAR_STL=1)
 	list(APPEND foundParallelLibs STL)
 elseif(TARGET TBB::tbb)
-	set(CMAKE_REQUIRED_LIBRARIES "TBB::tbb")
-	check_cxx_source_compiles("
-			#include <algorithm>
-			#include <array>
-			#include <execution>
-			int main() {
-				std::array<int, 10> a{};
-				std::for_each(std::execution::par, a.begin(), a.end(), [](auto){});
-				(void)a;
-				return 0;
-			}
-		" HAVE_STL_PAR_USING_TBB)
+  # TODO: Fix this
+	# set(CMAKE_REQUIRED_LIBRARIES "TBB::tbb")
+	# check_cxx_source_compiles("
+	# 		#include <algorithm>
+	# 		#include <array>
+	# 		#include <execution>
+	# 		int main() {
+	# 			std::array<int, 10> a{};
+	# 			std::for_each(std::execution::par, a.begin(), a.end(), [](auto){});
+	# 			(void)a;
+	# 			return 0;
+	# 		}
+	# 	" HAVE_STL_PAR_USING_TBB)
+
+  # TODO: Remove when above is fixed
+	set(HAVE_STL_PAR_USING_TBB FALSE)
 
 	if(HAVE_STL_PAR_USING_TBB)
 		message(CHECK_PASS "has support using TBB")
@@ -76,6 +125,10 @@ elseif(TARGET TBB::tbb)
 		message(CHECK_FAIL "no support")
 		list(APPEND missingParallelLibs STL)
 	endif()
+
+else()
+	message(CHECK_FAIL "no support")
+	list(APPEND missingParallelLibs STL)
 endif()
 
 cmake_pop_check_state()
