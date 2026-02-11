@@ -86,6 +86,26 @@ install(
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 )
 
-install(DIRECTORY ${IMGUI_DIR}
-	DESTINATION ${CMAKE_INSTALL_PREFIX}
+install(
+	FILES
+		"${IMGUI_DIR}/imconfig.h"
+		"${IMGUI_DIR}/imgui.h"
+		"${IMGUI_DIR}/imgui_internal.h"
+		"${IMGUI_DIR}/imstb_rectpack.h"
+		"${IMGUI_DIR}/imstb_textedit.h"
+		"${IMGUI_DIR}/imstb_truetype.h"
+	DESTINATION include/imgui
+)
+
+install(
+	FILES
+		"${IMGUI_DIR}/backends/imgui_impl_glfw.h"
+		"${IMGUI_DIR}/backends/imgui_impl_wgpu.h"
+	DESTINATION include/imgui/backends
+)
+
+install(
+	FILES
+		"${IMGUI_DIR}/misc/cpp/imgui_stdlib.h"
+	DESTINATION include/imgui/misc/cpp
 )
