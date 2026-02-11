@@ -12,6 +12,11 @@ test:
 - changed-files:
   - any-glob-to-any-file: '**/tests/**'
 
+# Add 'dependency' label to any changes within a 'external' folder or any subfolders
+dependency:
+- changed-files:
+  - any-glob-to-any-file: 'external/**'
+
 # Add 'lib-cloud' label to any changes within the cloud library 
 lib-cloud:
 - changed-files:
