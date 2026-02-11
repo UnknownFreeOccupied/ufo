@@ -1183,7 +1183,7 @@ class MapFull final
 
 		std::size_t max_size{};
 		for (std::size_t i = 1; header.map_info.size() > i; ++i) {
-			max_size = std::max(max_size, header.map_info[i].size);
+			max_size = std::max(max_size, static_cast<std::size_t>(header.map_info[i].size));
 		}
 
 		Buffer buffer;
