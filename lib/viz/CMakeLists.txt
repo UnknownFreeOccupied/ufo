@@ -20,6 +20,12 @@ set_target_properties(Viz
 		OUTPUT_NAME "UFOViz"
 )
 
+if (MSVC)
+	target_compile_options(Viz PRIVATE /W4)
+else()
+	target_compile_options(Viz PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
 # add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/imgui")
 target_link_libraries(Viz
 	PUBLIC

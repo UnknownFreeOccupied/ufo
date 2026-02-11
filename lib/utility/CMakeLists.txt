@@ -14,6 +14,12 @@ add_library(Utility STATIC
 )
 add_library(UFO::Utility ALIAS Utility)
 
+if (MSVC)
+	target_compile_options(Utility PRIVATE /W4)
+else()
+	target_compile_options(Utility PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
 # 2. Dependencies
 target_link_libraries(Utility PUBLIC TBB::tbb)
 

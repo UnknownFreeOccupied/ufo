@@ -9,20 +9,10 @@ target_sources(GeometryTests
 
 target_link_libraries(GeometryTests PRIVATE UFO::Geometry Catch2::Catch2WithMain)
 
-target_compile_options(GeometryTests
-	PUBLIC
-		# -Wall
-		# -Werror
-		# -Wextra
-		# -pedantic
-		# -Wconversion
-		# -Wcast-align
-		# -Wunused
-		# # -Wshadow
-		# -Wold-style-cast
-		# -Wpointer-arith
-		# -Wcast-qual
-		# -Wno-missing-braces
-)
+if (MSVC)
+	target_compile_options(GeometryTests PRIVATE /W4)
+else()
+	target_compile_options(GeometryTests PRIVATE -Wall -Wextra -Wpedantic)
+endif()
 
 catch_discover_tests(GeometryTests)

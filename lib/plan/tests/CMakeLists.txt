@@ -7,20 +7,10 @@ target_sources(PlanTests
 
 target_link_libraries(PlanTests PRIVATE UFO::Plan Catch2::Catch2WithMain)
 
-target_compile_options(PlanTests
-	PUBLIC
-		-Wall
-		-Werror
-		-Wextra
-		-pedantic
-		-Wconversion
-		-Wcast-align
-		-Wunused
-		# -Wshadow
-		-Wold-style-cast
-		-Wpointer-arith
-		-Wcast-qual
-		-Wno-missing-braces
-)
+if (MSVC)
+	target_compile_options(PlanTests PRIVATE /W4)
+else()
+	target_compile_options(PlanTests PRIVATE -Wall -Wextra -Wpedantic)
+endif()
 
 catch_discover_tests(PlanTests)

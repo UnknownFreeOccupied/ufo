@@ -19,6 +19,12 @@ set_target_properties(Time
 		OUTPUT_NAME "UFOTime"
 )
 
+if (MSVC)
+	target_compile_options(Time PRIVATE /W4)
+else()
+	target_compile_options(Time PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
 target_include_directories(Time 
 	PUBLIC
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

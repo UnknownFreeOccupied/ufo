@@ -7,20 +7,10 @@ target_sources(CoreTests
 
 target_link_libraries(CoreTests PRIVATE UFO::Core Catch2::Catch2WithMain)
 
-target_compile_options(CoreTests
-	PUBLIC
-		-Wall
-		-Werror
-		-Wextra
-		-pedantic
-		-Wconversion
-		-Wcast-align
-		-Wunused
-		# -Wshadow
-		-Wold-style-cast
-		-Wpointer-arith
-		-Wcast-qual
-		-Wno-missing-braces
-)
+if (MSVC)
+	target_compile_options(CoreTests PRIVATE /W4)
+else()
+	target_compile_options(CoreTests PRIVATE -Wall -Wextra -Wpedantic)
+endif()
 
 catch_discover_tests(CoreTests)

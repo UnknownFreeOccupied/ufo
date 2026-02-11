@@ -6,20 +6,10 @@ target_sources(ExecutionTests
 )
 target_link_libraries(ExecutionTests PRIVATE UFO::Execution Catch2::Catch2WithMain)
 
-target_compile_options(ExecutionTests
-	PUBLIC
-		# -Wall
-		# -Werror
-		# -Wextra
-		# -pedantic
-		# -Wconversion
-		# -Wcast-align
-		# -Wunused
-		# # -Wshadow
-		# -Wold-style-cast
-		# -Wpointer-arith
-		# -Wcast-qual
-		# -Wno-missing-braces
-)
+if (MSVC)
+	target_compile_options(ExecutionTests PRIVATE /W4)
+else()
+	target_compile_options(ExecutionTests PRIVATE -Wall -Wextra -Wpedantic)
+endif()
 
 catch_discover_tests(ExecutionTests)

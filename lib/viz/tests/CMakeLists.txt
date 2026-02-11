@@ -9,20 +9,10 @@ target_sources(VizTests
 
 target_link_libraries(VizTests PRIVATE UFO::Viz Catch2::Catch2WithMain)
 
-target_compile_options(VizTests
-	PUBLIC
-		-Wall
-		-Werror
-		-Wextra
-		-pedantic
-		-Wconversion
-		-Wcast-align
-		-Wunused
-		# -Wshadow
-		-Wold-style-cast
-		-Wpointer-arith
-		-Wcast-qual
-		-Wno-missing-braces
-)
+if (MSVC)
+	target_compile_options(VizTests PRIVATE /W4)
+else()
+	target_compile_options(VizTests PRIVATE -Wall -Wextra -Wpedantic)
+endif()
 
 catch_discover_tests(VizTests)

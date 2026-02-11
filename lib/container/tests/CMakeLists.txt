@@ -14,20 +14,10 @@ target_sources(ContainerTests
 
 target_link_libraries(ContainerTests PRIVATE UFO::Container Catch2::Catch2WithMain)
 
-target_compile_options(ContainerTests
-	PUBLIC
-		# -Wall
-		# -Werror
-		# -Wextra
-		# -pedantic
-		# -Wconversion
-		# -Wcast-align
-		# -Wunused
-		# # -Wshadow
-		# -Wold-style-cast
-		# -Wpointer-arith
-		# -Wcast-qual
-		# -Wno-missing-braces
-)
+if (MSVC)
+	target_compile_options(ContainerTests PRIVATE /W4)
+else()
+	target_compile_options(ContainerTests PRIVATE -Wall -Wextra -Wpedantic)
+endif()
 
 catch_discover_tests(ContainerTests)

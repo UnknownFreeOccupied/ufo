@@ -16,20 +16,10 @@ target_sources(MathTests
 
 target_link_libraries(MathTests PRIVATE UFO::Math Catch2::Catch2WithMain)
 
-target_compile_options(MathTests
-	PRIVATE
-		# -Wall
-		# -Werror
-		# -Wextra
-		# -pedantic
-		# -Wconversion
-		# -Wcast-align
-		# -Wunused
-		# # -Wshadow
-		# -Wold-style-cast
-		# -Wpointer-arith
-		# -Wcast-qual
-		# -Wno-missing-braces
-)
+if (MSVC)
+	target_compile_options(MathTests PRIVATE /W4)
+else()
+	target_compile_options(MathTests PRIVATE -Wall -Wextra -Wpedantic)
+endif()
 
 catch_discover_tests(MathTests)

@@ -1,21 +1,11 @@
 # add_executable(Tests)
 # target_link_libraries(Tests PRIVATE Catch2::Catch2WithMain)
 
-# target_compile_options(Tests
-# 	PUBLIC
-# 		-Wall
-# 		-Werror
-# 		-Wextra
-# 		-pedantic
-# 		-Wconversion
-# 		-Wcast-align
-# 		-Wunused
-# 		# -Wshadow
-# 		-Wold-style-cast
-# 		-Wpointer-arith
-# 		-Wcast-qual
-# 		-Wno-missing-braces
-# )
+# if (MSVC)
+# 	target_compile_options(Tests PRIVATE /W4)
+# else()
+# 	target_compile_options(Tests PRIVATE -Wall -Wextra -Wpedantic)
+# endif()
 
 # include(CTest)
 # include(Catch)
