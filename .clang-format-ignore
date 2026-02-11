@@ -1,2 +1,2 @@
 # Ignore external libraries
-external/*
+external/**/*
