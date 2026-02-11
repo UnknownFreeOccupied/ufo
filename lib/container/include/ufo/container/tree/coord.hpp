@@ -96,14 +96,14 @@ struct TreeCoord : public Vec<Dim, T> {
 	}
 
 	template <class... Args,
-	          std::enable_if_t<(Dim == sizeof...(Args) && (std::is_scalar_v<Args> && ...)),
+	          std::enable_if_t<Dim == sizeof...(Args) && (std::is_scalar_v<Args> && ...),
 	                           bool> = true>
 	constexpr TreeCoord(Args&&... args) noexcept : Point(std::forward<Args>(args)...)
 	{
 	}
 
-	template <class... Args, std::enable_if_t<(Dim + 1 == sizeof...(Args) &&
-	                                           (std::is_scalar_v<Args> && ...)),
+	template <class... Args, std::enable_if_t<Dim + 1 == sizeof...(Args) &&
+	                                              (std::is_scalar_v<Args> && ...),
 	                                          bool> = true>
 	constexpr TreeCoord(Args&&... args) noexcept
 	    : TreeCoord(std::integral_constant<std::size_t, Dim>{}, std::forward<Args>(args)...)
