@@ -7,7 +7,7 @@ target_sources(VizTests
 		# viz_test.cpp
 )
 
-set_target_properties(Utility
+set_target_properties(VizTests
 	PROPERTIES
 		VERSION ${PROJECT_VERSION}
 		SOVERSION ${PROJECT_VERSION_MAJOR}
