@@ -5,8 +5,10 @@ name: CMake on multiple platforms
 on:
   push:
     branches: [ "main" ]
+    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake', '**.clang_format', '**.clang-format-ignore', '**.clang-tidy', '**.clangd']
   pull_request:
     branches: [ "main" ]
+    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake', '**.clang_format', '**.clang-format-ignore', '**.clang-tidy', '**.clangd']
 
 jobs:
   build:
