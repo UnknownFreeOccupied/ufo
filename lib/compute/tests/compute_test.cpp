@@ -8,10 +8,12 @@
 #include <ufo/compute/compute.hpp>
 
 // STL
-#include <array>
+// #include <array>
 
-TEST_CASE("Compute") {
-	// TODO: Implement tests for compute module. For now, just make sure the test framework is working.
+TEST_CASE("Compute")
+{
+	// TODO: Implement tests for compute module. For now, just make sure the test framework
+	// is working.
 	REQUIRE(true);
 }
 
@@ -22,8 +24,9 @@ TEST_CASE("Compute") {
 // 	*static_cast<WGPUAdapter*>(userdata) = adapter;
 // }
 
-// static void handleRequestDevice(WGPURequestDeviceStatus /* status */, WGPUDevice device,
-//                                 char const* /* message */, void*                 userdata)
+// static void handleRequestDevice(WGPURequestDeviceStatus /* status */, WGPUDevice
+// device,
+//                                 char const* /* message */, void* userdata)
 // {
 // 	*static_cast<WGPUDevice*>(userdata) = device;
 // }
@@ -36,7 +39,8 @@ TEST_CASE("Compute") {
 // std::string shader_code = R"(
 // @group(0)
 // @binding(0)
-// var<storage, read_write> v_indices: array<u32>; // this is used as both input and output for convenience
+// var<storage, read_write> v_indices: array<u32>; // this is used as both input and
+// output for convenience
 
 // // The Collatz Conjecture states that for any integer n:
 // // If n is even, n = n/2
@@ -106,7 +110,8 @@ TEST_CASE("Compute") {
 // 	shader_wgsl_desc.chain.next  = nullptr;
 // 	shader_wgsl_desc.code        = shader_code.c_str();
 
-// 	shader_desc.nextInChain = reinterpret_cast<WGPUChainedStruct const*>(&shader_wgsl_desc);
+// 	shader_desc.nextInChain = reinterpret_cast<WGPUChainedStruct
+// const*>(&shader_wgsl_desc);
 
 // 	WGPUShaderModule shader_module = wgpuDeviceCreateShaderModule(device, &shader_desc);
 // 	assert(shader_module);
@@ -197,8 +202,8 @@ TEST_CASE("Compute") {
 // 	wgpuComputePassEncoderEnd(compute_pass_encoder);
 // 	wgpuComputePassEncoderRelease(compute_pass_encoder);
 
-// 	wgpuCommandEncoderCopyBufferToBuffer(command_encoder, storage_buffer, 0, staging_buffer,
-// 	                                     0, numbers_size);
+// 	wgpuCommandEncoderCopyBufferToBuffer(command_encoder, storage_buffer, 0,
+// staging_buffer, 	                                     0, numbers_size);
 
 // 	WGPUCommandBufferDescriptor command_buf_desc;
 // 	command_buf_desc.label       = "command_buffer";
