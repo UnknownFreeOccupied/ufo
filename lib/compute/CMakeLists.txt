@@ -52,43 +52,13 @@ if(UFO_BUILD_DOCS AND UFO_COMPUTE_BUILD_DOCS)
 	add_subdirectory(docs)
 endif()
 
-install(TARGETS Compute EXPORT Compute-targets
-	COMPONENT Compute
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
+# We add this target to the shared 'UFO-targets' export set
+install(TARGETS Compute 
+	EXPORT UFO-targets
+    COMPONENT Compute
 )
 
-install(EXPORT Compute-targets
-	FILE "Compute-targets.cmake"
-	NAMESPACE UFO::
-	DESTINATION lib/cmake/${PROJECT_NAME}
-	COMPONENT Compute
-)
-
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-	"${CMAKE_CURRENT_BINARY_DIR}/Compute-config-version.cmake"
-	VERSION ${PROJECT_VERSION}
-	COMPATIBILITY SameMajorVersion
-)
-
-configure_package_config_file(
-	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/Compute-config.cmake.in"
-	"${CMAKE_CURRENT_BINARY_DIR}/Compute-config.cmake"
-	INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-)
-
-install(
-	FILES
-	"${CMAKE_CURRENT_BINARY_DIR}/Compute-config.cmake"
-	"${CMAKE_CURRENT_BINARY_DIR}/Compute-config-version.cmake"
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-	COMPONENT Compute
-)
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
-	COMPONENT Compute
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    COMPONENT Utility
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
