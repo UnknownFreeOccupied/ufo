@@ -55,10 +55,10 @@ endif()
 # We add this target to the shared 'UFO-targets' export set
 install(TARGETS Compute 
 	EXPORT UFO-targets
-    COMPONENT Compute
+	COMPONENT Compute
 )
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-    COMPONENT Utility
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+	COMPONENT Compute
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
