@@ -14,6 +14,16 @@ add_library(Utility STATIC
 )
 add_library(UFO::Utility ALIAS Utility)
 
+set_target_properties(Utility
+	PROPERTIES
+		VERSION ${PROJECT_VERSION}
+		SOVERSION ${PROJECT_VERSION_MAJOR}
+		CXX_STANDARD 17
+		CXX_EXTENSIONS OFF
+		OUTPUT_NAME "UFOUtility"
+		POSITION_INDEPENDENT_CODE ON
+)
+
 if (MSVC)
 	target_compile_options(Utility PRIVATE /W4)
 else()
@@ -26,14 +36,6 @@ target_link_libraries(Utility PUBLIC TBB::tbb)
 target_compile_definitions(Utility
     PUBLIC
         UFO_TBB=1
-)
-
-# 3. Standard and Properties
-# You can keep these if this lib has unique requirements, 
-# but usually CXX_STANDARD is set globally at the root.
-set_target_properties(Utility PROPERTIES
-    VERSION ${PROJECT_VERSION}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
 # 4. Include Directories
