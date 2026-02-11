@@ -30,14 +30,6 @@ else()
 	target_compile_options(Utility PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-# 2. Dependencies
-target_link_libraries(Utility PUBLIC TBB::tbb)
-
-target_compile_definitions(Utility
-    PUBLIC
-        UFO_TBB=1
-)
-
 # 4. Include Directories
 # Use the "Hall of Mirrors" fix: point directly to your include folder
 target_include_directories(Utility 
