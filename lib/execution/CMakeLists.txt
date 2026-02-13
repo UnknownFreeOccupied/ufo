@@ -9,9 +9,12 @@ add_library(UFO::Execution ALIAS Execution)
 
 target_link_libraries(Execution INTERFACE UFO::Utility)
 
-# Threading library required in Linux (not in MacOS and Windows, they should just ignore it. Windows might give a warning)
-find_package(Threads REQUIRED)
-target_link_libraries(Execution INTERFACE Threads::Threads)
+# Threading library requires explicit linking on Linux (-pthread); macOS and
+# Windows provide thread support automatically without a separate link flag.
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	find_package(Threads REQUIRED)
+	target_link_libraries(Execution INTERFACE Threads::Threads)
+endif()
 
 include(CheckCXXSourceCompiles)
 include(CMakePushCheckState)
