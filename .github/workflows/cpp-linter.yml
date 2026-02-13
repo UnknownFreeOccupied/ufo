@@ -49,6 +49,7 @@ jobs:
           version: 21
           style: 'file'  # Use .clang-format config file
           tidy-checks: '' # Use .clang-tidy config file
+          ignore: 'external'
           # only 'update' a single comment in a pull request thread.
           lines-changed-only: true
           tidy-review: true
