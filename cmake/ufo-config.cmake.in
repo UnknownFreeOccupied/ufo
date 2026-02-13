@@ -12,7 +12,9 @@ foreach(_comp ${UFO_FIND_COMPONENTS})
 endforeach()
 
 include(CMakeFindDependencyMacro)
-find_dependency(Threads)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  find_dependency(Threads)
+endif()
 find_dependency(TBB)
 find_dependency(OpenMP)
 
