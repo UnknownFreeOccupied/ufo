@@ -64,19 +64,19 @@ struct Frustum<2, T> {
 
 	using value_type = T;
 
-	Line<2, T> left;
-	Line<2, T> right;
-	Line<2, T> far;
-	Line<2, T> near;
+	Line<2, T> left_side;
+	Line<2, T> right_side;
+	Line<2, T> far_side;
+	Line<2, T> near_side;
 
 	constexpr Frustum() noexcept = default;
 
 	constexpr Frustum(Vec<2, T> const& far_right, Vec<2, T> const& far_left,
 	                  Vec<2, T> const& near_left, Vec<2, T> const& near_right)
-	    : left(near_left, far_left)
-	    , right(far_right, near_right)
-	    , far(far_left, far_right)
-	    , near(near_right, near_left)
+	    : left_side(near_left, far_left)
+	    , right_side(far_right, near_right)
+	    , far_side(far_left, far_right)
+	    , near_side(near_right, near_left)
 	{
 	}
 
@@ -94,30 +94,33 @@ struct Frustum<2, T> {
 		Vec<2, T> near_left  = pos + dir * near_dist - half_width_near * right_dir;
 		Vec<2, T> near_right = pos + dir * near_dist + half_width_near * right_dir;
 
-		left  = Line<2, T>(near_left, far_left);
-		right = Line<2, T>(far_right, near_right);
-		far   = Line<2, T>(far_left, far_right);
-		near  = Line<2, T>(near_right, near_left);
+		left_side  = Line<2, T>(near_left, far_left);
+		right_side = Line<2, T>(far_right, near_right);
+		far_side   = Line<2, T>(far_left, far_right);
+		near_side  = Line<2, T>(near_right, near_left);
 	}
 
 	constexpr Frustum(Frustum const&) noexcept = default;
 
 	template <class U>
 	constexpr explicit Frustum(Frustum<2, U> const& other) noexcept
-	    : left(other.left), right(other.right), far(other.far), near(other.near)
+	    : left_side(other.left_side)
+	    , right_side(other.right_side)
+	    , far_side(other.far_side)
+	    , near_side(other.near_side)
 	{
 	}
 
-	[[nodiscard]] constexpr static std::size_t size() noexcept { return 2; }
+	[[nodiscard]] static constexpr std::size_t size() noexcept { return 2; }
 
 	[[nodiscard]] constexpr Line<2, T>& operator[](std::size_t pos) noexcept
 	{
-		return (&left)[pos];
+		return (&left_side)[pos];
 	}
 
 	[[nodiscard]] constexpr Line<2, T> const& operator[](std::size_t pos) const noexcept
 	{
-		return (&left)[pos];
+		return (&left_side)[pos];
 	}
 };
 
@@ -131,12 +134,12 @@ struct Frustum<3, T> {
 
 	using value_type = T;
 
-	Plane<T> top;
-	Plane<T> bottom;
-	Plane<T> left;
-	Plane<T> right;
-	Plane<T> far;
-	Plane<T> near;
+	Plane<T> top_plane;
+	Plane<T> bottom_plane;
+	Plane<T> left_plane;
+	Plane<T> right_plane;
+	Plane<T> far_plane;
+	Plane<T> near_plane;
 
 	constexpr Frustum() noexcept = default;
 
@@ -145,12 +148,12 @@ struct Frustum<3, T> {
 	                  Vec<3, T> const& near_top_right, Vec<3, T> const& near_top_left,
 	                  Vec<3, T> const& near_bottom_left, Vec<3, T> const& near_bottom_right)
 	{
-		top    = Plane<T>(near_top_right, near_top_left, far_top_left);
-		bottom = Plane<T>(near_bottom_left, near_bottom_right, far_bottom_right);
-		left   = Plane<T>(near_top_left, near_bottom_left, far_bottom_left);
-		right  = Plane<T>(near_bottom_right, near_top_right, far_bottom_right);
-		near   = Plane<T>(near_top_left, near_top_right, near_bottom_right);
-		far    = Plane<T>(far_top_right, far_top_left, far_bottom_left);
+		top_plane    = Plane<T>(near_top_right, near_top_left, far_top_left);
+		bottom_plane = Plane<T>(near_bottom_left, near_bottom_right, far_bottom_right);
+		left_plane   = Plane<T>(near_top_left, near_bottom_left, far_bottom_left);
+		right_plane  = Plane<T>(near_bottom_right, near_top_right, far_bottom_right);
+		near_plane   = Plane<T>(near_top_left, near_top_right, near_bottom_right);
+		far_plane    = Plane<T>(far_top_right, far_top_left, far_bottom_left);
 	}
 
 	constexpr Frustum(Vec<3, T> const& pos, Vec<3, T> const& target, Vec<3, T> const& up,
@@ -184,28 +187,28 @@ struct Frustum<3, T> {
 		auto far_bottom_left  = fc - Y * far_height - X * far_width;
 		auto far_bottom_right = fc - Y * far_height + X * far_width;
 
-		top    = Plane<T>(near_top_right, near_top_left, far_top_left);
-		bottom = Plane<T>(near_bottom_left, near_bottom_right, far_bottom_right);
-		left   = Plane<T>(near_top_left, near_bottom_left, far_bottom_left);
-		right  = Plane<T>(near_bottom_right, near_top_right, far_bottom_right);
-		near   = Plane<T>(near_top_left, near_top_right, near_bottom_right);
-		far    = Plane<T>(far_top_right, far_top_left, far_bottom_left);
+		top_plane    = Plane<T>(near_top_right, near_top_left, far_top_left);
+		bottom_plane = Plane<T>(near_bottom_left, near_bottom_right, far_bottom_right);
+		left_plane   = Plane<T>(near_top_left, near_bottom_left, far_bottom_left);
+		right_plane  = Plane<T>(near_bottom_right, near_top_right, far_bottom_right);
+		near_plane   = Plane<T>(near_top_left, near_top_right, near_bottom_right);
+		far_plane    = Plane<T>(far_top_right, far_top_left, far_bottom_left);
 	}
 
 	constexpr Frustum(Frustum const&) noexcept = default;
 
 	template <class U>
 	constexpr Frustum(Frustum<3, U> const& other) noexcept
-	    : top(other.top)
-	    , bottom(other.bottom)
-	    , left(other.left)
-	    , right(other.right)
-	    , far(other.far)
-	    , near(other.near)
+	    : top_plane(other.top_plane)
+	    , bottom_plane(other.bottom_plane)
+	    , left_plane(other.left_plane)
+	    , right_plane(other.right_plane)
+	    , far_plane(other.far_plane)
+	    , near_plane(other.near_plane)
 	{
 	}
 
-	[[nodiscard]] constexpr static std::size_t size() noexcept { return 3; }
+	[[nodiscard]] static constexpr std::size_t size() noexcept { return 3; }
 };
 
 //
@@ -235,11 +238,12 @@ template <std::size_t Dim, class T>
 bool operator==(Frustum<Dim, T> const& lhs, Frustum<Dim, T> const& rhs)
 {
 	if constexpr (2 == Dim) {
-		return lhs.left == rhs.left && lhs.right == rhs.right && lhs.far == rhs.far &&
-		       lhs.near == rhs.near;
+		return lhs.left_side == rhs.left_side && lhs.right_side == rhs.right_side &&
+		       lhs.far_side == rhs.far_side && lhs.near_side == rhs.near_side;
 	} else if constexpr (3 == Dim) {
-		return lhs.top == rhs.top && lhs.bottom == rhs.bottom && lhs.left == rhs.left &&
-		       lhs.right == rhs.right && lhs.far == rhs.far && lhs.near == rhs.near;
+		return lhs.top_plane == rhs.top_plane && lhs.bottom_plane == rhs.bottom_plane &&
+		       lhs.left_plane == rhs.left_plane && lhs.right_plane == rhs.right_plane &&
+		       lhs.far_plane == rhs.far_plane && lhs.near_plane == rhs.near_plane;
 	} else if constexpr (4 == Dim) {
 		// TODO: Implement
 	}
@@ -262,12 +266,12 @@ template <std::size_t Dim, class T>
 std::ostream& operator<<(std::ostream& out, Frustum<Dim, T> const& frustum)
 {
 	if constexpr (2 == Dim) {
-		return out << "Left: " << frustum.left << ", Right: " << frustum.right
-		           << ", Far: " << frustum.far << ", Near: " << frustum.near;
+		return out << "Left: " << frustum.left_side << ", Right: " << frustum.right_side
+		           << ", Far: " << frustum.far_side << ", Near: " << frustum.near_side;
 	} else if constexpr (3 == Dim) {
-		return out << "Left: " << frustum.left << ", Right: " << frustum.right
-		           << ", Far: " << frustum.far << ", Near: " << frustum.near
-		           << ", Top: " << frustum.top << ", Bottom: " << frustum.bottom;
+		return out << "Left: " << frustum.left_plane << ", Right: " << frustum.right_plane
+		           << ", Far: " << frustum.far_plane << ", Near: " << frustum.near_plane
+		           << ", Top: " << frustum.top_plane << ", Bottom: " << frustum.bottom_plane;
 	} else if constexpr (4 == Dim) {
 		// TODO: Implement
 	}

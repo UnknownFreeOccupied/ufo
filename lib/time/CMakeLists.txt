@@ -4,7 +4,7 @@ option(UFO_TIME_BUILD_COVERAGE "Test Coverage"          ON)
 
 include(GNUInstallDirs)
 
-add_library(Time SHARED 
+add_library(Time STATIC 
 	src/timer.cpp
 	src/timing.cpp
 )
@@ -17,6 +17,7 @@ set_target_properties(Time
 		CXX_STANDARD 17
 		CXX_EXTENSIONS OFF
 		OUTPUT_NAME "UFOTime"
+		POSITION_INDEPENDENT_CODE ON
 )
 
 if (MSVC)

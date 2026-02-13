@@ -276,8 +276,10 @@ template <std::size_t Dim, class T>
     Frustum<Dim, T> const& a)
 {
 	if constexpr (2 == Dim) {
-		return {intersectionPoint(a.far, a.right), intersectionPoint(a.far, a.left),
-		        intersectionPoint(a.near, a.left), intersectionPoint(a.near, a.right)};
+		return {intersectionPoint(a.far_side, a.right_side),
+		        intersectionPoint(a.far_side, a.left_side),
+		        intersectionPoint(a.near_side, a.left_side),
+		        intersectionPoint(a.near_side, a.right_side)};
 	} else if constexpr (3 == Dim) {
 		// TODO: Implement
 	} else if constexpr (4 == Dim) {
