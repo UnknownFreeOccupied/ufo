@@ -1,4 +1,5 @@
 include(FetchContent)
+include(GNUInstallDirs)
 
 set(WGPU_VERSION "v27.0.4.0" CACHE STRING "\
 	Version of the wgpu-native WebGPU implementation to use. Must correspond \
@@ -108,6 +109,21 @@ set(WGPU_INSTALL_STATIC_RUNTIME_LIB_RELEASE "${CMAKE_INSTALL_FULL_LIBDIR}/${STAT
 
 set(WGPU_INSTALL_SHARED_RUNTIME_LIB_DEBUG "${CMAKE_INSTALL_FULL_LIBDIR}/${SHARED_LIB_PREFIX}wgpu_native_debug.${SHARED_LIB_EXT}")
 set(WGPU_INSTALL_STATIC_RUNTIME_LIB_DEBUG "${CMAKE_INSTALL_FULL_LIBDIR}/${STATIC_LIB_PREFIX}wgpu_native_debug.${STATIC_LIB_EXT}")
+
+# Create a logical target for the external library
+add_library(wgpu_native STATIC IMPORTED GLOBAL)
+
+# Tell CMake where the file is DURING THE BUILD
+set_target_properties(wgpu_native PROPERTIES
+  IMPORTED_LOCATION_RELEASE        "${WGPU_BUILD_STATIC_RUNTIME_LIB_RELEASE}"
+  IMPORTED_LOCATION_RELWITHDEBINFO "${WGPU_BUILD_STATIC_RUNTIME_LIB_RELEASE}" # Add this
+  IMPORTED_LOCATION_MINSIZEREL     "${WGPU_BUILD_STATIC_RUNTIME_LIB_RELEASE}" # Add this
+  IMPORTED_LOCATION_DEBUG           "${WGPU_BUILD_STATIC_RUNTIME_LIB_DEBUG}"
+  
+  # This property handles the mapping automatically for any other custom configs
+  MAP_IMPORTED_CONFIG_RELWITHDEBINFO "RELEASE"
+  MAP_IMPORTED_CONFIG_MINSIZEREL     "RELEASE"
+)
 
 install(
 	FILES ${WGPU_BUILD_SHARED_RUNTIME_LIB_RELEASE}
