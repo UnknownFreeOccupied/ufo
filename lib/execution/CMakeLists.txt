@@ -61,7 +61,7 @@ if(HAVE_STL_PAR)
 	list(APPEND foundParallelLibs STL)
 elseif(TBB_FOUND)
 	set(CMAKE_REQUIRED_LIBRARIES "TBB::tbb")
-	
+
 	check_cxx_source_compiles("
 			#include <algorithm>
 			#include <array>
@@ -122,6 +122,7 @@ if(missingParallelLibs)
 		message(CHECK_FAIL "some parallel processing libraries found but some are missing. Enabled: [${foundParallelLibs}] Disabled: [${missingParallelLibs}]")
 	else()
 		message(CHECK_FAIL "no parallel processing libraries found, all disabled: [${missingParallelLibs}]")
+		message(WARNING "Execution module will be built but no parallel processing libraries will be enabled. This may lead to suboptimal performance. To enable parallel processing, install one of the supported libraries, oneTBB or OpenMP, and rebuild UFO.")
 	endif()
 else()
 	message(CHECK_PASS "all parallel processing libraries found and enabled: [${foundParallelLibs}]")
