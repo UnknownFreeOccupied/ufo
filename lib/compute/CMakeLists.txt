@@ -31,6 +31,8 @@ else()
 	target_compile_options(Compute PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
+target_link_libraries(Compute PUBLIC ${OS_LIBRARIES})
+
 target_link_libraries(Compute 
 	PUBLIC
 		$<BUILD_INTERFACE:$<IF:$<CONFIG:Debug>,${WGPU_BUILD_STATIC_RUNTIME_LIB_DEBUG},${WGPU_BUILD_STATIC_RUNTIME_LIB_RELEASE}>>
