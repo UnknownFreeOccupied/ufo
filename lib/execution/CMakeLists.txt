@@ -43,6 +43,10 @@ message(CHECK_START "Checking Standard Template Library (STL) parallel support")
 cmake_push_check_state()
 
 set(CMAKE_REQUIRED_FLAGS "-O0")
+if(TBB_FOUND)
+	set(CMAKE_REQUIRED_LIBRARIES "TBB::tbb")
+endif()
+
 check_cxx_source_compiles("
 		#include <algorithm>
 		#include <array>
@@ -59,31 +63,6 @@ if(HAVE_STL_PAR)
 	message(CHECK_PASS "has native support")
 	target_compile_definitions(Execution INTERFACE UFO_PAR_STL=1)
 	list(APPEND foundParallelLibs STL)
-elseif(TBB_FOUND)
-	set(CMAKE_REQUIRED_LIBRARIES "TBB::tbb")
-
-	check_cxx_source_compiles("
-			#include <algorithm>
-			#include <array>
-			#include <execution>
-			int main() {
-				std::array<int, 10> a{};
-				std::for_each(std::execution::par, a.begin(), a.end(), [](auto){});
-				(void)a;
-				return 0;
-			}
-		" HAVE_STL_PAR_USING_TBB)
-
-	if(HAVE_STL_PAR_USING_TBB)
-		message(CHECK_PASS "has support using TBB")
-		target_link_libraries(Execution INTERFACE TBB::tbb)
-		target_compile_definitions(Execution INTERFACE UFO_PAR_STL=1)
-		list(APPEND foundParallelLibs STL)
-	else()
-		message(CHECK_FAIL "no support")
-		list(APPEND missingParallelLibs STL)
-	endif()
-
 else()
 	message(CHECK_FAIL "no support")
 	list(APPEND missingParallelLibs STL)
