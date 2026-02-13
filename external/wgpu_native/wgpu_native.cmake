@@ -138,7 +138,7 @@ install(
 )
 
 # # NOTE: It should be the same files in both release and debug
-install(DIRECTORY ${WGPU_DIR_RELEASE}/include
+install(DIRECTORY ${WGPU_DIR_RELEASE}/include/
 	COMPONENT Compute
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
