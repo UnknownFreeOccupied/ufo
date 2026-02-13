@@ -22,7 +22,6 @@ option(USE_SYSTEM_DOXYGEN "Use system-installed Doxygen instead of fetching/buil
 option(USE_SYSTEM_IMGUI "Use system-installed ImGUI instead of fetching/building it" OFF)
 option(USE_SYSTEM_JPEG "Use system-installed libjpeg-turbo instead of fetching/building it" OFF)
 option(USE_SYSTEM_SPNG "Use system-installed libspng instead of fetching/building it" OFF)
-option(USE_SYSTEM_TBB "Use system-installed TBB instead of fetching/building it" OFF)
 
 include(external/find_dependencies.cmake)
 

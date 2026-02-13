@@ -52,22 +52,6 @@ endif()
 # 	include("${CMAKE_CURRENT_LIST_DIR}/libspng/libspng.cmake")
 # endif()
 
-# TBB
-find_package(TBB QUIET)
-# if(USE_SYSTEM_TBB)
-# 	find_package(TBB)
-# 	if(TARGET TBB::tbb)
-# 		message(STATUS "Using installed third-party library TBB ${TBB_VERSION_STRING}")
-# 	else()
-# 		message(STATUS "Unable to find installed third-party library TBB")
-# 		set(USE_SYSTEM_TBB OFF)
-# 	endif()
-# endif()
-# if(NOT USE_SYSTEM_TBB)
-# 	message(STATUS "Fetching and building TBB from source")
-# 	include("${CMAKE_CURRENT_LIST_DIR}/onetbb/onetbb.cmake")
-# endif()
-
 # Rply
 
 # WGPU Native
