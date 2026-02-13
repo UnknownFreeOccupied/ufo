@@ -68,7 +68,7 @@
  */
 #define WGPU_FALSE (UINT32_C(0))
 
-#define _wgpu_ENUM_ZERO_INIT(type) type(0)
+#define _wgpu_ENUM_ZERO_INIT(type) type{}
 #define _wgpu_STRUCT_ZERO_INIT {}
 
 /**
