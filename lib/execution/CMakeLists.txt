@@ -24,39 +24,65 @@ unset(missingParallelLibs)
 message(CHECK_START "Finding Threading Building Blocks (TBB)")
 
 if(TARGET TBB::tbb)
+	# Detect whether TBB::tbb is an ALIAS (built from source via FetchContent,
+	# indicated by ALIASED_TARGET being set) or an IMPORTED target (a system
+	# library found via find_package).
+	get_target_property(_tbb_aliased TBB::tbb ALIASED_TARGET)
+	get_target_property(_tbb_req_includes TBB::tbb INTERFACE_INCLUDE_DIRECTORIES)
+	unset(_tbb_req_lib)
+	if(NOT _tbb_aliased)
+		# IMPORTED target: resolve the actual library file path for compile checks.
+		# (check_cxx_source_compiles creates a separate project that cannot access
+		# targets from the parent build, so we must pass concrete paths.)
+		foreach(_cfg "" _RELWITHDEBINFO _RELEASE _DEBUG)
+			get_target_property(_tbb_req_lib TBB::tbb IMPORTED_LOCATION${_cfg})
+			if(_tbb_req_lib AND NOT _tbb_req_lib MATCHES "NOTFOUND")
+				break()
+			endif()
+		endforeach()
+	endif()
+
 	list(APPEND CMAKE_MESSAGE_INDENT "  ")
 	message(CHECK_START "Checking if oneTBB and not TBB")
 
-  # TODO: Fix this
-	# cmake_push_check_state()
-	# set(CMAKE_REQUIRED_FLAGS "-O0")
-	# set(CMAKE_REQUIRED_LIBRARIES "TBB::tbb")
+	if(_tbb_aliased)
+		# Built from source (e.g. FetchContent): always oneTBB by construction.
+		# The library binary does not exist yet at configure time, so a
+		# compile+link check is not possible; skip it and assume oneTBB.
+		set(HAVE_ONETBB_PAR TRUE CACHE INTERNAL "")
+	else()
+		cmake_push_check_state()
+		set(CMAKE_REQUIRED_FLAGS "-O0")
+		if(_tbb_req_includes AND NOT _tbb_req_includes MATCHES "NOTFOUND")
+			list(APPEND CMAKE_REQUIRED_INCLUDES "${_tbb_req_includes}")
+		endif()
+		if(_tbb_req_lib AND NOT _tbb_req_lib MATCHES "NOTFOUND")
+			set(CMAKE_REQUIRED_LIBRARIES "${_tbb_req_lib}")
+		endif()
 
-	# check_cxx_source_compiles("
-	# 		// STL
-	# 		#include <cstddef>
-	# 		#include <vector>
+		check_cxx_source_compiles("
+				// STL
+				#include <cstddef>
+				#include <vector>
 
-	# 		// oneTBB
-	# 		#include <oneapi/tbb.h>
-			
-	# 		struct S {
-	# 			std::size_t value;
-	# 		};
+				// oneTBB
+				#include <oneapi/tbb.h>
 
-	# 		int main() {
-	# 			std::vector<S> v(10);
+				struct S {
+					std::size_t value;
+				};
 
-	# 			oneapi::tbb::parallel_for(std::size_t(0), v.size(), [&v](std::size_t i) { v[i].value = i; });
+				int main() {
+					std::vector<S> v(10);
 
-	# 			return 0;
-	# 		}
-	# 	" HAVE_ONETBB_PAR)
+					oneapi::tbb::parallel_for(std::size_t(0), v.size(), [&v](std::size_t i) { v[i].value = i; });
 
-	# cmake_pop_check_state()
+					return 0;
+				}
+			" HAVE_ONETBB_PAR)
 
-  # TODO: Remove when above is fixed
-	set(HAVE_ONETBB_PAR TRUE)
+		cmake_pop_check_state()
+	endif()
 
 	if(HAVE_ONETBB_PAR)
 		message(CHECK_PASS "has oneTBB")
@@ -99,22 +125,23 @@ if(HAVE_STL_PAR)
 	target_compile_definitions(Execution INTERFACE UFO_PAR_STL=1)
 	list(APPEND foundParallelLibs STL)
 elseif(TARGET TBB::tbb)
-  # TODO: Fix this
-	# set(CMAKE_REQUIRED_LIBRARIES "TBB::tbb")
-	# check_cxx_source_compiles("
-	# 		#include <algorithm>
-	# 		#include <array>
-	# 		#include <execution>
-	# 		int main() {
-	# 			std::array<int, 10> a{};
-	# 			std::for_each(std::execution::par, a.begin(), a.end(), [](auto){});
-	# 			(void)a;
-	# 			return 0;
-	# 		}
-	# 	" HAVE_STL_PAR_USING_TBB)
-
-  # TODO: Remove when above is fixed
-	set(HAVE_STL_PAR_USING_TBB FALSE)
+	if(_tbb_req_includes AND NOT _tbb_req_includes MATCHES "NOTFOUND")
+		list(APPEND CMAKE_REQUIRED_INCLUDES "${_tbb_req_includes}")
+	endif()
+	if(_tbb_req_lib AND NOT _tbb_req_lib MATCHES "NOTFOUND")
+		set(CMAKE_REQUIRED_LIBRARIES "${_tbb_req_lib}")
+	endif()
+	check_cxx_source_compiles("
+			#include <algorithm>
+			#include <array>
+			#include <execution>
+			int main() {
+				std::array<int, 10> a{};
+				std::for_each(std::execution::par, a.begin(), a.end(), [](auto){});
+				(void)a;
+				return 0;
+			}
+		" HAVE_STL_PAR_USING_TBB)
 
 	if(HAVE_STL_PAR_USING_TBB)
 		message(CHECK_PASS "has support using TBB")
