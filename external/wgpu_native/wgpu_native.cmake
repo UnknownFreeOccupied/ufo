@@ -158,3 +158,17 @@ install(DIRECTORY ${WGPU_DIR_RELEASE}/include/
 	COMPONENT Compute
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
+
+# Generate and install a cmake target file so consumers of the installed UFO
+# package can find and link the wgpu_native static libraries.
+configure_file(
+	"${CMAKE_CURRENT_LIST_DIR}/wgpu_native-targets.cmake.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/wgpu_native-targets.cmake"
+	@ONLY
+)
+
+install(
+	FILES "${CMAKE_CURRENT_BINARY_DIR}/wgpu_native-targets.cmake"
+	DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/UFO"
+	COMPONENT Compute
+)

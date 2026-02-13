@@ -1,5 +1,6 @@
 @PACKAGE_INIT@
 
+include("${CMAKE_CURRENT_LIST_DIR}/wgpu_native-targets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/ufo-targets.cmake")
 
 foreach(_comp ${UFO_FIND_COMPONENTS})
