@@ -72,9 +72,12 @@ class OccupancyMap
 	template <class Derived2, class Tree2>
 	friend class OccupancyMap;
 
+ public:
+	// NOTE: For some reason MSVC requires these to be public
 	static constexpr auto const BF  = Tree::branchingFactor();
 	static constexpr auto const Dim = Tree::dimensions();
 
+ private:
 	using Block = OccupancyBlock<BF>;
 
  public:

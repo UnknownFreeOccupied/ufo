@@ -1,6 +1,6 @@
-option(UFOVISION_BUILD_DOCS     "Generate documentation" OFF)
-option(UFOVISION_BUILD_TESTS    "Unit testing"           OFF)
-option(UFOVISION_BUILD_COVERAGE "Test Coverage"          OFF)
+option(UFO_VISION_BUILD_DOCS     "Generate documentation" ON)
+option(UFO_VISION_BUILD_TESTS    "Unit testing"           ON)
+option(UFO_VISION_BUILD_COVERAGE "Test Coverage"          ON)
 
 add_library(Vision INTERFACE)
 add_library(UFO::Vision ALIAS Vision)
@@ -18,11 +18,11 @@ target_include_directories(Vision
 		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-if(UFO_BUILD_TESTS OR UFOVISION_BUILD_TESTS)
+if(UFO_BUILD_TESTS AND UFO_VISION_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
 
-if(UFO_BUILD_DOCS OR UFOVISION_BUILD_DOCS)
+if(UFO_BUILD_DOCS AND UFO_VISION_BUILD_DOCS)
 	add_subdirectory(docs)
 endif()
 

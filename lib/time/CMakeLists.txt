@@ -1,10 +1,10 @@
-option(UFOTIME_BUILD_DOCS     "Generate documentation" OFF)
-option(UFOTIME_BUILD_TESTS    "Unit testing"           OFF)
-option(UFOTIME_BUILD_COVERAGE "Test Coverage"          OFF)
+option(UFO_TIME_BUILD_DOCS     "Generate documentation" ON)
+option(UFO_TIME_BUILD_TESTS    "Unit testing"           ON)
+option(UFO_TIME_BUILD_COVERAGE "Test Coverage"          ON)
 
 include(GNUInstallDirs)
 
-add_library(Time SHARED 
+add_library(Time STATIC 
 	src/timer.cpp
 	src/timing.cpp
 )
@@ -17,7 +17,14 @@ set_target_properties(Time
 		CXX_STANDARD 17
 		CXX_EXTENSIONS OFF
 		OUTPUT_NAME "UFOTime"
+		POSITION_INDEPENDENT_CODE ON
 )
+
+if (MSVC)
+	target_compile_options(Time PRIVATE /W4)
+else()
+	target_compile_options(Time PRIVATE -Wall -Wextra -Wpedantic)
+endif()
 
 target_include_directories(Time 
 	PUBLIC
@@ -25,11 +32,11 @@ target_include_directories(Time
 		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-if(UFO_BUILD_TESTS OR UFOTIME_BUILD_TESTS)
+if(UFO_BUILD_TESTS AND UFO_TIME_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
 
-if(UFO_BUILD_DOCS OR UFOTIME_BUILD_DOCS)
+if(UFO_BUILD_DOCS AND UFO_TIME_BUILD_DOCS)
 	add_subdirectory(docs)
 endif()
 

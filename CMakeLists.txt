@@ -16,8 +16,22 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-include(external/dependencies.cmake)
+option(USE_SYSTEM_CATCH2 "Use system-installed Catch2 instead of fetching/building it" OFF)
+option(USE_SYSTEM_CLI11 "Use system-installed CLI11 instead of fetching/building it" OFF)
+option(USE_SYSTEM_DOXYGEN "Use system-installed Doxygen instead of fetching/building it" OFF)
+option(USE_SYSTEM_IMGUI "Use system-installed ImGUI instead of fetching/building it" OFF)
+option(USE_SYSTEM_JPEG "Use system-installed libjpeg-turbo instead of fetching/building it" OFF)
+option(USE_SYSTEM_SPNG "Use system-installed libspng instead of fetching/building it" OFF)
 
+include(external/find_dependencies.cmake)
+
+if(UFO_BUILD_TESTS)
+    # NOTE: Important that this is first 
+    enable_testing()
+    include(CTest)
+    include(Catch)
+    add_subdirectory(tests)
+endif()
 
 add_subdirectory(lib/cloud)
 add_subdirectory(lib/compute)
@@ -54,10 +68,6 @@ target_link_libraries(ufo INTERFACE
     UFO::Vision
     # UFO::Viz
 )
-
-if(UFO_BUILD_TESTS)
-    enable_testing()
-endif()
 
 if(UFO_BUILD_EXAMPLES)
     add_subdirectory(examples)

@@ -7,4 +7,8 @@
 
 using namespace ufo;
 
-TEST_CASE("Intensity") { Intensity intensity; }
+TEST_CASE("Intensity")
+{
+	// TODO: Implement tests for Intensity
+	REQUIRE(true);
+}

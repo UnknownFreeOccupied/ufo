@@ -9,124 +9,115 @@
 
 namespace ufo::compute
 {
-WGPUInstance createInstance() { return wgpuCreateInstance(nullptr); }
+WGPUInstance createInstance(WGPUInstanceDescriptor const* descriptor)
+{
+	WGPUInstance instance = wgpuCreateInstance(descriptor);
+	assert(nullptr != instance);
+	return instance;
+}
 
-WGPUAdapter createAdapter(WGPUInstance instance, WGPUSurface surface,
+WGPUAdapter createAdapter(WGPUInstance instance, WGPUSurface compatible_surface,
                           WGPUPowerPreference power_preference,
-                          WGPUBackendType     backend_type)
+                          WGPUBackendType backend_type, WGPUBool force_fallback_adapter)
 {
 	assert(nullptr != instance);
 
-	struct UserData {
-		WGPUAdapter adapter       = nullptr;
-		bool        request_ended = false;
-	} user_data{};
+	WGPUAdapter adapter       = nullptr;
+	bool        request_ended = false;
 
-	WGPURequestAdapterOptions options{};
-	options.nextInChain       = nullptr;
-	options.powerPreference   = power_preference;
-	options.compatibleSurface = surface;
-	options.backendType       = backend_type;
-	// options.forceFallbackAdapter = false;
+	WGPURequestAdapterOptions options = WGPU_REQUEST_ADAPTER_OPTIONS_INIT;
+	options.powerPreference           = power_preference;
+	options.compatibleSurface         = compatible_surface;
+	options.backendType               = backend_type;
+	options.forceFallbackAdapter      = force_fallback_adapter;
 
-	auto callback = [](WGPURequestAdapterStatus status, WGPUAdapter adapter,
-	                   char const* message, void* user_data) {
-		UserData& data = *static_cast<UserData*>(user_data);
+	WGPURequestAdapterCallbackInfo callback_info = WGPU_REQUEST_ADAPTER_CALLBACK_INFO_INIT;
+
+	callback_info.callback = [](WGPURequestAdapterStatus status, WGPUAdapter adapter,
+	                            WGPUStringView message, void* userdata1, void* userdata2) {
 		if (WGPURequestAdapterStatus_Success == status) {
-			data.adapter = adapter;
+			*static_cast<WGPUAdapter*>(userdata1) = adapter;
 		} else {
-			std::cerr << "Could not get WebGPU adapter: " << message << std::endl;
+			std::cerr << "Could not get WebGPU adapter: " << message.data << std::endl;
 		}
-		data.request_ended = true;
+		*static_cast<bool*>(userdata2) = true;
 	};
+	callback_info.userdata1 = static_cast<void*>(&adapter);
+	callback_info.userdata2 = static_cast<void*>(&request_ended);
 
-	wgpuInstanceRequestAdapter(instance, &options, callback,
-	                           static_cast<void*>(&user_data));
+	wgpuInstanceRequestAdapter(instance, &options, callback_info);
 
-	// We wait until user_data.request_ended gets true
+	// We wait until request_ended gets true
 #ifdef __EMSCRIPTEN__
-	while (!user_data.request_ended) {
+	while (!request_ended) {
 		emscripten_sleep(100);
 	}
 #endif  // __EMSCRIPTEN__
 
-	assert(user_data.request_ended);
-	assert(nullptr != user_data.adapter);
+	assert(request_ended);
+	assert(nullptr != adapter);
 
-	return user_data.adapter;
+	return adapter;
 }
 
-namespace detail
-{
-WGPUDevice createDevice(WGPUAdapter adapter, WGPURequiredLimits const* required_limits)
+WGPUDevice createDevice(WGPUAdapter adapter, WGPULimits const* required_limits)
 {
 	assert(nullptr != adapter);
 
-	struct UserData {
-		WGPUDevice device        = nullptr;
-		bool       request_ended = false;
-	} user_data{};
+	WGPUDevice device        = nullptr;
+	bool       request_ended = false;
 
-	WGPUDeviceDescriptor desc{};
-	desc.nextInChain = nullptr;
+	WGPUDeviceDescriptor desc = WGPU_DEVICE_DESCRIPTOR_INIT;
 	// desc.label       = (window_name_ + " Device").c_str();
 	// desc.requiredFeatureCount = 0;
 	// desc.requiredFeatures     = nullptr;
 
 	desc.requiredLimits = required_limits;
 
-	desc.defaultQueue.nextInChain = nullptr;
 	// desc.defaultQueue.label       = (window_name_ + " Default Queue").c_str();
 
-	desc.deviceLostUserdata = nullptr;
-	desc.deviceLostCallback = [](WGPUDeviceLostReason reason, char const* message,
-	                             void* /* pUserData */) {
-		std::cout << "Device lost: reason " << reason;
-		if (message) {
-			std::cout << " (" << message << ")";
-		}
-		std::cout << std::endl;
-	};
+	// TODO: Fix
+	// desc.deviceLostCallbackInfo.callback =
+	//     [](WGPUDeviceImpl* const, WGPUDeviceLostReason reason, WGPUStringView message,
+	//        void* /* userdata1 */, void* /* userdata2 */) {
+	// 	    std::cout << "Device lost: reason " << reason;
+	// 	    if (0 < message.length) {
+	// 		    std::cout << " (" << message.data << ")";
+	// 	    }
+	// 	    std::cout << std::endl;
+	//     };
 
 	// desc.uncapturedErrorCallbackInfo.nextInChain = nullptr;
 	// desc.uncapturedErrorCallbackInfo.userdata    = nullptr;
 	// desc.uncapturedErrorCallbackInfo.callback    = nullptr;
 
-	auto callback = [](WGPURequestDeviceStatus status, WGPUDevice device,
-	                   char const* message, void* user_data) {
-		UserData& data = *static_cast<UserData*>(user_data);
+	WGPURequestDeviceCallbackInfo callback_info = WGPU_REQUEST_DEVICE_CALLBACK_INFO_INIT;
+
+	callback_info.callback = [](WGPURequestDeviceStatus status, WGPUDevice device,
+	                            WGPUStringView message, void* userdata1, void* userdata2) {
 		if (WGPURequestDeviceStatus_Success == status) {
-			data.device = device;
+			*static_cast<WGPUDevice*>(userdata1) = device;
 		} else {
-			std::cout << "Could not get WebGPU device: " << message << std::endl;
+			std::cout << "Could not get WebGPU device: " << message.data << std::endl;
 		}
-		data.request_ended = true;
+		*static_cast<bool*>(userdata2) = true;
 	};
+	callback_info.userdata1 = static_cast<void*>(&device);
+	callback_info.userdata2 = static_cast<void*>(&request_ended);
 
-	wgpuAdapterRequestDevice(adapter, &desc, callback, static_cast<void*>(&user_data));
+	wgpuAdapterRequestDevice(adapter, &desc, callback_info);
 
-	// We wait until user_data.request_ended gets true
+	// We wait until request_ended gets true
 #ifdef __EMSCRIPTEN__
-	while (!user_data.request_ended) {
+	while (!request_ended) {
 		emscripten_sleep(100);
 	}
 #endif  // __EMSCRIPTEN__
 
-	assert(user_data.request_ended);
-	assert(nullptr != user_data.device);
+	assert(request_ended);
+	assert(nullptr != device);
 
-	return user_data.device;
-}
-}  // namespace detail
-
-WGPUDevice createDevice(WGPUAdapter adapter)
-{
-	return detail::createDevice(adapter, nullptr);
-}
-
-WGPUDevice createDevice(WGPUAdapter adapter, WGPURequiredLimits const& required_limits)
-{
-	return detail::createDevice(adapter, &required_limits);
+	return device;
 }
 
 WGPUQueue queue(WGPUDevice device)
@@ -138,32 +129,43 @@ WGPUQueue queue(WGPUDevice device)
 std::size_t bufferPaddedSize(std::size_t size)
 {
 	static constexpr std::size_t const COPY_BUFFER_ALIGNMENT = 4;
-
-	std::size_t align_mask = COPY_BUFFER_ALIGNMENT - 1;
+	static constexpr std::size_t const align_mask            = COPY_BUFFER_ALIGNMENT - 1;
 	return std::max((size + align_mask) & ~align_mask, COPY_BUFFER_ALIGNMENT);
 }
 
-WGPUBuffer createBuffer(WGPUDevice device, std::size_t size, WGPUBufferUsageFlags usage,
-                        bool mapped_at_creation)
+std::size_t bufferPaddedSize(std::size_t width, std::size_t bytes_per_pixel)
+{
+	static constexpr std::size_t const COPY_BYTES_PER_ROW_ALIGNMENT = 256;
+
+	std::size_t const unpadded_bytes_per_row = width * bytes_per_pixel;
+	std::size_t const padded_bytes_per_row_padding =
+	    (COPY_BYTES_PER_ROW_ALIGNMENT -
+	     unpadded_bytes_per_row % COPY_BYTES_PER_ROW_ALIGNMENT) %
+	    COPY_BYTES_PER_ROW_ALIGNMENT;
+	return unpadded_bytes_per_row + padded_bytes_per_row_padding;
+}
+
+WGPUBuffer createBuffer(WGPUDevice device, std::string label, std::size_t size,
+                        WGPUBufferUsage usage, bool mapped_at_creation)
 {
 	std::size_t padded_size = bufferPaddedSize(size);
 
-	WGPUBufferDescriptor desc{};
-	desc.label            = "";
-	desc.size             = padded_size;
-	desc.usage            = usage;
-	desc.mappedAtCreation = mapped_at_creation;
+	WGPUBufferDescriptor desc = WGPU_BUFFER_DESCRIPTOR_INIT;
+	desc.label                = {label.c_str(), label.length()};
+	desc.size                 = padded_size;
+	desc.usage                = usage;
+	desc.mappedAtCreation     = mapped_at_creation;
 	return wgpuDeviceCreateBuffer(device, &desc);
 }
 
-WGPUBuffer createBufferInit(WGPUDevice device, WGPUBufferUsageFlags usage, void* content,
-                            std::size_t content_size)
+WGPUBuffer createBufferInit(WGPUDevice device, std::string label, WGPUBufferUsage usage,
+                            void* content, std::size_t content_size)
 {
 	if (0 == content_size) {
-		return createBuffer(device, 0, usage, false);
+		return createBuffer(device, label, 0, usage, false);
 	}
 
-	WGPUBuffer buffer = createBuffer(device, content_size, usage, true);
+	WGPUBuffer buffer = createBuffer(device, label, content_size, usage, true);
 
 	assert(nullptr != buffer);
 
@@ -172,6 +174,13 @@ WGPUBuffer createBufferInit(WGPUDevice device, WGPUBufferUsageFlags usage, void*
 	wgpuBufferUnmap(buffer);
 
 	return buffer;
+}
+
+WGPUSurfaceCapabilities surfaceCapabilities(WGPUSurface surface, WGPUAdapter adapter)
+{
+	WGPUSurfaceCapabilities surface_capabilities = WGPU_SURFACE_CAPABILITIES_INIT;
+	wgpuSurfaceGetCapabilities(surface, adapter, &surface_capabilities);
+	return surface_capabilities;
 }
 
 WGPUShaderModule loadShaderModule(WGPUDevice device, std::filesystem::path const& path)
@@ -187,74 +196,65 @@ WGPUShaderModule loadShaderModule(WGPUDevice device, std::filesystem::path const
 	file.seekg(0);
 	file.read(shader_source.data(), size);
 
-	WGPUShaderModuleWGSLDescriptor shader_code_desc{};
-	shader_code_desc.chain.next  = nullptr;
-	shader_code_desc.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
-	shader_code_desc.code        = shader_source.c_str();
+	WGPUShaderSourceWGSL shader_wgsl = WGPU_SHADER_SOURCE_WGSL_INIT;
+	shader_wgsl.chain.sType          = WGPUSType_ShaderSourceWGSL;
+	// FIXME: Should this be `shader_source.length()`?
+	shader_wgsl.code = {shader_source.c_str(), WGPU_STRLEN};
 
-	WGPUShaderModuleDescriptor shader_desc{};
-	shader_desc.nextInChain = nullptr;
-#ifdef WEBGPU_BACKEND_WGPU
-	shader_desc.hintCount = 0;
-	shader_desc.hints     = nullptr;
-#endif
-	shader_desc.nextInChain = &shader_code_desc.chain;
+	WGPUShaderModuleDescriptor shader_desc = WGPU_SHADER_MODULE_DESCRIPTOR_INIT;
+	// TODO: shader_code_desc.label
+	shader_desc.nextInChain = reinterpret_cast<WGPUChainedStruct const*>(&shader_wgsl);
+
 	return wgpuDeviceCreateShaderModule(device, &shader_desc);
 }
 
-void setDefault(WGPULimits& limits)
+// Release
+
+void release(WGPUInstance instance) { wgpuInstanceRelease(instance); }
+
+void release(WGPUSurface surface) { wgpuSurfaceRelease(surface); }
+
+void release(WGPUAdapter adapter) { wgpuAdapterRelease(adapter); }
+
+void release(WGPUDevice device) { wgpuDeviceRelease(device); }
+
+void release(WGPUQueue queue) { wgpuQueueRelease(queue); }
+
+void release(WGPUShaderModule shader_module) { wgpuShaderModuleRelease(shader_module); }
+
+void release(WGPUBindGroupLayout bind_group_layout)
 {
-	limits.maxTextureDimension1D                     = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxTextureDimension2D                     = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxTextureDimension3D                     = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxTextureArrayLayers                     = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxBindGroups                             = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxBindGroupsPlusVertexBuffers            = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxBindingsPerBindGroup                   = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxDynamicUniformBuffersPerPipelineLayout = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxDynamicStorageBuffersPerPipelineLayout = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxSampledTexturesPerShaderStage          = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxSamplersPerShaderStage                 = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxStorageBuffersPerShaderStage           = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxStorageTexturesPerShaderStage          = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxUniformBuffersPerShaderStage           = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxUniformBufferBindingSize               = WGPU_LIMIT_U64_UNDEFINED;
-	limits.maxStorageBufferBindingSize               = WGPU_LIMIT_U64_UNDEFINED;
-	limits.minUniformBufferOffsetAlignment           = WGPU_LIMIT_U32_UNDEFINED;
-	limits.minStorageBufferOffsetAlignment           = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxVertexBuffers                          = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxBufferSize                             = WGPU_LIMIT_U64_UNDEFINED;
-	limits.maxVertexAttributes                       = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxVertexBufferArrayStride                = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxInterStageShaderComponents             = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxInterStageShaderVariables              = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxColorAttachments                       = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxColorAttachmentBytesPerSample          = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxComputeWorkgroupStorageSize            = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxComputeInvocationsPerWorkgroup         = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxComputeWorkgroupSizeX                  = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxComputeWorkgroupSizeY                  = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxComputeWorkgroupSizeZ                  = WGPU_LIMIT_U32_UNDEFINED;
-	limits.maxComputeWorkgroupsPerDimension          = WGPU_LIMIT_U32_UNDEFINED;
+	wgpuBindGroupLayoutRelease(bind_group_layout);
 }
 
-void setDefault(WGPUBindGroupLayoutEntry& binding_layout)
+void release(WGPUPipelineLayout pipeline_layout)
 {
-	binding_layout.buffer.nextInChain      = nullptr;
-	binding_layout.buffer.type             = WGPUBufferBindingType_Undefined;
-	binding_layout.buffer.hasDynamicOffset = false;
-
-	binding_layout.sampler.nextInChain = nullptr;
-	binding_layout.sampler.type        = WGPUSamplerBindingType_Undefined;
-
-	binding_layout.storageTexture.nextInChain   = nullptr;
-	binding_layout.storageTexture.access        = WGPUStorageTextureAccess_Undefined;
-	binding_layout.storageTexture.format        = WGPUTextureFormat_Undefined;
-	binding_layout.storageTexture.viewDimension = WGPUTextureViewDimension_Undefined;
-
-	binding_layout.texture.nextInChain   = nullptr;
-	binding_layout.texture.multisampled  = false;
-	binding_layout.texture.sampleType    = WGPUTextureSampleType_Undefined;
-	binding_layout.texture.viewDimension = WGPUTextureViewDimension_Undefined;
+	wgpuPipelineLayoutRelease(pipeline_layout);
 }
+
+void release(WGPURenderPipeline render_pipeline)
+{
+	wgpuRenderPipelineRelease(render_pipeline);
+}
+
+void release(WGPUTexture texture) { wgpuTextureRelease(texture); }
+
+void release(WGPUTextureView texture_view) { wgpuTextureViewRelease(texture_view); }
+
+void release(WGPURenderPassEncoder render_pass_encoder)
+{
+	wgpuRenderPassEncoderRelease(render_pass_encoder);
+}
+
+void release(WGPUCommandEncoder command_encoder)
+{
+	wgpuCommandEncoderRelease(command_encoder);
+}
+
+void release(WGPUCommandBuffer command_buffer)
+{
+	wgpuCommandBufferRelease(command_buffer);
+}
+
+void release(WGPUSampler sampler) { wgpuSamplerRelease(sampler); }
 }  // namespace ufo::compute

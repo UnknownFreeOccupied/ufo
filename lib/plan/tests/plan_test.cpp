@@ -9,6 +9,13 @@
 
 // using namespace ufo;
 
+TEST_CASE("Plan")
+{
+	// TODO: Implement tests for plan module. For now, just make sure the test framework is
+	// working.
+	REQUIRE(true);
+}
+
 // TEST_CASE("Plan")
 // {
 // 	SECTION("Something")

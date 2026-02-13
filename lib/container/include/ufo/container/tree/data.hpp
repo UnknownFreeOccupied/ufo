@@ -266,8 +266,9 @@ class TreeData<Derived, true, Block, Blocks...>
 			std::size_t content_size =
 			    static_cast<std::size_t>(size_factor * tree_buffer_size_);
 
-			buffer = compute::createBuffer(
-			    device_, content_size, WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst, true);
+			buffer =
+			    compute::createBuffer(device_, "", content_size,
+			                          WGPUBufferUsage_Storage | WGPUBufferUsage_CopyDst, true);
 
 			assert(nullptr != buffer);
 
@@ -315,12 +316,11 @@ class TreeData<Derived, true, Block, Blocks...>
  private:
 	WGPULimits requiredLimits(WGPUAdapter adapter)
 	{
-		WGPULimits supported{};
+		WGPULimits supported  = WGPU_LIMITS_INIT;
 		supported.nextInChain = nullptr;
 		wgpuAdapterGetLimits(adapter, &supported);
 
-		WGPULimits required{};
-		compute::setDefault(required);
+		WGPULimits required = WGPU_LIMITS_INIT;
 
 		// These two limits are different because they are "minimum" limits,
 		// they are the only ones we may forward from the adapter's supported limits.

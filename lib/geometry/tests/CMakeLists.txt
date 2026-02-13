@@ -1,44 +1,26 @@
-message(CHECK_START "Finding Catch2")
-find_package(Catch2 3 QUIET)
-if(Catch2_FOUND)
-	message(CHECK_PASS "found, it is installed on the system")
-else()
-	message(CHECK_FAIL "not found, will fetch it instead")
-	
-	Include(FetchContent)
+add_executable(GeometryTests)
 
-	FetchContent_Declare(
-	  Catch2
-	  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-	  GIT_TAG        8ac8190e494a381072c89f5e161b92a08d98b37b # v3.5.3
-	  GIT_PROGRESS   TRUE
-	)
-
-	FetchContent_MakeAvailable(Catch2)
-endif()
-
-# SET(GCC_COVERAGE_COMPILE_FLAGS "-fprofile-arcs -ftest-coverage")
-# SET(GCC_COVERAGE_LINK_FLAGS    "--coverage")
-# SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
-# SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}" )
-# # set(CMAKE_CXX_OUTPUT_EXTENSION_REPLACE ON)
-
-add_executable(ufogeometry_tests
-	aabb_test.cpp
-	line_test.cpp
-	frustum_test.cpp
+target_sources(GeometryTests
+	PRIVATE
+		aabb_test.cpp
+		frustum_test.cpp
+		line_test.cpp
 )
 
-target_link_libraries(ufogeometry_tests PRIVATE UFO::Geometry Catch2::Catch2WithMain)
+set_target_properties(GeometryTests
+	PROPERTIES
+		VERSION ${PROJECT_VERSION}
+		SOVERSION ${PROJECT_VERSION_MAJOR}
+		CXX_STANDARD 17
+		CXX_EXTENSIONS OFF
+)
 
-list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
-include(CTest)
-include(Catch)
-catch_discover_tests(ufogeometry_tests)
+if (MSVC)
+	target_compile_options(GeometryTests PRIVATE /W4)
+else()
+	target_compile_options(GeometryTests PRIVATE -Wall -Wextra -Wpedantic)
+endif()
 
-# add_custom_command(
-# 	TARGET ufogeometry_tests
-# 	COMMENT "Running UFO geometry tests"
-# 	POST_BUILD 
-# 	COMMAND ufogeometry_tests
-# )
+target_link_libraries(GeometryTests PRIVATE UFO::Geometry Catch2::Catch2WithMain)
+
+catch_discover_tests(GeometryTests)

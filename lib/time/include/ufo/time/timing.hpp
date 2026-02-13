@@ -47,7 +47,6 @@
 
 // STL
 #include <array>
-#include <codecvt>
 #include <cstdlib>
 #include <functional>
 #include <iomanip>
@@ -193,14 +192,13 @@ class Timing
 	{
 		using namespace std::string_literals;
 
-		std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
 		static constexpr std::array const RC{redColor(),  greenColor(),   yellowColor(),
 		                                     blueColor(), magentaColor(), cyanColor(),
 		                                     whiteColor()};
 
 		std::wstring header_left =
-		    L" " + (name.empty() ? L"Timings" : converter.from_bytes(name) + L" timings") +
-		    L" in " + unit<Period>() + L" ";
+		    L" " + (name.empty() ? L"Timings" : utf8ToWstring(name) + L" timings") + L" in " +
+		    unit<Period>() + L" ";
 		std::wstring header_right = L" UFO 🛸 ";
 
 		// Left + right + seperator
@@ -254,32 +252,27 @@ class Timing
 			// Header
 			std::size_t header_sep_pos = std::max(header_left.length(), total_length / 2);
 
-			auto t_1 = converter.to_bytes(std::wstring(header_sep_pos, L'─'));
-			auto t_2 =
-			    converter.to_bytes(std::wstring(total_length - header_sep_pos - 1, L'─'));
+			auto t_1 = wstringToUTF8(std::wstring(header_sep_pos, L'─'));
+			auto t_2 = wstringToUTF8(std::wstring(total_length - header_sep_pos - 1, L'─'));
 			std::printf("╭%s┬%s╮\n", t_1.c_str(), t_2.c_str());
-			t_1     = converter.to_bytes(header_left);
-			t_2     = converter.to_bytes(header_right);
+			t_1     = wstringToUTF8(header_left);
+			t_2     = wstringToUTF8(header_right);
 			int s_1 = static_cast<int>(header_sep_pos);
 			int s_2 = total_length - header_sep_pos + 1;
 			std::printf("│%-*s│%*s│\n", s_1, t_1.c_str(), s_2, t_2.c_str());
 			if (component_length == header_sep_pos) {
-				t_1 = converter.to_bytes(std::wstring(header_sep_pos, L'─'));
-				t_2 = converter.to_bytes(std::wstring(total_length - header_sep_pos - 1, L'─'));
+				t_1 = wstringToUTF8(std::wstring(header_sep_pos, L'─'));
+				t_2 = wstringToUTF8(std::wstring(total_length - header_sep_pos - 1, L'─'));
 				std::printf("├%s┼%s┤\n", t_1.c_str(), t_2.c_str());
 			} else if (component_length < header_sep_pos) {
-				t_1 = converter.to_bytes(std::wstring(component_length, L'─'));
-				t_2 =
-				    converter.to_bytes(std::wstring(header_sep_pos - component_length - 1, L'─'));
-				auto t_3 =
-				    converter.to_bytes(std::wstring(total_length - header_sep_pos - 1, L'─'));
+				t_1 = wstringToUTF8(std::wstring(component_length, L'─'));
+				t_2 = wstringToUTF8(std::wstring(header_sep_pos - component_length - 1, L'─'));
+				auto t_3 = wstringToUTF8(std::wstring(total_length - header_sep_pos - 1, L'─'));
 				std::printf("├%s┬%s┴%s┤\n", t_1.c_str(), t_2.c_str(), t_3.c_str());
 			} else {
-				t_1 = converter.to_bytes(std::wstring(header_sep_pos, L'─'));
-				t_2 =
-				    converter.to_bytes(std::wstring(component_length - header_sep_pos - 1, L'─'));
-				auto t_3 =
-				    converter.to_bytes(std::wstring(total_length - component_length - 1, L'─'));
+				t_1 = wstringToUTF8(std::wstring(header_sep_pos, L'─'));
+				t_2 = wstringToUTF8(std::wstring(component_length - header_sep_pos - 1, L'─'));
+				auto t_3 = wstringToUTF8(std::wstring(total_length - component_length - 1, L'─'));
 				std::printf("├%s┴%s┬%s┤\n", t_1.c_str(), t_2.c_str(), t_3.c_str());
 			}
 		}
@@ -287,22 +280,21 @@ class Timing
 		{
 			// Labels
 			auto [left_pad, right_pad] = centeringPadding(component[0].first, component_length);
-			std::printf("│%*s%s%*s│", left_pad, "",
-			            converter.to_bytes(component[0].first).c_str(), right_pad, "");
+			std::printf("│%*s%s%*s│", left_pad, "", wstringToUTF8(component[0].first).c_str(),
+			            right_pad, "");
 			for (std::size_t i{0}; data.size() != i; ++i) {
 				auto [left_pad, right_pad] = centeringPadding(data[i][0], data_length[i]);
 				std::printf("%*s%s%*s", left_pad, "", data[i][0].c_str(), right_pad, "");
 			}
 			std::tie(left_pad, right_pad) = centeringPadding(samples[0], samples_length);
-			std::printf("%*s%s%*s", left_pad, "", converter.to_bytes(samples[0]).c_str(),
-			            right_pad, "");
+			std::printf("%*s%s%*s", left_pad, "", wstringToUTF8(samples[0]).c_str(), right_pad,
+			            "");
 			std::tie(left_pad, right_pad) = centeringPadding(threads[0], threads_length);
-			std::printf("%*s%s%*s", left_pad, "", converter.to_bytes(threads[0]).c_str(),
-			            right_pad, "");
+			std::printf("%*s%s%*s", left_pad, "", wstringToUTF8(threads[0]).c_str(), right_pad,
+			            "");
 			std::printf("│\n");
-			auto t_1 = converter.to_bytes(std::wstring(component_length, L'─'));
-			auto t_2 =
-			    converter.to_bytes(std::wstring(total_length - component_length - 1, L'─'));
+			auto t_1 = wstringToUTF8(std::wstring(component_length, L'─'));
+			auto t_2 = wstringToUTF8(std::wstring(total_length - component_length - 1, L'─'));
 			std::printf("├%s┼%s┤\n", t_1.c_str(), t_2.c_str());
 		}
 
@@ -322,10 +314,10 @@ class Timing
 						auto [left_pad, right_pad] =
 						    centeringPadding(component[i].second, component_length);
 						std::printf("%*s%s%s%*s", left_pad, "", color.c_str(),
-						            converter.to_bytes(component[i].second).c_str(), right_pad, "");
+						            wstringToUTF8(component[i].second).c_str(), right_pad, "");
 					} else {
-						auto prefix = converter.to_bytes(component[i].first);
-						auto tag    = converter.to_bytes(component[i].second);
+						auto prefix = wstringToUTF8(component[i].first);
+						auto tag    = wstringToUTF8(component[i].second);
 						int  s      = component_length - component[i].first.length() -
 						        component[i].second.length();
 						std::printf("%s%s%s%*s", prefix.c_str(), color.c_str(), tag.c_str(), s, "");
@@ -346,9 +338,9 @@ class Timing
 						}
 					}
 					int s = static_cast<int>(samples_length - samples[i].length());
-					std::printf("%s%*s", converter.to_bytes(samples[i]).c_str(), s, "");
+					std::printf("%s%*s", wstringToUTF8(samples[i]).c_str(), s, "");
 					int t = static_cast<int>(threads_length - threads[i].length());
-					std::printf("%s%*s", converter.to_bytes(threads[i]).c_str(), t, "");
+					std::printf("%s%*s", wstringToUTF8(threads[i]).c_str(), t, "");
 				}
 
 				// Reset color
@@ -357,9 +349,9 @@ class Timing
 				{
 					// First seperator
 					if (1 == i && component.size() > 2) {
-						auto t_1 = converter.to_bytes(std::wstring(component_length, L'╌'));
-						auto t_2 = converter.to_bytes(
-						    std::wstring(total_length - component_length - 1, L'╌'));
+						auto t_1 = wstringToUTF8(std::wstring(component_length, L'╌'));
+						auto t_2 =
+						    wstringToUTF8(std::wstring(total_length - component_length - 1, L'╌'));
 						std::printf("├%s┼%s┤\n", t_1.c_str(), t_2.c_str());
 					}
 				}
@@ -388,24 +380,23 @@ class Timing
 			}
 
 			if (running || concurrent) {
-				auto t_1 = converter.to_bytes(std::wstring(component_length, L'─'));
-				auto t_2 =
-				    converter.to_bytes(std::wstring(total_length - component_length - 1, L'─'));
+				auto t_1 = wstringToUTF8(std::wstring(component_length, L'─'));
+				auto t_2 = wstringToUTF8(std::wstring(total_length - component_length - 1, L'─'));
 				std::printf("├%s┴%s┤\n", t_1.c_str(), t_2.c_str());
 				if (running) {
 					std::wstring info = L" ¹ # running threads that are not accounted for ";
 					int          s    = static_cast<int>(total_length - info.length());
-					std::printf("│%s%*s│\n", converter.to_bytes(info).c_str(), s, "");
+					std::printf("│%s%*s│\n", wstringToUTF8(info).c_str(), s, "");
 				}
 				if (paused) {
 					std::wstring info = L" ² Indicates that the timer is paused ";
 					int          s    = static_cast<int>(total_length - info.length());
-					std::printf("│%s%*s│\n", converter.to_bytes(info).c_str(), s, "");
+					std::printf("│%s%*s│\n", wstringToUTF8(info).c_str(), s, "");
 				}
 				if (concurrent) {
 					std::wstring info = L" ³ Indicates that the timer has run concurrently ";
 					int          s    = static_cast<int>(total_length - info.length());
-					std::printf("│%s%*s│\n", converter.to_bytes(info).c_str(), s, "");
+					std::printf("│%s%*s│\n", wstringToUTF8(info).c_str(), s, "");
 				}
 			}
 		}
@@ -413,12 +404,11 @@ class Timing
 		{
 			// Footer
 			if (running || concurrent) {
-				auto t = converter.to_bytes(std::wstring(total_length, L'─'));
+				auto t = wstringToUTF8(std::wstring(total_length, L'─'));
 				std::printf("╰%s╯\n", t.c_str());
 			} else {
-				auto t_1 = converter.to_bytes(std::wstring(component_length, L'─'));
-				auto t_2 =
-				    converter.to_bytes(std::wstring(total_length - component_length - 1, L'─'));
+				auto t_1 = wstringToUTF8(std::wstring(component_length, L'─'));
+				auto t_2 = wstringToUTF8(std::wstring(total_length - component_length - 1, L'─'));
 				std::printf("╰%s┴%s╯\n", t_1.c_str(), t_2.c_str());
 			}
 		}
@@ -605,6 +595,62 @@ class Timing
 	std::map<std::string, Timing> children_;
 
 	std::size_t max_concurrent_threads_ = 0;
+
+	static std::string wstringToUTF8(std::wstring const& wstr)
+	{
+		std::string result;
+		result.reserve(wstr.size() * 3);
+		for (wchar_t wc : wstr) {
+			auto c = static_cast<char32_t>(wc);
+			if (c < 0x80) {
+				result += static_cast<char>(c);
+			} else if (c < 0x800) {
+				result += static_cast<char>(0xC0 | (c >> 6));
+				result += static_cast<char>(0x80 | (c & 0x3F));
+			} else if (c < 0x10000) {
+				result += static_cast<char>(0xE0 | (c >> 12));
+				result += static_cast<char>(0x80 | ((c >> 6) & 0x3F));
+				result += static_cast<char>(0x80 | (c & 0x3F));
+			} else {
+				result += static_cast<char>(0xF0 | (c >> 18));
+				result += static_cast<char>(0x80 | ((c >> 12) & 0x3F));
+				result += static_cast<char>(0x80 | ((c >> 6) & 0x3F));
+				result += static_cast<char>(0x80 | (c & 0x3F));
+			}
+		}
+		return result;
+	}
+
+	static std::wstring utf8ToWstring(std::string const& str)
+	{
+		std::wstring result;
+		result.reserve(str.size());
+		for (std::size_t i = 0; i < str.size();) {
+			auto    c = static_cast<unsigned char>(str[i]);
+			wchar_t wc;
+			if (c < 0x80) {
+				wc = c;
+				++i;
+			} else if ((c & 0xE0) == 0xC0) {
+				wc = (c & 0x1F) << 6;
+				wc |= static_cast<unsigned char>(str[++i]) & 0x3F;
+				++i;
+			} else if ((c & 0xF0) == 0xE0) {
+				wc = (c & 0x0F) << 12;
+				wc |= (static_cast<unsigned char>(str[++i]) & 0x3F) << 6;
+				wc |= static_cast<unsigned char>(str[++i]) & 0x3F;
+				++i;
+			} else {
+				wc = (c & 0x07) << 18;
+				wc |= (static_cast<unsigned char>(str[++i]) & 0x3F) << 12;
+				wc |= (static_cast<unsigned char>(str[++i]) & 0x3F) << 6;
+				wc |= static_cast<unsigned char>(str[++i]) & 0x3F;
+				++i;
+			}
+			result += wc;
+		}
+		return result;
+	}
 };
 }  // namespace ufo
 

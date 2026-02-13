@@ -1,6 +1,6 @@
-option(UFOVIZ_BUILD_DOCS "Generate documentation" OFF)
-option(UFOVIZ_BUILD_TESTS "Unit testing" OFF)
-option(UFOVIZ_BUILD_COVERAGE "Test Coverage" OFF)
+option(UFO_VIZ_BUILD_DOCS "Generate documentation" ON)
+option(UFO_VIZ_BUILD_TESTS "Unit testing" ON)
+option(UFO_VIZ_BUILD_COVERAGE "Test Coverage" ON)
 
 add_subdirectory(apps)
 
@@ -19,6 +19,12 @@ set_target_properties(Viz
 		CXX_EXTENSIONS OFF
 		OUTPUT_NAME "UFOViz"
 )
+
+if (MSVC)
+	target_compile_options(Viz PRIVATE /W4)
+else()
+	target_compile_options(Viz PRIVATE -Wall -Wextra -Wpedantic)
+endif()
 
 # add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/imgui")
 target_link_libraries(Viz
@@ -55,11 +61,11 @@ else()
 	)
 endif()
 
-if(UFO_BUILD_TESTS OR UFOVIZ_BUILD_TESTS)
+if(UFO_BUILD_TESTS AND UFO_VIZ_BUILD_TESTS)
 	add_subdirectory(tests)
 endif()
 
-if(UFO_BUILD_DOCS OR UFOVIZ_BUILD_DOCS)
+if(UFO_BUILD_DOCS AND UFO_VIZ_BUILD_DOCS)
 	add_subdirectory(docs)
 endif()
 
@@ -101,5 +107,5 @@ install(
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
 	COMPONENT Viz
-	DESTINATION ${CMAKE_INSTALL_PREFIX}
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )

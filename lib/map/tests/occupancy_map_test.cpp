@@ -49,7 +49,7 @@ TEST_CASE("OccupancyMap")
 		Map3D<OccupancyMap> map(0.5, 3);
 
 		Vec3f     coord(0, 0, 0);
-		TreeCoord coord_r(coord, 2);
+		TreeCoord coord_r(coord, 2u);
 		float     occ   = 0.95f;
 		float     logit = probabilityToLogit(occ);
 
@@ -91,7 +91,7 @@ TEST_CASE("OccupancyMap")
 		Map3D<OccupancyMap> map(0.5, 3);
 
 		Vec3f     coord(0, 0, 0);
-		TreeCoord coord_r(coord, 2);
+		TreeCoord coord_r(coord, 2u);
 		float     occ   = 0.95f;
 
 		REQUIRE(map.occupancy(coord) == Catch::Approx(0.5f));
@@ -116,7 +116,7 @@ TEST_CASE("OccupancyMap")
 		Map3D<OccupancyMap> map(0.5, 3);
 
 		Vec3f     coord(0, 0, 0);
-		TreeCoord coord_r(coord, 2);
+		TreeCoord coord_r(coord, 2u);
 		float     occ   = 0.95f;
 
 		REQUIRE(map.occupancy(coord) == Catch::Approx(0.5f));
@@ -139,7 +139,7 @@ TEST_CASE("OccupancyMap")
 		Map3D<OccupancyMap> map(0.5, 3);
 
 		Vec3f     coord(0, 0, 0);
-		TreeCoord coord_r(coord, 2);
+		TreeCoord coord_r(coord, 2u);
 		float     occ   = 0.95f;
 		float     logit = probabilityToLogit(occ);
 
@@ -163,7 +163,7 @@ TEST_CASE("OccupancyMap")
 		Map3D<OccupancyMap> map(0.5, 3);
 
 		Vec3f     coord(0, 0, 0);
-		TreeCoord coord_r(coord, 2);
+		TreeCoord coord_r(coord, 2u);
 		float     occ   = 0.95f;
 		float     logit = probabilityToLogit(occ);
 

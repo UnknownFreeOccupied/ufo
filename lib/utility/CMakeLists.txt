@@ -1,3 +1,7 @@
+option(UFO_UTILITY_BUILD_DOCS     "Generate documentation" ON)
+option(UFO_UTILITY_BUILD_TESTS    "Unit testing"           ON)
+option(UFO_UTILITY_BUILD_COVERAGE "Test Coverage"          ON)
+
 # --- ufo/utility/CMakeLists.txt ---
 include(GNUInstallDirs)
 
@@ -10,23 +14,21 @@ add_library(Utility STATIC
 )
 add_library(UFO::Utility ALIAS Utility)
 
-# 2. Dependencies
-find_package(TBB) #should ideally be in the root Dependencies.cmake
-# but we link it here.
-target_link_libraries(Utility PUBLIC TBB::tbb)
-
-target_compile_definitions(Utility
-    PUBLIC
-        UFO_TBB=1
+set_target_properties(Utility
+	PROPERTIES
+		VERSION ${PROJECT_VERSION}
+		SOVERSION ${PROJECT_VERSION_MAJOR}
+		CXX_STANDARD 17
+		CXX_EXTENSIONS OFF
+		OUTPUT_NAME "UFOUtility"
+		POSITION_INDEPENDENT_CODE ON
 )
 
-# 3. Standard and Properties
-# You can keep these if this lib has unique requirements, 
-# but usually CXX_STANDARD is set globally at the root.
-set_target_properties(Utility PROPERTIES
-    VERSION ${PROJECT_VERSION}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-)
+if (MSVC)
+	target_compile_options(Utility PRIVATE /W4)
+else()
+	target_compile_options(Utility PRIVATE -Wall -Wextra -Wpedantic)
+endif()
 
 # 4. Include Directories
 # Use the "Hall of Mirrors" fix: point directly to your include folder
@@ -35,6 +37,14 @@ target_include_directories(Utility
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
+
+if(UFO_BUILD_TESTS AND UFO_UTILITY_BUILD_TESTS)
+  add_subdirectory(tests)
+endif()
+
+if(UFO_BUILD_DOCS AND UFO_UTILITY_BUILD_DOCS)
+	add_subdirectory(docs)
+endif()
 
 # 5. Global Install (Simplified)
 # We add this target to the shared 'UFO-targets' export set

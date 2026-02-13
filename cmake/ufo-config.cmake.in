@@ -1,5 +1,6 @@
 @PACKAGE_INIT@
 
+include("${CMAKE_CURRENT_LIST_DIR}/wgpu_native-targets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/ufo-targets.cmake")
 
 foreach(_comp ${UFO_FIND_COMPONENTS})
@@ -11,15 +12,11 @@ foreach(_comp ${UFO_FIND_COMPONENTS})
 endforeach()
 
 include(CMakeFindDependencyMacro)
-find_dependency(Threads) 
-find_dependency(TBB) 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  find_dependency(Threads)
+endif()
+find_dependency(TBB)
 find_dependency(OpenMP)
-
-include("${CMAKE_CURRENT_LIST_DIR}/Compute-deps.cmake")
-# Force it to recognize this specific wgpu_native target
-# This ensures that even if it was built with an absolute path originally, 
-# it now points to our relocatable 'wgpu_native' target made in Compute-deps.
-# set_property(TARGET UFO::Compute APPEND PROPERTY INTERFACE_LINK_LIBRARIES wgpu_native)
 
 #checks if any REQUIRED components were marked FOUND=FALSE and sets UFO_FOUND
 check_required_components(UFO)

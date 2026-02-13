@@ -1,7 +1,7 @@
 ---
 Checks:          'clang-diagnostic-*,clang-analyzer-*'
 WarningsAsErrors: ''
-HeaderFilterRegex: ''
+HeaderFilterRegex: '/(lib|tests)/'
 AnalyzeTemporaryDtors: false
 FormatStyle:     none
 User:            dduberg

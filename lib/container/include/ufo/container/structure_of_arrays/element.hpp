@@ -324,7 +324,7 @@ class SoAElement
 	[[nodiscard]] std::size_t position() const
 	{
 		assert(is_reference_ && nullptr != reference_);
-		return std::distance(reference_->cbegin(), this);
+		return static_cast<std::size_t>(std::distance(reference_->cbegin(), this));
 	}
 
  private:

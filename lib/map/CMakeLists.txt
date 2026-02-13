@@ -1,6 +1,6 @@
-option(UFOMAP_BUILD_DOCS "Generate documentation" OFF)
-option(UFOMAP_BUILD_TESTS "Unit testing" OFF)
-option(UFOMAP_BUILD_COVERAGE "Test Coverage" OFF)
+option(UFO_MAP_BUILD_DOCS "Generate documentation" ON)
+option(UFO_MAP_BUILD_TESTS "Unit testing" ON)
+option(UFO_MAP_BUILD_COVERAGE "Test Coverage" ON)
 
 include(GNUInstallDirs)
 
@@ -28,7 +28,7 @@ target_include_directories(Map
 	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-if(UFO_BUILD_TESTS OR UFOMAP_BUILD_TESTS)
+if(UFO_BUILD_TESTS AND UFO_MAP_BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
