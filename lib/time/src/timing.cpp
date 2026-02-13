@@ -552,8 +552,7 @@ void Timing::addTags(std::vector<std::pair<std::wstring, std::wstring>>& data,
 		std::wstring tag_postfix = L" ";
 
 		if (0 == timers[i].level) {
-			data.emplace_back(prefix,
-			                  utf8ToWstring(timers[i].timing->tag()) + tag_postfix);
+			data.emplace_back(prefix, utf8ToWstring(timers[i].timing->tag()) + tag_postfix);
 			continue;
 		}
 
@@ -568,7 +567,7 @@ void Timing::addTags(std::vector<std::pair<std::wstring, std::wstring>>& data,
 				}
 			}
 			if (found) {
-				prefix += L"   "; // L"│  "
+				prefix += L"   ";  // L"│  "
 			} else {
 				prefix += L"   ";
 			}
@@ -589,8 +588,7 @@ void Timing::addTags(std::vector<std::pair<std::wstring, std::wstring>>& data,
 			prefix += L"└─ ";  // L"╰─ "
 		}
 
-		data.emplace_back(prefix,
-		                  utf8ToWstring(timers[i].timing->tag()) + tag_postfix);
+		data.emplace_back(prefix, utf8ToWstring(timers[i].timing->tag()) + tag_postfix);
 	}
 }
 
