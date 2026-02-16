@@ -52,6 +52,7 @@
 // STL
 #include <cmath>
 #include <limits>
+#include <numbers>
 
 namespace ufo
 {
@@ -137,7 +138,7 @@ template <class T, class S>
 	}
 	// Graphics Gems III, page 96
 	T angle = std::acos(cos_theta);
-	T phi   = angle + T(k) * T(M_PI);
+	T phi   = angle + T(k) * std::numbers::pi_v<T>;
 	return (std::sin(angle - a * phi) * x + std::sin(a * phi) * z) / std::sin(angle);
 }
 
@@ -270,7 +271,7 @@ template <class T>
 	if (std::abs(q.w) > cos_one_over_two) {
 		T const a = std::asin(std::sqrt(q.x * q.x + q.y * q.y + q.z * q.z)) * T(2);
 		if (q.w < T(0)) {
-			return T(M_PI) * T(2) - a;
+			return std::numbers::pi_v<T> * T(2) - a;
 		}
 		return a;
 	}

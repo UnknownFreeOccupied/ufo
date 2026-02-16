@@ -32,6 +32,7 @@
 #include <future>
 #include <iostream>
 #include <limits>
+#include <numbers>
 #include <random>
 #include <string>
 #include <thread>
@@ -249,9 +250,9 @@ int main(int argc, char* argv[])
 	// auto f = kitti(map, timings);
 	auto f = euroc(map, timings);
 
-	float yaw   = M_PI_4;
+	float yaw   = std::numbers::pi_v<float> / 4;
 	float pitch = 0;
-	float roll  = 0.0f;  // M_PI_2;
+	float roll  = 0.0f;  // std::numbers::pi_v<float> / 2;
 
 	Camera camera;
 	camera.vertical_fov = radians(60.0f);
@@ -280,10 +281,10 @@ int main(int argc, char* argv[])
 	std::size_t iterations{};
 
 	// float angle_x = 0.0f;
-	float angle_x = M_PI;
-	// float angle_y = M_PI_2;
-	float angle_y = M_PI_2 - 0.8f;
-	// float angle_y = M_PI_2 + 0.4f;
+	float angle_x = std::numbers::pi_v<float>;
+	// float angle_y = std::numbers::pi_v<float> /2;
+	float angle_y = std::numbers::pi_v<float> / 2 - 0.8f;
+	// float angle_y = std::numbers::pi_v<float> / 2 + 0.4f;
 	float zoom = -0.0f;
 
 	Image<std::pair<Color, float>> image_low_res(rows, cols);
@@ -326,7 +327,7 @@ int main(int argc, char* argv[])
 		// angle_x += 0.01f;
 		// angle_y += 0.05f;
 		// pitch                   = 0;
-		// roll                    = 0;  // M_PI_2;
+		// roll                    = 0;  // std::numbers::pi_v<float> / 2;
 		// camera.pose.orientation = Quat(yaw, roll, pitch);
 
 		auto pred = pred::Z() > 0.0 && pred::Z() < 2.0;

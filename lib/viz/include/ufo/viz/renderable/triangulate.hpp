@@ -49,9 +49,9 @@ inline TriangleList<Vertex> triangulate(ufo::BS3 const& sphere, int num_slices,
 
 	// Vertices
 	for (int i = 0; i <= num_stacks; ++i) {
-		float phi = M_PI * i / num_stacks;
+		float phi = std::numbers::pi_v<float> * i / num_stacks;
 		for (int j = 0; j <= num_slices; ++j) {
-			float theta = 2 * M_PI * j / num_slices;
+			float theta = 2 * std::numbers::pi_v<float> * j / num_slices;
 
 			float x = sphere.radius * std::sin(phi) * std::cos(theta) + sphere.center.x;
 			float y = sphere.radius * std::sin(phi) * std::sin(theta) + sphere.center.y;
@@ -92,9 +92,9 @@ inline TriangleList<ufo::Vec3f> triangulate(ufo::BS3 const& sphere, int num_slic
 
 	// Vertices
 	for (int i = 0; i <= num_stacks; ++i) {
-		float phi = M_PI * i / num_stacks;
+		float phi = std::numbers::pi_v<float> * i / num_stacks;
 		for (int j = 0; j <= num_slices; ++j) {
-			float theta = 2 * M_PI * j / num_slices;
+			float theta = 2 * std::numbers::pi_v<float> * j / num_slices;
 
 			float x = sphere.radius * std::sin(phi) * std::cos(theta) + sphere.center.x;
 			float y = sphere.radius * std::sin(phi) * std::sin(theta) + sphere.center.y;
@@ -147,7 +147,7 @@ inline TriangleList<Vertex> triangulate(ufo::Cylinder3 const& cylinder, int segm
 	result.vertices.push_back({cylinder.center_1, -direction});
 	result.vertices.push_back({cylinder.center_2, direction});
 
-	float angle_step = 2 * M_PI / segments;
+	float angle_step = 2 * std::numbers::pi_v<float> / segments;
 
 	// Generate vertices for the top and bottom circles
 	for (int i = 0; i <= segments; ++i) {
@@ -216,7 +216,7 @@ inline TriangleList<ufo::Vec3f> triangulate(ufo::Cylinder3 const& cylinder, int 
 	result.vertices.push_back(cylinder.center_1);
 	result.vertices.push_back(cylinder.center_2);
 
-	float angle_step = 2 * M_PI / segments;
+	float angle_step = 2 * std::numbers::pi_v<float> / segments;
 
 	// Generate vertices for the top and bottom circles
 	for (int i = 0; i <= segments; ++i) {
@@ -287,7 +287,7 @@ inline TriangleList<Vertex> triangulate(ufo::Cone3 const& cone, int segments)
 	ufo::Vec3f forward = normalize(cross(dir, right));
 
 	// Base circle vertices
-	float angle_step = 2 * M_PI / segments;
+	float angle_step = 2 * std::numbers::pi_v<float> / segments;
 
 	// Generate vertices for base circle
 	for (int i = 0; i <= segments; ++i) {
@@ -336,7 +336,7 @@ inline TriangleList<ufo::Vec3f> triangulate(ufo::Cone3 const& cone, int segments
 	ufo::Vec3f forward = normalize(cross(dir, right));
 
 	// Base circle vertices
-	float angle_step = 2 * M_PI / segments;
+	float angle_step = 2 * std::numbers::pi_v<float> / segments;
 
 	// Generate vertices for base circle
 	for (int i = 0; i <= segments; ++i) {

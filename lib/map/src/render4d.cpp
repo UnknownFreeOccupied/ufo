@@ -26,6 +26,7 @@
 #include <future>
 #include <iostream>
 #include <limits>
+#include <numbers>
 #include <random>
 #include <string>
 #include <vector>
@@ -163,7 +164,7 @@ int main(int argc, char* argv[])
 	std::size_t iterations{};
 
 	float angle_x = 0.0f;
-	float angle_y = M_PI_2;
+	float angle_y = std::numbers::pi_v<float> / 2;
 	float zoom    = -0.0f;
 
 	float w = 0.004f;

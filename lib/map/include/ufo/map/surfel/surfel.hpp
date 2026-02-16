@@ -48,6 +48,7 @@
 
 // STL
 #include <cstdint>
+#include <numbers>
 #include <type_traits>
 
 namespace ufo
@@ -444,15 +445,18 @@ class Surfel
 		                   54 * (d * e * f);
 
 		double const phi =
-		    0 < x_2
-		        ? std::atan(std::sqrt(4 * x_1 * x_1 * x_1 - x_2 * x_2) / x_2)
-		        : (0 > x_2
-		               ? std::atan(std::sqrt(4 * x_1 * x_1 * x_1 - x_2 * x_2) / x_2) + M_PI
-		               : M_PI_2);
+		    0 < x_2 ? std::atan(std::sqrt(4 * x_1 * x_1 * x_1 - x_2 * x_2) / x_2)
+		            : (0 > x_2 ? std::atan(std::sqrt(4 * x_1 * x_1 * x_1 - x_2 * x_2) / x_2) +
+		                             std::numbers::pi_v<double>
+		                       : std::numbers::pi_v<double> / 2);
 
 		return Vec3d((a + b + c - 2 * std::sqrt(x_1) * std::cos(phi / 3)) / 3,
-		             (a + b + c + 2 * std::sqrt(x_1) * std::cos((phi + M_PI) / 3)) / 3,
-		             (a + b + c + 2 * std::sqrt(x_1) * std::cos((phi - M_PI) / 3)) / 3);
+		             (a + b + c +
+		              2 * std::sqrt(x_1) * std::cos((phi + std::numbers::pi_v<double>) / 3)) /
+		                 3,
+		             (a + b + c +
+		              2 * std::sqrt(x_1) * std::cos((phi - std::numbers::pi_v<double>) / 3)) /
+		                 3);
 	}
 
 	//
