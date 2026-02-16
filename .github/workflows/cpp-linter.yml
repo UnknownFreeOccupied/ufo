@@ -3,10 +3,10 @@ name: C++ linter
 on:
   push:
     branches: [ "main" ]
-    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake', '**.clang_format', '**.clang-format-ignore', '**.clang-tidy', '**.clangd']
+    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake', '**.clang_format', '**.clang-format-ignore', '**.clang-tidy', '**.clangd', '.github/workflows/cpp-linter.yml']
   pull_request:
     branches: [ "main" ]
-    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake', '**.clang_format', '**.clang-format-ignore', '**.clang-tidy', '**.clangd']
+    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake', '**.clang_format', '**.clang-format-ignore', '**.clang-tidy', '**.clangd', '.github/workflows/cpp-linter.yml']
 
 
 jobs:
