@@ -41,7 +41,6 @@ TEST_CASE("Octree Map")
 		std::cout << k << ": " << v << std::endl;
 	}
 
-
 	std::cout << std::endl;
 
 	for (auto [k, v] :

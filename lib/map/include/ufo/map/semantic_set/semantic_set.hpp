@@ -48,9 +48,9 @@
 #include <ufo/util/iterator_wrapper.hpp>
 #include <ufo/util/type_traits.hpp>
 // #include <ufo/map/semantic/semantics_reference.h>
-#include <ufo/util/bit_set.hpp>
 #include <ufo/map/semantic/semantic.hpp>
 #include <ufo/map/semantic_set/semantic_util.hpp>
+#include <ufo/util/bit_set.hpp>
 
 // STL
 #include <algorithm>
@@ -75,12 +75,12 @@ class SemanticSet
 	using value_type             = Semantic;
 	using size_type              = label_t;
 	using difference_type        = std::ptrdiff_t;
-	using reference              = Semantic &;  // TODO: Make label const
-	using const_reference        = Semantic const &;
-	using pointer                = Semantic *;
-	using const_pointer          = Semantic const *;
-	using iterator               = Semantic *;  // TODO: Make label const
-	using const_iterator         = Semantic const *;
+	using reference              = Semantic&;  // TODO: Make label const
+	using const_reference        = Semantic const&;
+	using pointer                = Semantic*;
+	using const_pointer          = Semantic const*;
+	using iterator               = Semantic*;  // TODO: Make label const
+	using const_iterator         = Semantic const*;
 	using reverse_iterator       = std::reverse_iterator<iterator>;
 	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
@@ -96,7 +96,7 @@ class SemanticSet
 	SemanticSet() {}
 
 	// copy constructor
-	SemanticSet(SemanticSet const &other)
+	SemanticSet(SemanticSet const& other)
 	{
 		for (offset_t i{}; i != N; ++i) {
 			set(i, other.begin(i), other.end(i));
@@ -104,17 +104,17 @@ class SemanticSet
 	}
 
 	// move constructor
-	SemanticSet(SemanticSet &&other) noexcept : semantics(std::move(other.semantics)) {}
+	SemanticSet(SemanticSet&& other) noexcept : semantics(std::move(other.semantics)) {}
 
 	// move assignment operator
-	SemanticSet &operator=(SemanticSet &&other) noexcept
+	SemanticSet& operator=(SemanticSet&& other) noexcept
 	{
 		semantics = std::move(other.semantics);
 		return *this;
 	}
 
 	// copy assignment operator
-	SemanticSet &operator=(SemanticSet const &other)
+	SemanticSet& operator=(SemanticSet const& other)
 	{
 		for (offset_t i{}; i != N; ++i) {
 			set(i, other.begin(i), other.end(i));
@@ -140,7 +140,7 @@ class SemanticSet
 	//
 
 	// fill all our nodes with data from parent node with specified index
-	void fill(SemanticSet const &parent, offset_t const index)
+	void fill(SemanticSet const& parent, offset_t const index)
 	{
 		semantic::resizeLazy<N>(semantics, parent.size(index));
 		auto first = parent.begin(index);
@@ -313,7 +313,7 @@ class SemanticSet
 	//
 
 	// resize data container without copying existing elements to the correct location
-	void resizeLazy(std::array<size_type, N> const &new_sizes)
+	void resizeLazy(std::array<size_type, N> const& new_sizes)
 	{
 		semantic::resizeLazy<N>(semantics, new_sizes);
 	}
@@ -339,7 +339,7 @@ class SemanticSet
 	// Set
 	//
 
-	void set(SemanticSet const &semantics)
+	void set(SemanticSet const& semantics)
 	{
 		semantic::resizeLazy<N>(this->semantics, semantics.size());
 		auto first = std::begin(semantics);
@@ -349,7 +349,7 @@ class SemanticSet
 		}
 	}
 
-	void set(offset_t index, SemanticSet const &semantics)
+	void set(offset_t index, SemanticSet const& semantics)
 	{
 		semantic::resize<N>(this->semantics, index, semantics.size());
 		std::copy(std::begin(semantics), std::end(semantics), begin(index));
@@ -493,7 +493,7 @@ class SemanticSet
 		assign(semantics, SemanticRangeSet{range}, value);
 	}
 
-	void assign(SemanticRangeSet const &ranges, value_t value)
+	void assign(SemanticRangeSet const& ranges, value_t value)
 	{
 		semantic::assign<N>(semantics, ranges, value);
 	}
@@ -507,7 +507,7 @@ class SemanticSet
 
 	template <class UnaryFunction,
 	          class = std::enable_if_t<std::is_invocable<UnaryFunction, Semantic>::value>>
-	void assign(SemanticRangeSet const &ranges, UnaryFunction f)
+	void assign(SemanticRangeSet const& ranges, UnaryFunction f)
 	{
 		semantic::assign<N>(semantics, ranges, f);
 	}
@@ -526,14 +526,14 @@ class SemanticSet
 		assign(index, SemanticRangeSet{range}, value);
 	}
 
-	void assign(offset_t const index, SemanticRangeSet const &ranges, value_t value)
+	void assign(offset_t const index, SemanticRangeSet const& ranges, value_t value)
 	{
 		semantic::assign<N>(semantics, index, ranges, value);
 	}
 
 	template <class UnaryFunction,
 	          class = std::enable_if_t<std::is_invocable<UnaryFunction, Semantic>::value>>
-	void assign(offset_t const index, SemanticRangeSet const &ranges, UnaryFunction f)
+	void assign(offset_t const index, SemanticRangeSet const& ranges, UnaryFunction f)
 	{
 		semantic::assign<N>(semantics, index, ranges, f);
 	}
@@ -575,7 +575,7 @@ class SemanticSet
 
 	size_type erase(label_t label) { return semantic::erase<N>(semantics, label); }
 
-	size_type erase(SemanticRangeSet const &ranges)
+	size_type erase(SemanticRangeSet const& ranges)
 	{
 		return semantic::erase<N>(semantics, ranges);
 	}
@@ -587,7 +587,7 @@ class SemanticSet
 		return semantic::erase<N>(semantics, index, label);
 	}
 
-	size_type erase(offset_t const index, SemanticRangeSet const &ranges)
+	size_type erase(offset_t const index, SemanticRangeSet const& ranges)
 	{
 		return semantic::erase<N>(semantics, index, ranges);
 	}
@@ -610,7 +610,7 @@ class SemanticSet
 
 	template <class UnaryPredicate,
 	          class = std::enable_if_t<std::is_invocable<UnaryPredicate, Semantic>::value>>
-	size_type eraseIf(SemanticRangeSet const &ranges, UnaryPredicate p)
+	size_type eraseIf(SemanticRangeSet const& ranges, UnaryPredicate p)
 	{
 		return semantic::eraseIf<N>(semantics, ranges, p);
 	}
@@ -631,7 +631,7 @@ class SemanticSet
 
 	template <class UnaryPredicate,
 	          class = std::enable_if_t<std::is_invocable<UnaryPredicate, Semantic>::value>>
-	size_type eraseIf(offset_t const index, SemanticRangeSet const &ranges,
+	size_type eraseIf(offset_t const index, SemanticRangeSet const& ranges,
 	                  UnaryPredicate p)
 	{
 		return semantic::eraseIf<N>(semantics, index, ranges, p);
@@ -726,7 +726,7 @@ class SemanticSet
 		return semantic::all<N>(semantics, index, range);
 	}
 
-	[[nodiscard]] bool all(offset_t index, SemanticRangeSet const &ranges) const
+	[[nodiscard]] bool all(offset_t index, SemanticRangeSet const& ranges) const
 	{
 		return semantic::all<N>(semantics, index, ranges);
 	}
@@ -744,7 +744,7 @@ class SemanticSet
 	}
 
 	template <class UnaryPredicate>
-	[[nodiscard]] bool all(offset_t index, SemanticRangeSet const &ranges,
+	[[nodiscard]] bool all(offset_t index, SemanticRangeSet const& ranges,
 	                       UnaryPredicate p) const
 	{
 		return semantic::all<N>(semantics, index, ranges, p);
@@ -759,7 +759,7 @@ class SemanticSet
 		return semantic::any<N>(semantics, index, range);
 	}
 
-	[[nodiscard]] bool any(offset_t index, SemanticRangeSet const &ranges) const
+	[[nodiscard]] bool any(offset_t index, SemanticRangeSet const& ranges) const
 	{
 		return semantic::any<N>(semantics, index, ranges);
 	}
@@ -777,7 +777,7 @@ class SemanticSet
 	}
 
 	template <class UnaryPredicate>
-	[[nodiscard]] bool any(offset_t index, SemanticRangeSet const &ranges,
+	[[nodiscard]] bool any(offset_t index, SemanticRangeSet const& ranges,
 	                       UnaryPredicate p) const
 	{
 		return semantic::any<N>(semantics, index, ranges, p);
@@ -792,7 +792,7 @@ class SemanticSet
 		return semantic::none<N>(semantics, index, range);
 	}
 
-	[[nodiscard]] bool none(offset_t index, SemanticRangeSet const &ranges) const
+	[[nodiscard]] bool none(offset_t index, SemanticRangeSet const& ranges) const
 	{
 		return semantic::none<N>(semantics, index, ranges);
 	}
@@ -810,7 +810,7 @@ class SemanticSet
 	}
 
 	template <class UnaryPredicate>
-	[[nodiscard]] bool none(offset_t index, SemanticRangeSet const &ranges,
+	[[nodiscard]] bool none(offset_t index, SemanticRangeSet const& ranges,
 	                        UnaryPredicate p) const
 	{
 		return semantic::none<N>(semantics, index, ranges, p);
@@ -847,7 +847,7 @@ class SemanticSet
 	// Input/output (read/write)
 	//
 
-	void read(ReadBuffer &in)
+	void read(ReadBuffer& in)
 	{
 		// read number of semantics in this node
 		std::uint64_t s;
@@ -864,7 +864,7 @@ class SemanticSet
 		}
 	}
 
-	void read(ReadBuffer &in, BitSet<N> rf)
+	void read(ReadBuffer& in, BitSet<N> rf)
 	{
 		if (rf.all()) {
 			read(in);
@@ -888,7 +888,7 @@ class SemanticSet
 		}
 	}
 
-	void read(ReadBuffer &in, offset_t pos)
+	void read(ReadBuffer& in, offset_t pos)
 	{
 		std::uint64_t s;
 		in.read(&s, sizeof(s));
@@ -898,7 +898,7 @@ class SemanticSet
 		}
 	}
 
-	void write(WriteBuffer &out) const
+	void write(WriteBuffer& out) const
 	{
 		auto s = size();
 		out.write(&s, sizeof(s));
@@ -907,12 +907,12 @@ class SemanticSet
 		}
 	}
 
-	void write(WriteBuffer &out, BitSet<N> wf)
+	void write(WriteBuffer& out, BitSet<N> wf)
 	{
 		// TODO: Implement
 	}
 
-	void write(WriteBuffer &out, offset_t index) const
+	void write(WriteBuffer& out, offset_t index) const
 	{
 		std::uint64_t s = size(index);
 		out.write(&s, sizeof(s));
@@ -931,12 +931,12 @@ class SemanticSet<1>
 	// using size_type              = std::size_t;
 	using size_type              = label_t;
 	using difference_type        = std::ptrdiff_t;
-	using reference              = Semantic &;  // TODO: Make label const
-	using const_reference        = Semantic const &;
-	using pointer                = Semantic *;
-	using const_pointer          = Semantic const *;
-	using iterator               = Semantic *;  // TODO: Make label const
-	using const_iterator         = Semantic const *;
+	using reference              = Semantic&;  // TODO: Make label const
+	using const_reference        = Semantic const&;
+	using pointer                = Semantic*;
+	using const_pointer          = Semantic const*;
+	using iterator               = Semantic*;  // TODO: Make label const
+	using const_iterator         = Semantic const*;
 	using reverse_iterator       = std::reverse_iterator<iterator>;
 	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
@@ -946,9 +946,9 @@ class SemanticSet<1>
 
 	constexpr SemanticSet() = default;
 
-	SemanticSet(SemanticSet const &other) { *this = other; }
+	SemanticSet(SemanticSet const& other) { *this = other; }
 
-	SemanticSet(SemanticSet &&other) noexcept = default;
+	SemanticSet(SemanticSet&& other) noexcept = default;
 
 	// SemanticSet(SemanticsReference other)
 	// {
@@ -971,7 +971,7 @@ class SemanticSet<1>
 	// Assignment operator
 	//
 
-	SemanticSet &operator=(SemanticSet const &rhs)
+	SemanticSet& operator=(SemanticSet const& rhs)
 	{
 		if (rhs.empty()) {
 			clear();
@@ -982,7 +982,7 @@ class SemanticSet<1>
 		return *this;
 	}
 
-	SemanticSet &operator=(SemanticSet &&rhs) noexcept = default;
+	SemanticSet& operator=(SemanticSet&& rhs) noexcept = default;
 
 	// SemanticSet &operator=(SemanticsReference rhs)
 	// {
@@ -1157,7 +1157,7 @@ class SemanticSet<1>
 		return all(SemanticRangeSet(range));
 	}
 
-	[[nodiscard]] bool all(SemanticRangeSet const &ranges) const
+	[[nodiscard]] bool all(SemanticRangeSet const& ranges) const
 	{
 		return semantic::all<1>(data_, 0, ranges);
 	}
@@ -1175,7 +1175,7 @@ class SemanticSet<1>
 	}
 
 	template <class UnaryPredicate>
-	[[nodiscard]] bool all(SemanticRangeSet const &ranges, UnaryPredicate p) const
+	[[nodiscard]] bool all(SemanticRangeSet const& ranges, UnaryPredicate p) const
 	{
 		return semantic::all<1>(data_, 0, ranges, p);
 	}
@@ -1189,7 +1189,7 @@ class SemanticSet<1>
 		return any(SemanticRangeSet(range));
 	}
 
-	[[nodiscard]] bool any(SemanticRangeSet const &ranges) const
+	[[nodiscard]] bool any(SemanticRangeSet const& ranges) const
 	{
 		return semantic::any<1>(data_, 0, ranges);
 	}
@@ -1207,7 +1207,7 @@ class SemanticSet<1>
 	}
 
 	template <class UnaryPredicate>
-	[[nodiscard]] bool any(SemanticRangeSet const &ranges, UnaryPredicate p) const
+	[[nodiscard]] bool any(SemanticRangeSet const& ranges, UnaryPredicate p) const
 	{
 		return semantic::any<1>(data_, 0, ranges, p);
 	}
@@ -1221,7 +1221,7 @@ class SemanticSet<1>
 		return none(SemanticRangeSet(range));
 	}
 
-	[[nodiscard]] bool none(SemanticRangeSet const &ranges) const
+	[[nodiscard]] bool none(SemanticRangeSet const& ranges) const
 	{
 		return semantic::none<1>(data_, 0, ranges);
 	}
@@ -1239,7 +1239,7 @@ class SemanticSet<1>
 	}
 
 	template <class UnaryPredicate>
-	[[nodiscard]] bool none(SemanticRangeSet const &ranges, UnaryPredicate p) const
+	[[nodiscard]] bool none(SemanticRangeSet const& ranges, UnaryPredicate p) const
 	{
 		return semantic::none<1>(data_, 0, ranges, p);
 	}
@@ -1360,7 +1360,7 @@ class SemanticSet<1>
 		assign(SemanticRangeSet{range}, value);
 	}
 
-	void assign(SemanticRangeSet const &ranges, value_t value)
+	void assign(SemanticRangeSet const& ranges, value_t value)
 	{
 		semantic::assign<1>(data_, 0, ranges, value);
 	}
@@ -1380,7 +1380,7 @@ class SemanticSet<1>
 
 	template <class UnaryFunction,
 	          class = std::enable_if_t<std::is_invocable<UnaryFunction, Semantic>::value>>
-	void assign(SemanticRangeSet const &ranges, UnaryFunction f)
+	void assign(SemanticRangeSet const& ranges, UnaryFunction f)
 	{
 		semantic::assign<1>(data_, 0, ranges, f);
 	}
@@ -1410,7 +1410,7 @@ class SemanticSet<1>
 
 	size_type erase(label_t label) { return semantic::erase<1>(data_, 0, label); }
 
-	size_type erase(SemanticRangeSet const &ranges)
+	size_type erase(SemanticRangeSet const& ranges)
 	{
 		return semantic::erase<1>(data_, 0, ranges);
 	}
@@ -1428,7 +1428,7 @@ class SemanticSet<1>
 	}
 
 	template <class UnaryPredicate>
-	size_type eraseIf(SemanticRangeSet const &ranges, UnaryPredicate p)
+	size_type eraseIf(SemanticRangeSet const& ranges, UnaryPredicate p)
 	{
 		return semantic::eraseIf<1>(data_, 0, ranges, p);
 	}
@@ -1443,7 +1443,7 @@ class SemanticSet<1>
 	// Swap
 	//
 
-	void swap(SemanticSet &other) noexcept { std::swap(data_, other.data_); }
+	void swap(SemanticSet& other) noexcept { std::swap(data_, other.data_); }
 
 	std::string toString() const { return semantic::toString<1>(data_); }
 
@@ -1487,14 +1487,14 @@ class SemanticSet<1>
 namespace std
 {
 template <std::size_t N>
-inline void swap(ufo::SemanticSet<N> &lhs,
-                 ufo::SemanticSet<N> &rhs) noexcept(noexcept(lhs.swap(rhs)))
+inline void swap(ufo::SemanticSet<N>& lhs,
+                 ufo::SemanticSet<N>& rhs) noexcept(noexcept(lhs.swap(rhs)))
 {
 	lhs.swap(rhs);
 }
 
 template <std::size_t N>
-inline std::ostream &operator<<(std::ostream &out, ufo::SemanticSet<N> const &s)
+inline std::ostream& operator<<(std::ostream& out, ufo::SemanticSet<N> const& s)
 {
 	return out << s.toString();
 }

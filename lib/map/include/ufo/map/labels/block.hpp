@@ -42,8 +42,8 @@
 #define UFO_MAP_LABELS_BLOCK_HPP
 
 // UFO
-#include <ufo/utility/create_array.hpp>
 #include <ufo/core/label.hpp>
+#include <ufo/utility/create_array.hpp>
 
 // STL
 #include <array>
@@ -58,7 +58,7 @@ struct LabelsElement {
 
 	labels_t labels{};
 
-	LabelsElement() noexcept                   = default;
+	LabelsElement() noexcept                     = default;
 	LabelsElement(LabelsElement const&) noexcept = default;
 
 	LabelsElement(labels_t labels) noexcept : labels(labels) {}

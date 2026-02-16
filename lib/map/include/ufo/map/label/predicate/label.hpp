@@ -77,8 +77,7 @@ struct Filter<Label<Negated>> : public FilterBase<Label<Negated>> {
 	}
 
 	template <class Tree, class Node>
-	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const& t,
-	                                               Node n)
+	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const& t, Node n)
 	{
 		if constexpr (Negated) {
 			return t.label(n) != p.label;
@@ -88,8 +87,7 @@ struct Filter<Label<Negated>> : public FilterBase<Label<Negated>> {
 	}
 
 	template <class Tree, class Node>
-	[[nodiscard]] static constexpr bool traversable(Pred const& p, Tree const& t,
-	                                                Node n)
+	[[nodiscard]] static constexpr bool traversable(Pred const& p, Tree const& t, Node n)
 	{
 		if constexpr (Negated) {
 			return true;

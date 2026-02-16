@@ -43,10 +43,10 @@
 #define UFO_MAP_INTEGRATION_MISSES_HPP
 
 // UFO
-#include <ufo/util/bit_set.hpp>
 #include <ufo/map/code.hpp>
 #include <ufo/map/integration/grid.hpp>
 #include <ufo/map/types.hpp>
+#include <ufo/util/bit_set.hpp>
 
 // OMP
 #include <omp.h>

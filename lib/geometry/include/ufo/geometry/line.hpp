@@ -84,7 +84,7 @@ struct Line<2, T> {
 // TODO: Where to put this?
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr Vec<Dim, T> intersectionPoint(Line<Dim, T> const& a,
-                                                 Line<Dim, T> const& b)
+                                                      Line<Dim, T> const& b)
 {
 	if constexpr (2 == Dim) {
 		// LOOKAT: What if they are parallel, then det is also 0

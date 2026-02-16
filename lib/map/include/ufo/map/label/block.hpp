@@ -53,10 +53,10 @@ namespace ufo
 {
 struct LabelElement {
 	using label_t = std::uint32_t;
-	
+
 	label_t label{};
 
-	LabelElement() noexcept                   = default;
+	LabelElement() noexcept                    = default;
 	LabelElement(LabelElement const&) noexcept = default;
 
 	LabelElement(label_t label) noexcept : label(label) {}

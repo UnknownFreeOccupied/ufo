@@ -53,7 +53,7 @@ namespace ufo
 {
 struct CostElement {
 	using cost_t = float;
-	
+
 	cost_t cost{};
 
 	CostElement() noexcept                   = default;

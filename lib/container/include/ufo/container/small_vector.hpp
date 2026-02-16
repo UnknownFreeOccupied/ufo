@@ -65,15 +65,15 @@ class SmallVector
  public:
 	using size_type       = SIZE_T;
 	using difference_type = std::ptrdiff_t;
-	using reference       = std::conditional_t<1 == T_NUM, T &, std::array<T, T_NUM> &>;
+	using reference       = std::conditional_t<1 == T_NUM, T&, std::array<T, T_NUM>&>;
 	using const_reference =
-	    std::conditional_t<1 == T_NUM, T const &, std::array<T, T_NUM> const &>;
-	using pointer = std::conditional_t<1 == T_NUM, T *, std::array<T, T_NUM> *>;
+	    std::conditional_t<1 == T_NUM, T const&, std::array<T, T_NUM> const&>;
+	using pointer = std::conditional_t<1 == T_NUM, T*, std::array<T, T_NUM>*>;
 	using const_pointer =
-	    std::conditional_t<1 == T_NUM, T const *, std::array<T, T_NUM> const *>;
-	using iterator = std::conditional_t<1 == T_NUM, T *, std::array<T, T_NUM> *>;
+	    std::conditional_t<1 == T_NUM, T const*, std::array<T, T_NUM> const*>;
+	using iterator = std::conditional_t<1 == T_NUM, T*, std::array<T, T_NUM>*>;
 	using const_iterator =
-	    std::conditional_t<1 == T_NUM, T const *, std::array<T, T_NUM> const *>;
+	    std::conditional_t<1 == T_NUM, T const*, std::array<T, T_NUM> const*>;
 	using reverse_iterator       = std::reverse_iterator<iterator>;
 	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 	using Query                  = IteratorWrapper<iterator>;
@@ -204,13 +204,13 @@ class SmallVector
 	// Data
 	//
 
-	T *data() { return data(0); }
+	T* data() { return data(0); }
 
-	T const *data() const { return data(0); }
+	T const* data() const { return data(0); }
 
-	T *data(std::size_t pos) { return data_.get() + offset(pos); }
+	T* data(std::size_t pos) { return data_.get() + offset(pos); }
 
-	T const *data(std::size_t pos) const { return data_.get() + offset(pos); }
+	T const* data(std::size_t pos) const { return data_.get() + offset(pos); }
 
 	//
 	// Operator()()
@@ -270,7 +270,7 @@ class SmallVector
 
 	[[nodiscard]] std::size_t size(std::size_t pos) const
 	{
-		return data_ ? *(reinterpret_cast<size_type const *>(data_.get()) + pos) : 0;
+		return data_ ? *(reinterpret_cast<size_type const*>(data_.get()) + pos) : 0;
 	}
 
 	[[nodiscard]] std::array<size_type, N> sizes() const
@@ -279,7 +279,7 @@ class SmallVector
 			return std::array<size_type, N>{};
 		}
 
-		size_type const *it = reinterpret_cast<size_type const *>(data_.get());
+		size_type const* it = reinterpret_cast<size_type const*>(data_.get());
 
 		std::array<size_type, N> s;
 		std::copy(it, it + N, s.data());
@@ -306,7 +306,7 @@ class SmallVector
 
 	[[nodiscard]] std::size_t offset(std::size_t pos) const
 	{
-		size_type const *it = reinterpret_cast<size_type const *>(data_.get());
+		size_type const* it = reinterpret_cast<size_type const*>(data_.get());
 		return data_ ? SIZES_OFFSET + T_NUM * std::accumulate(it, it + pos, std::size_t(0))
 		             : 0;
 	}
@@ -324,8 +324,8 @@ class SmallVector
 			return;
 		}
 
-		T *p_cur = data_.release();
-		T *p_new = allocate(p_cur, count);
+		T* p_cur = data_.release();
+		T* p_new = allocate(p_cur, count);
 
 		if (!p_new) {
 			data_.reset(p_cur);
@@ -334,7 +334,7 @@ class SmallVector
 
 		data_.reset(p_new);
 
-		auto it = reinterpret_cast<SIZE_T *>(data_.get());
+		auto it = reinterpret_cast<SIZE_T*>(data_.get());
 		*it     = static_cast<SIZE_T>(count);
 		std::fill(it + 1, it + N, SIZE_T(0));
 	}
@@ -364,8 +364,8 @@ class SmallVector
 
 		bool was_empty = empty();
 
-		T *p_cur = data_.release();
-		T *p_new = allocate(p_cur, cur_size + count - cur_count);
+		T* p_cur = data_.release();
+		T* p_new = allocate(p_cur, cur_size + count - cur_count);
 
 		if (!p_new) {
 			data_.reset(p_cur);
@@ -375,7 +375,7 @@ class SmallVector
 		data_.reset(p_new);
 
 		if (was_empty) {
-			auto it = reinterpret_cast<SIZE_T *>(data_.get());
+			auto it = reinterpret_cast<SIZE_T*>(data_.get());
 			std::fill(it, it + N, SIZE_T(0));
 		} else {
 			if (count > cur_count && N - 1 != pos) {
@@ -388,7 +388,7 @@ class SmallVector
 			}
 		}
 
-		reinterpret_cast<SIZE_T &>(data_[SIZES_SIZE * pos]) = static_cast<SIZE_T>(count);
+		reinterpret_cast<SIZE_T&>(data_[SIZES_SIZE * pos]) = static_cast<SIZE_T>(count);
 	}
 
 	//
@@ -411,7 +411,7 @@ class SmallVector
 
 	std::size_t serializedSize() const { return sizeof(std::uint32_t) + memoryUsage(); }
 
-	void read(ReadBuffer &in)
+	void read(ReadBuffer& in)
 	{
 		std::uint32_t s;
 		in.read(&s, sizeof(s));
@@ -421,7 +421,7 @@ class SmallVector
 		}
 	}
 
-	void read(ReadBuffer &in, std::size_t pos)
+	void read(ReadBuffer& in, std::size_t pos)
 	{
 		std::uint32_t s;
 		in.read(&s, sizeof(s));
@@ -431,7 +431,7 @@ class SmallVector
 		}
 	}
 
-	void write(WriteBuffer &out)
+	void write(WriteBuffer& out)
 	{
 		std::uint32_t s = size();
 		out.write(&s, sizeof(s));
@@ -440,7 +440,7 @@ class SmallVector
 		}
 	}
 
-	void write(WriteBuffer &out, std::size_t pos)
+	void write(WriteBuffer& out, std::size_t pos)
 	{
 		std::uint32_t s = size(pos);
 		out.write(&s, sizeof(s));
@@ -454,14 +454,14 @@ class SmallVector
 	// Allocate
 	//
 
-	T *allocate(T *p, std::size_t s)
+	T* allocate(T* p, std::size_t s)
 	{
-		return static_cast<T *>(realloc(p, N * sizeof(SIZE_T) + s * T_NUM * sizeof(T)));
+		return static_cast<T*>(realloc(p, N * sizeof(SIZE_T) + s * T_NUM * sizeof(T)));
 	}
 
  protected:
 	struct free_delete {
-		void operator()(void *x) { free(x); }
+		void operator()(void* x) { free(x); }
 	};
 
 	std::unique_ptr<T[], free_delete> data_;
@@ -496,14 +496,14 @@ class SmallVector
 namespace std
 {
 template <typename T, size_t T_NUM, size_t N, typename SIZE_T = T>
-ostream &operator<<(ostream &out, ufo::SmallVector<T, T_NUM, N, SIZE_T> const &vec)
+ostream& operator<<(ostream& out, ufo::SmallVector<T, T_NUM, N, SIZE_T> const& vec)
 {
 	for (size_t i{}; N != i; ++i) {
 		if (vec.empty(i)) {
 			out << "[] ";
 		} else {
 			out << "[";
-			for (auto const &e : vec.query(i)) {
+			for (auto const& e : vec.query(i)) {
 				if constexpr (1 == T_NUM) {
 					out << +e << ' ';
 				} else {

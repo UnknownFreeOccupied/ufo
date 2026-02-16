@@ -51,8 +51,8 @@
 namespace ufo
 {
 enum class MapUtility : std::uint64_t {
-	NONE            = std::uint64_t(0),
-	WITH_CENTER     = std::uint64_t(1) << 0,
+	NONE        = std::uint64_t(0),
+	WITH_CENTER = std::uint64_t(1) << 0,
 	// MANUAL_MODIFIED = std::uint64_t(1) << 1,
 	// MANUAL_LOCKING  = std::uint64_t(1) << 2,
 	// SNAPSHOT        = std::uint64_t(1) << 3,

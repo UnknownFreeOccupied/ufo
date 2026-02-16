@@ -440,8 +440,8 @@ class SemanticMapping
 		producer_serialized_.swap(producer_serialized);
 
 		producer_mapping_.clear();
-		const char* first = producer_serialized_.data();
-		const char* last  = first + producer_serialized_.size();
+		char const* first = producer_serialized_.data();
+		char const* last  = first + producer_serialized_.size();
 		std::string str;
 		while (first != last) {
 			std::memcpy(&size, first, sizeof(size));

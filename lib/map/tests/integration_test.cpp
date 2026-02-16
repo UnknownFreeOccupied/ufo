@@ -31,7 +31,8 @@ TEST_CASE("Integrate Points")
 	map.propagateModified();
 
 	std::cout << "occupancy d=0:  " << map.occupancy(Vec3f(0, 0, 0)) << std::endl;
-	std::cout << "occupancy d=1:  " << map.occupancy(TreeCoord{Vec3f(0, 0, 0), 1}) << std::endl;
+	std::cout << "occupancy d=1:  " << map.occupancy(TreeCoord{Vec3f(0, 0, 0), 1})
+	          << std::endl;
 
 	std::cout << "color d=0:  " << map.color(TreeCoord{Vec3f(0, 0, 0), 0}) << std::endl;
 	std::cout << "color d=1:  " << map.color(TreeCoord{Vec3f(0, 0, 0), 1}) << std::endl;

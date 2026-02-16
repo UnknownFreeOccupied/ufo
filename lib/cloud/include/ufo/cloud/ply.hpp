@@ -43,8 +43,8 @@
 #define UFO_CLOUD_PLY_HPP
 
 // UFO
-#include <ufo/math/vec.hpp>
 #include <ufo/cloud/cloud.hpp>
+#include <ufo/math/vec.hpp>
 #include <ufo/vision/color.hpp>
 
 // Happly

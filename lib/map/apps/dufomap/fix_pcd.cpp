@@ -75,7 +75,7 @@ void doStuff(std::filesystem::path folder, bool should_transform)
 		}
 
 		std::vector<std::filesystem::path> pcds;
-		for (const auto& entry : std::filesystem::directory_iterator(folder / "original")) {
+		for (auto const& entry : std::filesystem::directory_iterator(folder / "original")) {
 			if (".pcd" == entry.path().extension()) {
 				pcds.push_back(entry.path().stem());
 			}
@@ -117,7 +117,7 @@ void doStuff(std::filesystem::path folder, bool should_transform)
 #endif
 	} else {
 		// Continue searching in subfolders
-		for (const auto& entry : std::filesystem::directory_iterator(folder)) {
+		for (auto const& entry : std::filesystem::directory_iterator(folder)) {
 			if (std::filesystem::is_directory(entry)) {
 				doStuff(entry, should_transform);
 			}

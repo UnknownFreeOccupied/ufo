@@ -555,6 +555,6 @@ struct is_semantic_map
                          std::false_type> {
 };
 template <class Map>
-inline constexpr bool is_semantic_map_v = is_semantic_map<Map>::value;
+constexpr inline bool is_semantic_map_v = is_semantic_map<Map>::value;
 }  // namespace ufo
 #endif  // UFO_MAP_SEMANTIC_MAP_HPP

@@ -55,8 +55,8 @@ struct Intensity {
 
 	value_type intensity{};
 
-	constexpr Intensity() noexcept                  = default;
-	constexpr Intensity(Intensity const &) noexcept = default;
+	constexpr Intensity() noexcept                 = default;
+	constexpr Intensity(Intensity const&) noexcept = default;
 
 	constexpr Intensity(value_type intensity) noexcept : intensity(intensity) {}
 
@@ -81,7 +81,7 @@ constexpr bool operator>(Intensity lhs, Intensity rhs) { return rhs < lhs; }
 
 constexpr bool operator>=(Intensity lhs, Intensity rhs) { return !(lhs < rhs); }
 
-inline std::ostream &operator<<(std::ostream &out, ufo::Intensity s)
+inline std::ostream& operator<<(std::ostream& out, ufo::Intensity s)
 {
 	return out << s.intensity;
 }

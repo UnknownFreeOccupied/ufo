@@ -147,8 +147,7 @@ class SemanticSetMap : public SemanticMapping
 
 #ifdef UFO_TBB
 	template <class ExecutionPolicy,
-	          std::enable_if_t<std::is_execution_policy_v<ExecutionPolicy>,
-	                           bool> = true>
+	          std::enable_if_t<std::is_execution_policy_v<ExecutionPolicy>, bool> = true>
 	[[nodiscard]] SemanticSet<1> semantics(ExecutionPolicy&& policy, Index node) const
 	{
 		assert(semantics_.size() > node.pos && N > node.offset);
@@ -197,32 +196,28 @@ class SemanticSetMap : public SemanticMapping
 	}
 
 	template <class ExecutionPolicy,
-	          std::enable_if_t<std::is_execution_policy_v<ExecutionPolicy>,
-	                           bool> = true>
+	          std::enable_if_t<std::is_execution_policy_v<ExecutionPolicy>, bool> = true>
 	[[nodiscard]] SemanticSet<1> semantics(ExecutionPolicy&& policy, Node node) const
 	{
 		return semantics(std::forward<ExecutionPolicy>(policy), derived().index(node));
 	}
 
 	template <class ExecutionPolicy,
-	          std::enable_if_t<std::is_execution_policy_v<ExecutionPolicy>,
-	                           bool> = true>
+	          std::enable_if_t<std::is_execution_policy_v<ExecutionPolicy>, bool> = true>
 	[[nodiscard]] SemanticSet<1> semantics(ExecutionPolicy&& policy, Code code) const
 	{
 		return semantics(std::forward<ExecutionPolicy>(policy), derived().index(code));
 	}
 
 	template <class ExecutionPolicy,
-	          std::enable_if_t<std::is_execution_policy_v<ExecutionPolicy>,
-	                           bool> = true>
+	          std::enable_if_t<std::is_execution_policy_v<ExecutionPolicy>, bool> = true>
 	[[nodiscard]] SemanticSet<1> semantics(ExecutionPolicy&& policy, Key key) const
 	{
 		return semantics(std::forward<ExecutionPolicy>(policy), derived().index(key));
 	}
 
 	template <class ExecutionPolicy,
-	          std::enable_if_t<std::is_execution_policy_v<ExecutionPolicy>,
-	                           bool> = true>
+	          std::enable_if_t<std::is_execution_policy_v<ExecutionPolicy>, bool> = true>
 	[[nodiscard]] SemanticSet<1> semantics(ExecutionPolicy&& policy, Point coord,
 	                                       depth_t depth = 0) const
 	{
@@ -3231,6 +3226,6 @@ struct is_semantic_set_map
                          std::false_type> {
 };
 template <class Map>
-inline constexpr bool is_semantic_set_map_v = is_semantic_set_map<Map>::value;
+constexpr inline bool is_semantic_set_map_v = is_semantic_set_map<Map>::value;
 }  // namespace ufo
 #endif  // UFO_MAP_SEMANTIC_MAP_H

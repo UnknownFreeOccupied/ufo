@@ -91,12 +91,12 @@ class RangeMap
 		// }
 
 		[[nodiscard]] constexpr bool operator()(typename key_compare::range_t lhs,
-		                                        value_type const             &rhs) const
+		                                        value_type const&             rhs) const
 		{
 			return comp_(lhs, rhs.first);
 		}
 
-		[[nodiscard]] constexpr bool operator()(value_type const             &lhs,
+		[[nodiscard]] constexpr bool operator()(value_type const&             lhs,
 		                                        typename key_compare::range_t rhs)
 		{
 			return comp_(lhs.first, rhs);
@@ -121,16 +121,16 @@ class RangeMap
 		insert(first, last);
 	}
 
-	RangeMap(RangeMap const &other) : ranges_(other.ranges_) {}
+	RangeMap(RangeMap const& other) : ranges_(other.ranges_) {}
 
 	template <typename Key2>
-	RangeMap(RangeMap<Key2, T> const &other)
+	RangeMap(RangeMap<Key2, T> const& other)
 	{
 		// FIXME: Make sure it does not throw
 		insert(std::cbegin(other), std::cend(other));
 	}
 
-	RangeMap(RangeMap &&other) : ranges_(std::move(other.ranges_)) {}
+	RangeMap(RangeMap&& other) : ranges_(std::move(other.ranges_)) {}
 
 	RangeMap(std::initializer_list<value_type> init) { insert(init); }
 
@@ -144,14 +144,14 @@ class RangeMap
 	// Assignment operator
 	//
 
-	RangeMap &operator=(RangeMap const &other)
+	RangeMap& operator=(RangeMap const& other)
 	{
 		ranges_ = other.ranges_;
 		return *this;
 	}
 
 	template <typename Key2>
-	RangeMap &operator=(RangeMap<Key2, T> const &other)
+	RangeMap& operator=(RangeMap<Key2, T> const& other)
 	{
 		// FIXME: Make sure it does not throw
 		clear();
@@ -159,13 +159,13 @@ class RangeMap
 		return *this;
 	}
 
-	RangeMap &operator=(RangeMap &&other)
+	RangeMap& operator=(RangeMap&& other)
 	{
 		ranges_ = std::move(other.ranges_);
 		return *this;
 	}
 
-	RangeMap &operator=(std::initializer_list<value_type> ilist)
+	RangeMap& operator=(std::initializer_list<value_type> ilist)
 	{
 		clear();
 		insert(ilist);
@@ -185,7 +185,7 @@ class RangeMap
 	// TODO: T& at()
 
 	template <typename K, typename = std::enable_if_t<std::is_arithmetic_v<K>>>
-	[[nodiscard]] T const &get(K key)
+	[[nodiscard]] T const& get(K key)
 	{
 		auto it = find(key);
 		if (end() == it) {
@@ -248,7 +248,7 @@ class RangeMap
 
 	void clear() noexcept { ranges_.clear(); }
 
-	std::pair<iterator, bool> insert(value_type const &value)
+	std::pair<iterator, bool> insert(value_type const& value)
 	{
 		std::cout << value.first.lower() << ' ' << value.first.upper() << '\n';
 		key_type key = value.first;
@@ -402,13 +402,13 @@ class RangeMap
 	}
 
 	template <class P,
-	          typename = std::enable_if_t<std::is_constructible_v<value_type, P &&>>>
-	std::pair<iterator, bool> insert(P &&value)
+	          typename = std::enable_if_t<std::is_constructible_v<value_type, P&&>>>
+	std::pair<iterator, bool> insert(P&& value)
 	{
 		return emplace(std::forward<P>(value));
 	}
 
-	std::pair<iterator, bool> insert(value_type &&value)
+	std::pair<iterator, bool> insert(value_type&& value)
 	{
 		key_type key = value.first;
 
@@ -556,20 +556,20 @@ class RangeMap
 		return {lower, inserted};
 	}
 
-	iterator insert(const_iterator hint, value_type const &value)
+	iterator insert(const_iterator hint, value_type const& value)
 	{
 		// FIXME: Use hint
 		return insert(value).first;
 	}
 
 	template <class P>
-	iterator insert(const_iterator hint, P &&value)
+	iterator insert(const_iterator hint, P&& value)
 	{
 		// FIXME: Use hint
 		return insert(std::forward<P>(value)).first;
 	}
 
-	iterator insert(const_iterator hint, value_type &&value)
+	iterator insert(const_iterator hint, value_type&& value)
 	{
 		//  FIXME: Use hint
 		return insert(std::forward<value_type>(value)).first;
@@ -582,7 +582,7 @@ class RangeMap
 	void insert(InputIt first, InputIt last)
 	{
 		// FIXME: Correct?
-		std::for_each(first, last, [this](auto &&...args) { this->insert(args...); });
+		std::for_each(first, last, [this](auto&&... args) { this->insert(args...); });
 	}
 
 	void insert(std::initializer_list<value_type> ilist)
@@ -600,7 +600,7 @@ class RangeMap
 	 * map will be: [1,2]:2, [3, 9]:1.
 	 */
 	template <class M>
-	std::pair<iterator, bool> insert_or_assign(key_type key, M &&obj)
+	std::pair<iterator, bool> insert_or_assign(key_type key, M&& obj)
 	{
 		// Subtract one to easily determine if [lower, upper] should be combined
 		// with a range [X, lower - 1]. E.g., [8, 15] should be combined with [1, 7]
@@ -701,28 +701,28 @@ class RangeMap
 	}
 
 	template <class M>
-	iterator insert_or_assign(const_iterator hint, key_type key, M &&obj)
+	iterator insert_or_assign(const_iterator hint, key_type key, M&& obj)
 	{
 		// FIXME: Use hint
 		return insert_or_assign(key, std::forward<M>(obj)).first;
 	}
 
 	template <class... Args>
-	std::pair<iterator, bool> emplace(Args &&...args)
+	std::pair<iterator, bool> emplace(Args&&... args)
 	{
 		// FIXME: Construct value_type only if needed
 		return insert(value_type(std::forward<Args>(args)...));
 	}
 
 	template <class... Args>
-	iterator emplace_hint(const_iterator hint, Args &&...args)
+	iterator emplace_hint(const_iterator hint, Args&&... args)
 	{
 		// FIXME: Use hint
 		return emplace(std::forward<Args>(args)...).first;
 	}
 
 	template <class... Args>
-	std::pair<iterator, bool> try_emplace(key_type k, Args &&...args)
+	std::pair<iterator, bool> try_emplace(key_type k, Args&&... args)
 	{
 		// FIXME: Construct value_type only if needed
 		return insert(value_type(std::piecewise_construct, std::forward_as_tuple(k),
@@ -730,7 +730,7 @@ class RangeMap
 	}
 
 	template <class... Args>
-	iterator try_emplace(const_iterator hint, key_type k, Args &&...args)
+	iterator try_emplace(const_iterator hint, key_type k, Args&&... args)
 	{
 		// FIXME: Use hint
 		return try_emplace(k, std::forward<Args>(args)...).first;
@@ -808,10 +808,10 @@ class RangeMap
 		return erase(key_type(lower, upper));
 	}
 
-	void swap(RangeMap &other) noexcept(
-	    std::allocator_traits<allocator_type>::is_always_equal::value
-	        &&std::is_nothrow_move_assignable<value_compare>::value)  // FIXME: Look
-	                                                                  // at noexcept
+	void swap(RangeMap& other) noexcept(
+	    std::allocator_traits<allocator_type>::is_always_equal::value &&
+	    std::is_nothrow_move_assignable<value_compare>::value)  // FIXME: Look
+	                                                            // at noexcept
 	{
 		ranges_.swap(other.ranges_);
 	}
@@ -1104,27 +1104,27 @@ class RangeMap
 	//
 
 	template <typename K, typename M>
-	friend bool operator==(RangeMap<K, M> const &lhs, RangeMap<K, M> const &rhs);
+	friend bool operator==(RangeMap<K, M> const& lhs, RangeMap<K, M> const& rhs);
 	template <typename K, typename M>
-	friend bool operator!=(RangeMap<K, M> const &lhs, RangeMap<K, M> const &rhs);
+	friend bool operator!=(RangeMap<K, M> const& lhs, RangeMap<K, M> const& rhs);
 	template <typename K, typename M>
-	friend bool operator<(RangeMap<K, M> const &lhs, RangeMap<K, M> const &rhs);
+	friend bool operator<(RangeMap<K, M> const& lhs, RangeMap<K, M> const& rhs);
 	template <typename K, typename M>
-	friend bool operator<=(RangeMap<K, M> const &lhs, RangeMap<K, M> const &rhs);
+	friend bool operator<=(RangeMap<K, M> const& lhs, RangeMap<K, M> const& rhs);
 	template <typename K, typename M>
-	friend bool operator>(RangeMap<K, M> const &lhs, RangeMap<K, M> const &rhs);
+	friend bool operator>(RangeMap<K, M> const& lhs, RangeMap<K, M> const& rhs);
 	template <typename K, typename M>
-	friend bool operator>=(RangeMap<K, M> const &lhs, RangeMap<K, M> const &rhs);
+	friend bool operator>=(RangeMap<K, M> const& lhs, RangeMap<K, M> const& rhs);
 
 	template <typename K, typename M>
-	friend void swap(RangeMap<K, M> &lhs,
-	                 RangeMap<K, M> &rhs) noexcept(noexcept(lhs.swap(rhs)));
+	friend void swap(RangeMap<K, M>& lhs,
+	                 RangeMap<K, M>& rhs) noexcept(noexcept(lhs.swap(rhs)));
 
 	template <typename K, typename M, class Pred>
-	friend size_type erase_if(RangeMap<K, M> &range_set, Pred pred);
+	friend size_type erase_if(RangeMap<K, M>& range_set, Pred pred);
 
 	template <typename K, typename M>
-	friend std::ostream &operator<<(std::ostream &os, RangeMap<K, M> const &range_map);
+	friend std::ostream& operator<<(std::ostream& os, RangeMap<K, M> const& range_map);
 
  protected:
 	static constexpr Key increment(Key value)
@@ -1153,55 +1153,55 @@ class RangeMap
 };
 
 template <typename Key, typename T>
-bool operator==(RangeMap<Key, T> const &lhs, RangeMap<Key, T> const &rhs)
+bool operator==(RangeMap<Key, T> const& lhs, RangeMap<Key, T> const& rhs)
 {
 	// FIXME: Implement correctly
 	return lhs.ranges_ == rhs.ranges_;
 }
 
 template <typename Key, typename T>
-bool operator!=(RangeMap<Key, T> const &lhs, RangeMap<Key, T> const &rhs)
+bool operator!=(RangeMap<Key, T> const& lhs, RangeMap<Key, T> const& rhs)
 {
 	// FIXME: Implement correctly
 	return lhs.ranges_ != rhs.ranges_;
 }
 
 template <typename Key, typename T>
-bool operator<(RangeMap<Key, T> const &lhs, RangeMap<Key, T> const &rhs)
+bool operator<(RangeMap<Key, T> const& lhs, RangeMap<Key, T> const& rhs)
 {
 	// FIXME: Implement correctly
 	return lhs.ranges_ < rhs.ranges_;
 }
 
 template <typename Key, typename T>
-bool operator<=(RangeMap<Key, T> const &lhs, RangeMap<Key, T> const &rhs)
+bool operator<=(RangeMap<Key, T> const& lhs, RangeMap<Key, T> const& rhs)
 {
 	// FIXME: Implement correctly
 	return lhs.ranges_ <= rhs.ranges_;
 }
 
 template <typename Key, typename T>
-bool operator>(RangeMap<Key, T> const &lhs, RangeMap<Key, T> const &rhs)
+bool operator>(RangeMap<Key, T> const& lhs, RangeMap<Key, T> const& rhs)
 {
 	// FIXME: Implement correctly
 	return lhs.ranges_ > rhs.ranges_;
 }
 
 template <typename Key, typename T>
-bool operator>=(RangeMap<Key, T> const &lhs, RangeMap<Key, T> const &rhs)
+bool operator>=(RangeMap<Key, T> const& lhs, RangeMap<Key, T> const& rhs)
 {
 	// FIXME: Implement correctly
 	return lhs.ranges_ >= rhs.ranges_;
 }
 
 template <typename Key, typename T>
-void swap(RangeMap<Key, T> &lhs, RangeMap<Key, T> &rhs) noexcept(noexcept(lhs.swap(rhs)))
+void swap(RangeMap<Key, T>& lhs, RangeMap<Key, T>& rhs) noexcept(noexcept(lhs.swap(rhs)))
 {
 	lhs.swap(rhs);
 }
 
 template <typename Key, typename T, class Pred>
-typename RangeMap<Key, T>::size_type erase_if(RangeMap<Key, T> &range_map, Pred pred)
+typename RangeMap<Key, T>::size_type erase_if(RangeMap<Key, T>& range_map, Pred pred)
 {
 	auto old_size = range_map.size();
 	for (auto it = std::begin(range_map), last = std::end(range_map); it != last;) {
@@ -1215,7 +1215,7 @@ typename RangeMap<Key, T>::size_type erase_if(RangeMap<Key, T> &range_map, Pred 
 }
 
 template <typename Key, typename T>
-std::ostream &operator<<(std::ostream &os, RangeMap<Key, T> const &range_map)
+std::ostream& operator<<(std::ostream& os, RangeMap<Key, T> const& range_map)
 {
 	if (!range_map.empty()) {
 		// FIXME: Make nicer?

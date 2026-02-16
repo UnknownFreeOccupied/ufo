@@ -147,8 +147,8 @@ template <std::size_t Dim, class T>
 // }
 
 // template <std::size_t Dim, class T>
-// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Sphere<Dim, T> const& a, Sphere<Dim, T> const&
-// b)
+// [[nodiscard]] constexpr Vec<Dim, T> closestPoint(Sphere<Dim, T> const& a, Sphere<Dim,
+// T> const& b)
 // {
 // 	// TODO: Implement
 // }
@@ -202,8 +202,8 @@ template <std::size_t Dim, class T>
 // }
 
 template <std::size_t Dim, class T>
-[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Sphere<Dim, T> const&  a,
-                                                 Vec<Dim, T> const& b)
+[[nodiscard]] constexpr Vec<Dim, T> closestPoint(Sphere<Dim, T> const& a,
+                                                 Vec<Dim, T> const&    b)
 {
 	return a.center + normalize(b - a.center) * a.radius;
 }
@@ -298,7 +298,8 @@ template <std::size_t Dim, class T>
 // }
 
 // template <class T>
-// [[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, Sphere<3, T> const& b)
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Frustum<T> const& a, Sphere<3, T> const&
+// b)
 // {
 // 	// TODO: Implement
 // }
@@ -540,7 +541,8 @@ template <std::size_t Dim, class T>
 // }
 
 // template <class T>
-// [[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, Sphere<3, T> const& b)
+// [[nodiscard]] constexpr Vec<3, T> closestPoint(Plane<T> const& a, Sphere<3, T> const&
+// b)
 // {
 // 	// TODO: Implement
 // }

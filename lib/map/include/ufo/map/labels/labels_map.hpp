@@ -269,6 +269,6 @@ struct is_labels_map
                          std::false_type> {
 };
 template <class Map>
-inline constexpr bool is_labels_map_v = is_labels_map<Map>::value;
+constexpr inline bool is_labels_map_v = is_labels_map<Map>::value;
 }  // namespace ufo
 #endif  // UFO_MAP_INTENSITY_MAP_HPP

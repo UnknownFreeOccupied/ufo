@@ -347,7 +347,7 @@ int main(int argc, char* argv[])
 	map.reserve(100'000'000);
 
 	std::vector<std::filesystem::path> pcds;
-	for (const auto& entry : std::filesystem::directory_iterator(path / "pcd")) {
+	for (auto const& entry : std::filesystem::directory_iterator(path / "pcd")) {
 		if (!entry.is_regular_file()) {
 			continue;
 		}

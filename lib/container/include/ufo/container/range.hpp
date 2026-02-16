@@ -111,25 +111,25 @@ class Range
 		setRange(lower, upper);
 	}
 
-	Range(Range const &other) = default;
+	Range(Range const& other) = default;
 
 	template <class T2>
 	Range(Range<T2> other) : Range(other.lower(), other.upper())
 	{
 	}
 
-	Range(Range &&other) = default;
+	Range(Range&& other) = default;
 
-	Range &operator=(Range const &rhs) = default;
+	Range& operator=(Range const& rhs) = default;
 
 	template <class T2>
-	Range &operator=(Range<T2> rhs)
+	Range& operator=(Range<T2> rhs)
 	{
 		setRange(rhs.lower(), rhs.upper());
 		return *this;
 	}
 
-	Range &operator=(Range &&rhs) = default;
+	Range& operator=(Range&& rhs) = default;
 
 	constexpr void setValue(T value)
 	{
@@ -241,16 +241,16 @@ class Range
 		std::swap(upper_, other.upper_);
 	}
 
-	std::ostream &writeData(std::ostream &out_stream) const
+	std::ostream& writeData(std::ostream& out_stream) const
 	{
-		out_stream.write(reinterpret_cast<char *>(&lower_), sizeof(T));
-		return out_stream.write(reinterpret_cast<char *>(&upper_), sizeof(T));
+		out_stream.write(reinterpret_cast<char*>(&lower_), sizeof(T));
+		return out_stream.write(reinterpret_cast<char*>(&upper_), sizeof(T));
 	}
 
-	std::istream &readData(std::istream &in_stream)
+	std::istream& readData(std::istream& in_stream)
 	{
-		in_stream.read(reinterpret_cast<char *>(&lower_), sizeof(T));
-		return in_stream.read(reinterpret_cast<char *>(&upper_), sizeof(T));
+		in_stream.read(reinterpret_cast<char*>(&lower_), sizeof(T));
+		return in_stream.read(reinterpret_cast<char*>(&upper_), sizeof(T));
 	}
 
 	//
@@ -271,10 +271,10 @@ class Range
 	friend bool operator>=(Range<T2> lhs, Range<T2> rhs);
 
 	template <class T2>
-	friend void swap(Range<T2> &lhs, Range<T2> &rhs) noexcept(noexcept(lhs.swap(rhs)));
+	friend void swap(Range<T2>& lhs, Range<T2>& rhs) noexcept(noexcept(lhs.swap(rhs)));
 
 	template <class T2>
-	friend std::ostream &operator<<(std::ostream &os, Range<T2> range);
+	friend std::ostream& operator<<(std::ostream& os, Range<T2> range);
 
  private:
 	T lower_;
@@ -318,13 +318,13 @@ bool operator>=(Range<T> lhs, Range<T> rhs)
 }
 
 template <class T>
-void swap(Range<T> &lhs, Range<T> &rhs) noexcept(noexcept(lhs.swap(rhs)))
+void swap(Range<T>& lhs, Range<T>& rhs) noexcept(noexcept(lhs.swap(rhs)))
 {
 	lhs.swap(rhs);
 }
 
 template <class T>
-std::ostream &operator<<(std::ostream &os, Range<T> range)
+std::ostream& operator<<(std::ostream& os, Range<T> range)
 {
 	if (range.lower() == range.upper()) {
 		os << '[' << +range.lower() << ']';

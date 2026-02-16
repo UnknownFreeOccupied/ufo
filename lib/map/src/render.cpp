@@ -12,12 +12,12 @@
 #include <ufo/math/transform3.hpp>
 #include <ufo/vision/image.hpp>
 // #include <ufo/util/timing.hpp>
+#include <ufo/execution/execution.hpp>
 #include <ufo/map/distance/map.hpp>
 #include <ufo/map/integrator/integrator.hpp>
 #include <ufo/pcl/cloud.hpp>
 #include <ufo/pcl/ply.hpp>
 #include <ufo/pcl/ufo.hpp>
-#include <ufo/execution/execution.hpp>
 #include <ufo/utility/index_iterator.hpp>
 #include <ufo/vision/camera.hpp>
 
@@ -162,11 +162,11 @@ void load(Map& map, Timings& timings, std::filesystem::path const& path,
           std::size_t step       = 1)
 {
 	Integrator integrator;
-	integrator.sample_method   = DownSamplingMethod::FIRST;
-	integrator.occupancy_hit   = 0.7f;
-	integrator.occupancy_miss  = 0.35f;
-	integrator.miss_depth      = 0;
-	integrator.max_distance    = 10.0f;
+	integrator.sample_method  = DownSamplingMethod::FIRST;
+	integrator.occupancy_hit  = 0.7f;
+	integrator.occupancy_miss = 0.35f;
+	integrator.miss_depth     = 0;
+	integrator.max_distance   = 10.0f;
 	// integrator.counted         = true;
 	// integrator.distance_offset = 0.2f;
 

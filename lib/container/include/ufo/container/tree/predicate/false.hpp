@@ -57,7 +57,7 @@ struct False {
 };
 
 template <>
-struct Filter<False>  : public FilterBase<False> {
+struct Filter<False> : public FilterBase<False> {
 	using Pred = False;
 
 	template <class Tree>

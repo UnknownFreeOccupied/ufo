@@ -49,9 +49,9 @@
 
 // STL
 #include <mutex>
-#include <vector>
 #include <string>
 #include <thread>
+#include <vector>
 
 // EMSCRIPTEN
 #ifdef __EMSCRIPTEN__
@@ -151,7 +151,7 @@ class Viz
 
 	float prev_time_{};
 
-	std::mutex                            renderables_mutex_;
+	std::mutex                               renderables_mutex_;
 	std::vector<std::unique_ptr<Renderable>> renderables_;
 
 	Camera     camera_;

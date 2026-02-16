@@ -51,28 +51,32 @@
 // STL
 #include <ostream>
 
-namespace ufo {
+namespace ufo
+{
 using value_t = float;
 
 struct Semantic {
-  label_t label = 0;
-  value_t value = 0;
+	label_t label = 0;
+	value_t value = 0;
 
-  constexpr Semantic() noexcept = default;
+	constexpr Semantic() noexcept = default;
 
-  constexpr Semantic(label_t label, value_t value = 0) noexcept
-      : label(label), value(value) {}
+	constexpr Semantic(label_t label, value_t value = 0) noexcept
+	    : label(label), value(value)
+	{
+	}
 };
 
-constexpr bool operator==(Semantic lhs, Semantic rhs) {
-  return lhs.label == rhs.label && lhs.value == rhs.value;
+constexpr bool operator==(Semantic lhs, Semantic rhs)
+{
+	return lhs.label == rhs.label && lhs.value == rhs.value;
 }
 
 constexpr bool operator!=(Semantic lhs, Semantic rhs) { return !(lhs == rhs); }
 
-constexpr bool operator<(Semantic lhs, Semantic rhs) {
-  return lhs.label < rhs.label ||
-         (lhs.label == rhs.label && lhs.value < rhs.value);
+constexpr bool operator<(Semantic lhs, Semantic rhs)
+{
+	return lhs.label < rhs.label || (lhs.label == rhs.label && lhs.value < rhs.value);
 }
 
 constexpr bool operator<=(Semantic lhs, Semantic rhs) { return !(rhs < lhs); }
@@ -81,8 +85,9 @@ constexpr bool operator>(Semantic lhs, Semantic rhs) { return rhs < lhs; }
 
 constexpr bool operator>=(Semantic lhs, Semantic rhs) { return !(lhs < rhs); }
 
-inline std::ostream &operator<<(std::ostream &out, ufo::Semantic s) {
-  return out << s.label << ": " << s.value;
+inline std::ostream& operator<<(std::ostream& out, ufo::Semantic s)
+{
+	return out << s.label << ": " << s.value;
 }
-} // namespace ufo
-#endif // UFO_CORE_SEMANTIC_HPP
+}  // namespace ufo
+#endif  // UFO_CORE_SEMANTIC_HPP

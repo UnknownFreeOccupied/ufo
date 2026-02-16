@@ -74,7 +74,7 @@ constexpr bool operator>(Label lhs, Label rhs) { return rhs < lhs; }
 
 constexpr bool operator>=(Label lhs, Label rhs) { return !(lhs < rhs); }
 
-inline std::ostream &operator<<(std::ostream &out, ufo::Label s)
+inline std::ostream& operator<<(std::ostream& out, ufo::Label s)
 {
 	return out << s.label;
 }

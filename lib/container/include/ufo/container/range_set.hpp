@@ -88,20 +88,20 @@ class RangeSet
 		insert(first, last);
 	}
 
-	RangeSet(Range<Key> const &range) { insert(range); }
+	RangeSet(Range<Key> const& range) { insert(range); }
 
-	RangeSet(Range<Key> &&range) { insert(std::move(range)); }
+	RangeSet(Range<Key>&& range) { insert(std::move(range)); }
 
-	RangeSet(RangeSet const &other) : ranges_(other.ranges_) {}
+	RangeSet(RangeSet const& other) : ranges_(other.ranges_) {}
 
 	template <typename Key2>
-	RangeSet(RangeSet<Key2> const &other)
+	RangeSet(RangeSet<Key2> const& other)
 	{
 		// FIXME: Make sure it does not throw
 		insert(std::cbegin(other), std::cend(other));
 	}
 
-	RangeSet(RangeSet &&other) : ranges_(std::move(other.ranges_)) {}
+	RangeSet(RangeSet&& other) : ranges_(std::move(other.ranges_)) {}
 
 	RangeSet(std::initializer_list<value_type> init) { insert(init); }
 
@@ -117,14 +117,14 @@ class RangeSet
 	// Assignment operator
 	//
 
-	RangeSet &operator=(RangeSet const &other)
+	RangeSet& operator=(RangeSet const& other)
 	{
 		ranges_ = other.ranges_;
 		return *this;
 	}
 
 	template <typename Key2>
-	RangeSet &operator=(RangeSet<Key2> const &other)
+	RangeSet& operator=(RangeSet<Key2> const& other)
 	{
 		// FIXME: Make sure it does not throw
 		clear();
@@ -132,16 +132,16 @@ class RangeSet
 		return *this;
 	}
 
-	RangeSet &operator=(RangeSet &&other) noexcept(
-	    std::allocator_traits<allocator_type>::is_always_equal::value
-	        &&std::is_nothrow_move_assignable<value_compare>::value)  // FIXME: Look
-	                                                                  // at noexcept
+	RangeSet& operator=(RangeSet&& other) noexcept(
+	    std::allocator_traits<allocator_type>::is_always_equal::value &&
+	    std::is_nothrow_move_assignable<value_compare>::value)  // FIXME: Look
+	                                                            // at noexcept
 	{
 		ranges_ = std::move(other.ranges_);
 		return *this;
 	}
 
-	RangeSet &operator=(std::initializer_list<value_type> ilist)
+	RangeSet& operator=(std::initializer_list<value_type> ilist)
 	{
 		clear();
 		insert(ilist);
@@ -283,7 +283,7 @@ class RangeSet
 	void insert(InputIt first, InputIt last)
 	{
 		// FIXME: Correct?
-		std::for_each(first, last, [this](auto &&...args) { this->insert(args...); });
+		std::for_each(first, last, [this](auto&&... args) { this->insert(args...); });
 	}
 
 	void insert(std::initializer_list<value_type> ilist)
@@ -296,13 +296,13 @@ class RangeSet
 	// FIXME: iterator insert(const_iterator hint, node_type&& nh);
 
 	template <class... Args>
-	std::pair<iterator, bool> emplace(Args &&...args)
+	std::pair<iterator, bool> emplace(Args&&... args)
 	{
 		return insert(value_type(std::forward<Args>(args)...));
 	}
 
 	template <class... Args>
-	iterator emplace_hint(const_iterator hint, Args &&...args)
+	iterator emplace_hint(const_iterator hint, Args&&... args)
 	{
 		return insert(hint, value_type(std::forward<Args>(args)...));
 	}
@@ -381,10 +381,10 @@ class RangeSet
 		return erase(key_type(lower, upper));
 	}
 
-	void swap(RangeSet &other) noexcept(
-	    std::allocator_traits<allocator_type>::is_always_equal::value
-	        &&std::is_nothrow_move_assignable<value_compare>::value)  // FIXME: Look
-	                                                                  // at noexcept
+	void swap(RangeSet& other) noexcept(
+	    std::allocator_traits<allocator_type>::is_always_equal::value &&
+	    std::is_nothrow_move_assignable<value_compare>::value)  // FIXME: Look
+	                                                            // at noexcept
 	{
 		ranges_.swap(other.ranges_);
 	}
@@ -657,20 +657,20 @@ class RangeSet
 	// (De)serialize
 	//
 
-	std::ostream &writeData(std::ostream &out_stream) const
+	std::ostream& writeData(std::ostream& out_stream) const
 	{
 		size_type num = numRanges();
-		out_stream.write(reinterpret_cast<char *>(&num), sizeof(size_type));
+		out_stream.write(reinterpret_cast<char*>(&num), sizeof(size_type));
 		// FIXME: Add comp_
 		// FIXME: Does this work?
-		return out_stream.write(reinterpret_cast<char *>(ranges_.data()),
+		return out_stream.write(reinterpret_cast<char*>(ranges_.data()),
 		                        sizeof(value_type) * num);
 	}
 
-	std::istream &readData(std::istream &in_stream)
+	std::istream& readData(std::istream& in_stream)
 	{
 		size_type num;
-		in_stream.read(reinterpret_cast<char *>(&num), sizeof(size_type));
+		in_stream.read(reinterpret_cast<char*>(&num), sizeof(size_type));
 		if (0 == num) {
 			clear();
 			return in_stream;
@@ -678,7 +678,7 @@ class RangeSet
 		// FIXME: Add comp_
 		ranges_.resize(num);
 		// FIXME: Does this work?
-		return in_stream.read(reinterpret_cast<char *>(ranges_.data()),
+		return in_stream.read(reinterpret_cast<char*>(ranges_.data()),
 		                      sizeof(value_type) * num);
 	}
 
@@ -695,26 +695,26 @@ class RangeSet
 	//
 
 	template <typename K>
-	friend bool operator==(RangeSet<K> const &lhs, RangeSet<K> const &rhs);
+	friend bool operator==(RangeSet<K> const& lhs, RangeSet<K> const& rhs);
 	template <typename K>
-	friend bool operator!=(RangeSet<K> const &lhs, RangeSet<K> const &rhs);
+	friend bool operator!=(RangeSet<K> const& lhs, RangeSet<K> const& rhs);
 	template <typename K>
-	friend bool operator<(RangeSet<K> const &lhs, RangeSet<K> const &rhs);
+	friend bool operator<(RangeSet<K> const& lhs, RangeSet<K> const& rhs);
 	template <typename K>
-	friend bool operator<=(RangeSet<K> const &lhs, RangeSet<K> const &rhs);
+	friend bool operator<=(RangeSet<K> const& lhs, RangeSet<K> const& rhs);
 	template <typename K>
-	friend bool operator>(RangeSet<K> const &lhs, RangeSet<K> const &rhs);
+	friend bool operator>(RangeSet<K> const& lhs, RangeSet<K> const& rhs);
 	template <typename K>
-	friend bool operator>=(RangeSet<K> const &lhs, RangeSet<K> const &rhs);
+	friend bool operator>=(RangeSet<K> const& lhs, RangeSet<K> const& rhs);
 
 	template <typename K>
-	friend void swap(RangeSet<K> &lhs, RangeSet<K> &rhs) noexcept(noexcept(lhs.swap(rhs)));
+	friend void swap(RangeSet<K>& lhs, RangeSet<K>& rhs) noexcept(noexcept(lhs.swap(rhs)));
 
 	template <typename K, class Pred>
-	friend size_type erase_if(RangeSet<K> &range_set, Pred pred);
+	friend size_type erase_if(RangeSet<K>& range_set, Pred pred);
 
 	template <typename K>
-	friend std::ostream &operator<<(std::ostream &os, RangeSet<K> const &range_set);
+	friend std::ostream& operator<<(std::ostream& os, RangeSet<K> const& range_set);
 
  protected:
 	static constexpr Key increment(Key value)
@@ -741,55 +741,55 @@ class RangeSet
 };
 
 template <typename Key>
-bool operator==(RangeSet<Key> const &lhs, RangeSet<Key> const &rhs)
+bool operator==(RangeSet<Key> const& lhs, RangeSet<Key> const& rhs)
 {
 	// FIXME: Implement correctly
 	return lhs.ranges_ == rhs.ranges_;
 }
 
 template <typename Key>
-bool operator!=(RangeSet<Key> const &lhs, RangeSet<Key> const &rhs)
+bool operator!=(RangeSet<Key> const& lhs, RangeSet<Key> const& rhs)
 {
 	// FIXME: Implement correctly
 	return lhs.ranges_ != rhs.ranges_;
 }
 
 template <typename Key>
-bool operator<(RangeSet<Key> const &lhs, RangeSet<Key> const &rhs)
+bool operator<(RangeSet<Key> const& lhs, RangeSet<Key> const& rhs)
 {
 	// FIXME: Implement correctly
 	return lhs.ranges_ < rhs.ranges_;
 }
 
 template <typename Key>
-bool operator<=(RangeSet<Key> const &lhs, RangeSet<Key> const &rhs)
+bool operator<=(RangeSet<Key> const& lhs, RangeSet<Key> const& rhs)
 {
 	// FIXME: Implement correctly
 	return lhs.ranges_ <= rhs.ranges_;
 }
 
 template <typename Key>
-bool operator>(RangeSet<Key> const &lhs, RangeSet<Key> const &rhs)
+bool operator>(RangeSet<Key> const& lhs, RangeSet<Key> const& rhs)
 {
 	// FIXME: Implement correctly
 	return lhs.ranges_ > rhs.ranges_;
 }
 
 template <typename Key>
-bool operator>=(RangeSet<Key> const &lhs, RangeSet<Key> const &rhs)
+bool operator>=(RangeSet<Key> const& lhs, RangeSet<Key> const& rhs)
 {
 	// FIXME: Implement correctly
 	return lhs.ranges_ >= rhs.ranges_;
 }
 
 template <typename Key>
-void swap(RangeSet<Key> &lhs, RangeSet<Key> &rhs) noexcept(noexcept(lhs.swap(rhs)))
+void swap(RangeSet<Key>& lhs, RangeSet<Key>& rhs) noexcept(noexcept(lhs.swap(rhs)))
 {
 	lhs.swap(rhs);
 }
 
 template <typename Key, class Pred>
-typename RangeSet<Key>::size_type erase_if(RangeSet<Key> &range_set, Pred pred)
+typename RangeSet<Key>::size_type erase_if(RangeSet<Key>& range_set, Pred pred)
 {
 	auto old_size = range_set.size();
 	for (auto it = std::begin(range_set), last = std::end(range_set); it != last;) {
@@ -803,7 +803,7 @@ typename RangeSet<Key>::size_type erase_if(RangeSet<Key> &range_set, Pred pred)
 }
 
 template <typename Key>
-std::ostream &operator<<(std::ostream &os, RangeSet<Key> const &range_set)
+std::ostream& operator<<(std::ostream& os, RangeSet<Key> const& range_set)
 {
 	if (!range_set.empty()) {
 		std::copy(std::cbegin(range_set), std::prev(std::cend(range_set)),
@@ -824,7 +824,7 @@ std::ostream &operator<<(std::ostream &os, RangeSet<Key> const &range_set)
  * @return false
  */
 template <typename Key1, typename Key2>
-[[nodiscard]] bool rangesIncludes(RangeSet<Key1> const &a, RangeSet<Key2> const &b)
+[[nodiscard]] bool rangesIncludes(RangeSet<Key1> const& a, RangeSet<Key2> const& b)
 {
 	auto a_first = std::begin(a);
 	auto a_last  = std::end(a);
@@ -854,8 +854,8 @@ template <typename Key1, typename Key2>
  * @return RangeSet<Key1>
  */
 template <typename Key1, typename Key2>
-[[nodiscard]] RangeSet<Key1> rangesDifference(RangeSet<Key1> const &a,
-                                              RangeSet<Key2> const &b)
+[[nodiscard]] RangeSet<Key1> rangesDifference(RangeSet<Key1> const& a,
+                                              RangeSet<Key2> const& b)
 {
 	// FIXME: Implement efficiently
 	RangeSet<Key1> output = a;
@@ -866,8 +866,8 @@ template <typename Key1, typename Key2>
 }
 
 template <typename Key1, typename Key2>
-[[nodiscard]] RangeSet<Key1> rangesIntersection(RangeSet<Key1> const &a,
-                                                RangeSet<Key2> const &b)
+[[nodiscard]] RangeSet<Key1> rangesIntersection(RangeSet<Key1> const& a,
+                                                RangeSet<Key2> const& b)
 {
 	// FIXME: Implement efficiently
 	RangeSet<Key1> output;
@@ -885,8 +885,8 @@ template <typename Key1, typename Key2>
 }
 
 template <typename Key1, typename Key2>
-[[nodiscard]] RangeSet<Key1> rangesSymmetricDifference(RangeSet<Key1> const &a,
-                                                       RangeSet<Key2> const &b)
+[[nodiscard]] RangeSet<Key1> rangesSymmetricDifference(RangeSet<Key1> const& a,
+                                                       RangeSet<Key2> const& b)
 {
 	// FIXME: Implement efficiently
 	RangeSet<Key1> output = a;
@@ -902,7 +902,7 @@ template <typename Key1, typename Key2>
 }
 
 template <typename Key1, typename Key2>
-[[nodiscard]] RangeSet<Key1> rangesUnion(RangeSet<Key1> const &a, RangeSet<Key2> const &b)
+[[nodiscard]] RangeSet<Key1> rangesUnion(RangeSet<Key1> const& a, RangeSet<Key2> const& b)
 {
 	// FIXME: Implement efficiently
 	RangeSet<Key1> output = a;

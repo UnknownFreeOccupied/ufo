@@ -92,7 +92,7 @@ TEST_CASE("OccupancyMap")
 
 		Vec3f     coord(0, 0, 0);
 		TreeCoord coord_r(coord, 2u);
-		float     occ   = 0.95f;
+		float     occ = 0.95f;
 
 		REQUIRE(map.occupancy(coord) == Catch::Approx(0.5f));
 		REQUIRE(map.occupancy(coord_r) == Catch::Approx(0.5f));
@@ -117,7 +117,7 @@ TEST_CASE("OccupancyMap")
 
 		Vec3f     coord(0, 0, 0);
 		TreeCoord coord_r(coord, 2u);
-		float     occ   = 0.95f;
+		float     occ = 0.95f;
 
 		REQUIRE(map.occupancy(coord) == Catch::Approx(0.5f));
 

@@ -83,12 +83,12 @@ inline void computeRay(std::unordered_map<OctCode, IntegrationGrid<OctCode>>& mi
 	}
 
 	std::array<void (OctCode ::*)(code_t), 3> step_f{
-	    0 <= sign[0] ? (void(OctCode ::*)(code_t))(&OctCode::incX)
-	                 : (void(OctCode ::*)(code_t))(&OctCode::decX),
-	    0 <= sign[1] ? (void(OctCode ::*)(code_t))(&OctCode::incY)
-	                 : (void(OctCode ::*)(code_t))(&OctCode::decY),
-	    0 <= sign[2] ? (void(OctCode ::*)(code_t))(&OctCode::incZ)
-	                 : (void(OctCode ::*)(code_t))(&OctCode::decZ)};
+	    0 <= sign[0] ? (void (OctCode ::*)(code_t))(&OctCode::incX)
+	                 : (void (OctCode ::*)(code_t))(&OctCode::decX),
+	    0 <= sign[1] ? (void (OctCode ::*)(code_t))(&OctCode::incY)
+	                 : (void (OctCode ::*)(code_t))(&OctCode::decY),
+	    0 <= sign[2] ? (void (OctCode ::*)(code_t))(&OctCode::incZ)
+	                 : (void (OctCode ::*)(code_t))(&OctCode::decZ)};
 	std::array<code_t, 3> step_v{c_origin.xStep(), c_origin.yStep(), c_origin.zStep()};
 
 	Vec3f t_max(sign[0] ? (voxel_border.x + sign[0] * grid_size / 2.0f) / dir.x : max,
@@ -162,12 +162,12 @@ inline void computeRay(std::unordered_map<OctCode, IntegrationGrid<OctCode>>& mi
 	}
 
 	std::array<void (OctCode ::*)(code_t), 3> step_f{
-	    0 <= sign[0] ? (void(OctCode ::*)(code_t))(&OctCode::incX)
-	                 : (void(OctCode ::*)(code_t))(&OctCode::decX),
-	    0 <= sign[1] ? (void(OctCode ::*)(code_t))(&OctCode::incY)
-	                 : (void(OctCode ::*)(code_t))(&OctCode::decY),
-	    0 <= sign[2] ? (void(OctCode ::*)(code_t))(&OctCode::incZ)
-	                 : (void(OctCode ::*)(code_t))(&OctCode::decZ)};
+	    0 <= sign[0] ? (void (OctCode ::*)(code_t))(&OctCode::incX)
+	                 : (void (OctCode ::*)(code_t))(&OctCode::decX),
+	    0 <= sign[1] ? (void (OctCode ::*)(code_t))(&OctCode::incY)
+	                 : (void (OctCode ::*)(code_t))(&OctCode::decY),
+	    0 <= sign[2] ? (void (OctCode ::*)(code_t))(&OctCode::incZ)
+	                 : (void (OctCode ::*)(code_t))(&OctCode::decZ)};
 	std::array<code_t, 3> step_v{c_origin.xStep(), c_origin.yStep(), c_origin.zStep()};
 
 	Vec3f t_max(sign[0] ? (voxel_border.x + sign[0] * grid_size / 2.0f) / dir.x : max,

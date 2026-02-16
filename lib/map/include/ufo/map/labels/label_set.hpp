@@ -49,8 +49,7 @@
 
 namespace ufo
 {
-template <class Derived, class Index, class Node, class Code, class Key,
-          class Coord>
+template <class Derived, class Index, class Node, class Code, class Key, class Coord>
 class LabelSet
 {
  public:

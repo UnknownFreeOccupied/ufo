@@ -46,7 +46,7 @@ TEST_CASE("LabelsMap")
 		TreeCoord coord_r(coord, 2);
 
 		map.labelsUpdate(coord, 5);
-		
+
 		auto ls = map.labels(coord);
 		REQUIRE(ls.find(5) != ls.end());
 

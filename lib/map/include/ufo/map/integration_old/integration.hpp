@@ -801,7 +801,7 @@ class Integrator
 		if (parallel) {
 			make_unique();
 
-#pragma omp        parallel
+#pragma omp parallel
 #pragma omp single nowait
 			{
 				if constexpr (is_occupancy_map_v<Map>) {

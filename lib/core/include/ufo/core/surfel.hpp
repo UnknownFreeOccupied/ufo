@@ -73,7 +73,7 @@ class Surfel
 	}
 
 	template <class PointRange>
-	constexpr Surfel(PointRange const &points)
+	constexpr Surfel(PointRange const& points)
 	    : Surfel(std::begin(points), std::end(points))
 	{
 	}
@@ -83,21 +83,21 @@ class Surfel
 	{
 	}
 
-	constexpr Surfel(Surfel const &other) = default;
+	constexpr Surfel(Surfel const& other) = default;
 
-	constexpr Surfel(Surfel &&other) = default;
+	constexpr Surfel(Surfel&& other) = default;
 
-	constexpr Surfel &operator=(Surfel const &rhs) = default;
+	constexpr Surfel& operator=(Surfel const& rhs) = default;
 
-	constexpr Surfel &operator=(Surfel &&rhs) = default;
+	constexpr Surfel& operator=(Surfel&& rhs) = default;
 
-	constexpr bool operator==(Surfel const &rhs) const
+	constexpr bool operator==(Surfel const& rhs) const
 	{
 		return num_points_ == rhs.num_points_ && sum_ == rhs.sum_ &&
 		       sum_squares_ == rhs.sum_squares_;
 	}
 
-	constexpr bool operator!=(Surfel const &rhs) const { return !(*this == rhs); }
+	constexpr bool operator!=(Surfel const& rhs) const { return !(*this == rhs); }
 
 	//
 	// Empty
@@ -109,23 +109,23 @@ class Surfel
 	// Add
 	//
 
-	Surfel &operator+=(Surfel const &rhs)
+	Surfel& operator+=(Surfel const& rhs)
 	{
 		add(rhs);
 		return *this;
 	}
 
-	Surfel &operator+=(Vec3f rhs)
+	Surfel& operator+=(Vec3f rhs)
 	{
 		add(rhs);
 		return *this;
 	}
 
-	friend Surfel operator+(Surfel lhs, Surfel const &rhs);
+	friend Surfel operator+(Surfel lhs, Surfel const& rhs);
 
 	friend Surfel operator+(Surfel lhs, Vec3f rhs);
 
-	constexpr void add(Surfel const &surfel)
+	constexpr void add(Surfel const& surfel)
 	{
 		auto const n = num_points_;
 		if (0 == n) {
@@ -244,7 +244,7 @@ class Surfel
 	}
 
 	template <class PointRange>
-	constexpr void add(PointRange const &points)
+	constexpr void add(PointRange const& points)
 	{
 		add(std::cbegin(points), std::cend(points));
 	}
@@ -258,15 +258,15 @@ class Surfel
 	// Remove
 	//
 
-	Surfel &operator-=(Surfel const &rhs)
+	Surfel& operator-=(Surfel const& rhs)
 	{
 		remove(rhs);
 		return *this;
 	}
 
-	friend Surfel operator-(Surfel lhs, Surfel const &rhs);
+	friend Surfel operator-(Surfel lhs, Surfel const& rhs);
 
-	constexpr void remove(Surfel const &surfel)
+	constexpr void remove(Surfel const& surfel)
 	{
 		// FIXME: Update with double precision
 		if (surfel.num_points_ >= num_points_) {
@@ -323,7 +323,7 @@ class Surfel
 	}
 
 	template <class PointRange>
-	constexpr void remove(PointRange const &points)
+	constexpr void remove(PointRange const& points)
 	{
 		remove(std::cbegin(points), std::cend(points));
 	}
@@ -427,7 +427,7 @@ class Surfel
 	// Eigen values
 	//
 
-	constexpr Vec3d eigenValues(std::array<double, 6> const &sym_m) const
+	constexpr Vec3d eigenValues(std::array<double, 6> const& sym_m) const
 	{
 		double const a = sym_m[0];
 		double const b = sym_m[3];
@@ -460,8 +460,8 @@ class Surfel
 	// Eigen vectors
 	//
 
-	constexpr std::array<Vec3d, 3> eigenVectors(std::array<double, 6> const &sym_m,
-	                                            Vec3d const &eigen_values) const
+	constexpr std::array<Vec3d, 3> eigenVectors(std::array<double, 6> const& sym_m,
+	                                            Vec3d const& eigen_values) const
 	{
 		// FIXME: Make sure denominator is not zero
 
@@ -492,13 +492,13 @@ class Surfel
 };
 }  // namespace ufo
 
-inline ufo::Surfel operator+(ufo::Surfel lhs, ufo::Surfel const &rhs)
+inline ufo::Surfel operator+(ufo::Surfel lhs, ufo::Surfel const& rhs)
 {
 	lhs += rhs;
 	return lhs;
 }
 
-inline ufo::Surfel operator-(ufo::Surfel lhs, ufo::Surfel const &rhs)
+inline ufo::Surfel operator-(ufo::Surfel lhs, ufo::Surfel const& rhs)
 {
 	lhs -= rhs;
 	return lhs;
