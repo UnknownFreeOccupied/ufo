@@ -1,5 +1,12 @@
 @PACKAGE_INIT@
 
+include(CMakeFindDependencyMacro)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  find_dependency(Threads)
+endif()
+find_dependency(TBB)
+find_dependency(OpenMP)
+
 include("${CMAKE_CURRENT_LIST_DIR}/wgpu_native-targets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/ufo-targets.cmake")
 
@@ -10,13 +17,6 @@ foreach(_comp ${UFO_FIND_COMPONENTS})
     set(UFO_${_comp}_FOUND FALSE)
   endif()
 endforeach()
-
-include(CMakeFindDependencyMacro)
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  find_dependency(Threads)
-endif()
-find_dependency(TBB)
-find_dependency(OpenMP)
 
 #checks if any REQUIRED components were marked FOUND=FALSE and sets UFO_FOUND
 check_required_components(UFO)
