@@ -40,7 +40,7 @@ target_link_libraries(Compute
 target_include_directories(Compute
 	PUBLIC
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-		$<BUILD_INTERFACE:$<IF:$<CONFIG:Debug>,${WGPU_DIR_DEBUG},${WGPU_DIR_RELEASE}>/include>
+		$<BUILD_INTERFACE:${WGPU_DIR}/include>
 		$<INSTALL_INTERFACE:include>
 )
 

@@ -74,90 +74,33 @@ else()
 	message(FATAL_ERROR "Platform architecture '${ARCH}' not supported by this release of UFOCompute.")
 endif()
 
-# set(URL_CONFIG "$<IF:$<CONFIG:Debug,RelWithDebInfo>,'debug','release'>")
 set(URL_CONFIG "release")
+set(URL_NAME "wgpu-${URL_OS}-${URL_ARCH}${URL_COMPILER}-${URL_CONFIG}")
+set(URL "${WGPU_BINARY_MIRROR}/releases/download/${WGPU_VERSION}/${URL_NAME}.zip")
 
-set(URL_NAME "wgpu-${URL_OS}-${URL_ARCH}${URL_COMPILER}-")
-set(URL_RELEASE "${WGPU_BINARY_MIRROR}/releases/download/${WGPU_VERSION}/${URL_NAME}release.zip")
-set(URL_DEBUG "${WGPU_BINARY_MIRROR}/releases/download/${WGPU_VERSION}/${URL_NAME}debug.zip")
+string(TOLOWER "${URL_NAME}" FC_NAME)
 
-string(TOLOWER "${URL_NAME}release" FC_NAME_RELEASE)
-string(TOLOWER "${URL_NAME}debug" FC_NAME_DEBUG)
-
-FetchContent_Declare(${FC_NAME_RELEASE}
-	URL ${URL_RELEASE}
-)
-FetchContent_Declare(${FC_NAME_DEBUG}
-	URL ${URL_DEBUG}
+FetchContent_Declare(${FC_NAME}
+	URL ${URL}
 )
 
-message(STATUS "Fetching WebGPU implementation from '${URL_RELEASE}'")
-message(STATUS "Fetching WebGPU implementation from '${URL_DEBUG}'")
-FetchContent_MakeAvailable(${FC_NAME_RELEASE})
-FetchContent_MakeAvailable(${FC_NAME_DEBUG})
-set(WGPU_DIR_RELEASE "${${FC_NAME_RELEASE}_SOURCE_DIR}")
-set(WGPU_DIR_DEBUG   "${${FC_NAME_DEBUG}_SOURCE_DIR}")
+message(STATUS "Fetching WebGPU implementation from '${URL}'")
+FetchContent_MakeAvailable(${FC_NAME})
+set(WGPU_DIR "${${FC_NAME}_SOURCE_DIR}")
+message(STATUS "WebGPU implementation source directory: ${WGPU_DIR}")
 
-set(WGPU_BUILD_SHARED_RUNTIME_LIB_RELEASE "${WGPU_DIR_RELEASE}/lib/${SHARED_LIB_PREFIX}wgpu_native.${SHARED_LIB_EXT}")
-set(WGPU_BUILD_STATIC_RUNTIME_LIB_RELEASE "${WGPU_DIR_RELEASE}/lib/${STATIC_LIB_PREFIX}wgpu_native.${STATIC_LIB_EXT}")
+set(WGPU_BUILD_SHARED_RUNTIME_LIB "${WGPU_DIR}/lib/${SHARED_LIB_PREFIX}wgpu_native.${SHARED_LIB_EXT}")
+set(WGPU_BUILD_STATIC_RUNTIME_LIB "${WGPU_DIR}/lib/${STATIC_LIB_PREFIX}wgpu_native.${STATIC_LIB_EXT}")
 
-set(WGPU_BUILD_SHARED_RUNTIME_LIB_DEBUG   "${WGPU_DIR_DEBUG}/lib/${SHARED_LIB_PREFIX}wgpu_native.${SHARED_LIB_EXT}")
-set(WGPU_BUILD_STATIC_RUNTIME_LIB_DEBUG   "${WGPU_DIR_DEBUG}/lib/${STATIC_LIB_PREFIX}wgpu_native.${STATIC_LIB_EXT}")
-
-set(WGPU_INSTALL_SHARED_RUNTIME_LIB_RELEASE "${CMAKE_INSTALL_FULL_LIBDIR}/${SHARED_LIB_PREFIX}wgpu_native_release.${SHARED_LIB_EXT}")
-set(WGPU_INSTALL_STATIC_RUNTIME_LIB_RELEASE "${CMAKE_INSTALL_FULL_LIBDIR}/${STATIC_LIB_PREFIX}wgpu_native_release.${STATIC_LIB_EXT}")
-
-set(WGPU_INSTALL_SHARED_RUNTIME_LIB_DEBUG "${CMAKE_INSTALL_FULL_LIBDIR}/${SHARED_LIB_PREFIX}wgpu_native_debug.${SHARED_LIB_EXT}")
-set(WGPU_INSTALL_STATIC_RUNTIME_LIB_DEBUG "${CMAKE_INSTALL_FULL_LIBDIR}/${STATIC_LIB_PREFIX}wgpu_native_debug.${STATIC_LIB_EXT}")
+set(WGPU_INSTALL_SHARED_RUNTIME_LIB "${CMAKE_INSTALL_FULL_LIBDIR}/${SHARED_LIB_PREFIX}wgpu_native.${SHARED_LIB_EXT}")
+set(WGPU_INSTALL_STATIC_RUNTIME_LIB "${CMAKE_INSTALL_FULL_LIBDIR}/${STATIC_LIB_PREFIX}wgpu_native.${STATIC_LIB_EXT}")
 
 # Create a logical target for the external library
 add_library(wgpu_native STATIC IMPORTED GLOBAL)
 
 # Tell CMake where the file is DURING THE BUILD
 set_target_properties(wgpu_native PROPERTIES
-  IMPORTED_LOCATION                "${WGPU_BUILD_STATIC_RUNTIME_LIB_RELEASE}"
-  IMPORTED_LOCATION_RELEASE        "${WGPU_BUILD_STATIC_RUNTIME_LIB_RELEASE}"
-  IMPORTED_LOCATION_RELWITHDEBINFO "${WGPU_BUILD_STATIC_RUNTIME_LIB_RELEASE}" # Add this
-  IMPORTED_LOCATION_MINSIZEREL     "${WGPU_BUILD_STATIC_RUNTIME_LIB_RELEASE}" # Add this
-  IMPORTED_LOCATION_DEBUG           "${WGPU_BUILD_STATIC_RUNTIME_LIB_DEBUG}"
-  
-  # This property handles the mapping automatically for any other custom configs
-  MAP_IMPORTED_CONFIG_RELWITHDEBINFO "RELEASE"
-  MAP_IMPORTED_CONFIG_MINSIZEREL     "RELEASE"
-)
-
-install(
-	FILES ${WGPU_BUILD_SHARED_RUNTIME_LIB_RELEASE}
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	RENAME "${SHARED_LIB_PREFIX}wgpu_native_release.${SHARED_LIB_EXT}"
-	COMPONENT Compute
-)
-
-install(
-	FILES ${WGPU_BUILD_STATIC_RUNTIME_LIB_RELEASE}
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	RENAME "${STATIC_LIB_PREFIX}wgpu_native_release.${STATIC_LIB_EXT}"
-	COMPONENT Compute
-)
-
-install(
-	FILES ${WGPU_BUILD_SHARED_RUNTIME_LIB_DEBUG}
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	RENAME "${SHARED_LIB_PREFIX}wgpu_native_debug.${SHARED_LIB_EXT}"
-	COMPONENT Compute
-)
-
-install(
-	FILES ${WGPU_BUILD_STATIC_RUNTIME_LIB_DEBUG}
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	RENAME "${STATIC_LIB_PREFIX}wgpu_native_debug.${STATIC_LIB_EXT}"
-	COMPONENT Compute
-)
-
-# # NOTE: It should be the same files in both release and debug
-install(DIRECTORY ${WGPU_DIR_RELEASE}/include/
-	COMPONENT Compute
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  IMPORTED_LOCATION                "${WGPU_BUILD_STATIC_RUNTIME_LIB}"
 )
 
 # Generate and install a cmake target file so consumers of the installed UFO
@@ -172,4 +115,15 @@ install(
 	FILES "${CMAKE_CURRENT_BINARY_DIR}/wgpu_native-targets.cmake"
 	DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/UFO"
 	COMPONENT Compute
+)
+
+install(
+	FILES ${WGPU_BUILD_SHARED_RUNTIME_LIB} ${WGPU_BUILD_STATIC_RUNTIME_LIB}
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	COMPONENT Compute
+)
+
+install(DIRECTORY ${WGPU_DIR}/include/
+	COMPONENT Compute
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
