@@ -118,6 +118,12 @@ else()
 	message(CHECK_PASS "all parallel processing libraries found and enabled: [${foundParallelLibs}]")
 endif()
 
+# Propagate to parent scope so configure_package_config_file can substitute
+# @TBB_FOUND@ and @OpenMP_CXX_FOUND@ in ufo-config.cmake.in
+set(TBB_FOUND "${TBB_FOUND}" PARENT_SCOPE)
+set(OpenMP_CXX_FOUND "${OpenMP_CXX_FOUND}" PARENT_SCOPE)
+# message(WARNING "TBB: ${TBB_FOUND}, OpenMP: ${OpenMP_CXX_FOUND}")
+
 if(UFO_BUILD_TESTS AND UFO_EXECUTION_BUILD_TESTS)
 	add_subdirectory(tests)
 endif()

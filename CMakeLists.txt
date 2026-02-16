@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.16...3.24)
+cmake_minimum_required(VERSION 3.22...3.31)
+
+# set(CMAKE_EXPERIMENTAL_EXPORT_PACKAGE_DEPENDENCIES "1942b4fa-b2c5-4546-9385-83f254070067")
 
 project(UFO
 	VERSION 1.0.0
@@ -95,8 +97,9 @@ configure_package_config_file(
 install(
     EXPORT UFOTargets
     FILE ufo-targets.cmake
-    NAMESPACE UFO::
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/UFO"
+    NAMESPACE UFO::
+    # EXPORT_PACKAGE_DEPENDENCIES
 )
 
 # Install the config files
