@@ -1,6 +1,6 @@
-option(UFOMATH_BUILD_DOCS     "Generate documentation" OFF)
-option(UFOMATH_BUILD_TESTS    "Unit testing"           OFF)
-option(UFOMATH_BUILD_COVERAGE "Test Coverage"          OFF)
+option(UFO_MATH_BUILD_DOCS     "Generate documentation" ON)
+option(UFO_MATH_BUILD_TESTS    "Unit testing"           ON)
+option(UFO_MATH_BUILD_COVERAGE "Test Coverage"          ON)
 
 include(GNUInstallDirs)
 
@@ -19,11 +19,11 @@ target_include_directories(Math
 		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-if(UFO_BUILD_TESTS OR UFOMATH_BUILD_TESTS)
+if(UFO_BUILD_TESTS OR UFO_MATH_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
 
-if(UFO_BUILD_DOCS OR UFOMATH_BUILD_DOCS)
+if(UFO_BUILD_DOCS OR UFO_MATH_BUILD_DOCS)
 	add_subdirectory(docs)
 endif()
 
