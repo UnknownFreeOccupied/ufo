@@ -11,12 +11,7 @@ on:
 jobs:
   test-install:
     runs-on: ubuntu-latest
-    steps:
-      - name: Install TBB
-        run: |
-          sudo apt-get update -yqq
-          sudo apt-get install -yqq libtbb-dev
-          
+    steps:         
       - name: Checkout UFO Library
         uses: actions/checkout@v5
 
