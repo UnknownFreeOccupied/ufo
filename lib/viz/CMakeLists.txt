@@ -8,7 +8,7 @@ add_subdirectory(apps)
 
 add_subdirectory(glfw_webgpu)
 
-add_library(Viz static)
+add_library(Viz STATIC)
 add_library(UFO::Viz ALIAS Viz)
 
 target_sources(Viz
