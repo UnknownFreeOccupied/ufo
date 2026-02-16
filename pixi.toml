@@ -29,5 +29,5 @@ clang-format = ">=21.1.8,<22"
 
 [tasks]
 format = { cmd = "scripts/format.bash" }
-format_all = { cmd = "scripts/format_all.bash" }
+format-all = { cmd = "scripts/format_all.bash" }
 test = { cmd = "scripts/test.sh" }
