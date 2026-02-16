@@ -2,9 +2,11 @@ name: Relocatable CMake Install Test
 
 on:
   push:
-      branches: [ "main" ]
+    branches: [ "main" ]
+    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake', '**.clang_format', '**.clang-format-ignore', '**.clang-tidy', '**.clangd']
   pull_request:
-      branches: [ "main" ]
+    branches: [ "main" ]
+    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake', '**.clang_format', '**.clang-format-ignore', '**.clang-tidy', '**.clangd']
 
 jobs:
   test-install:
@@ -16,7 +18,7 @@ jobs:
           sudo apt-get install -yqq libtbb-dev
           
       - name: Checkout UFO Library
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Build and Install UFO
         run: |
