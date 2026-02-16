@@ -58,4 +58,4 @@ extern "C" {
 }
 #endif
 
-#endif // UFO_VIZ_GLFW_SURFACE_HPP
+#endif  // UFO_VIZ_GLFW_SURFACE_HPP

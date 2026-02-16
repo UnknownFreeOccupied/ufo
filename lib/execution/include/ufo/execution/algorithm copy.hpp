@@ -656,8 +656,8 @@ bool lexicographical_compare(ExecutionPolicy&& exec, ForwardIter1 first1,
 // three-way comparison algorithms
 template <class InputIter1, class InputIter2, class Cmp>
 constexpr auto lexicographical_compare_three_way(InputIter1 b1, InputIter1 e1,
-                                                 InputIter2 b2, InputIter2 e2,
-                                                 Cmp comp) -> decltype(comp(*b1, *b2));
+                                                 InputIter2 b2, InputIter2 e2, Cmp comp)
+    -> decltype(comp(*b1, *b2));
 template <class InputIter1, class InputIter2>
 constexpr auto lexicographical_compare_three_way(InputIter1 b1, InputIter1 e1,
                                                  InputIter2 b2, InputIter2 e2);
