@@ -28,23 +28,6 @@ clang-format = ">=21.1.8,<22"
 # sed = ">=4.9,<5"
 
 [tasks]
-
-[tasks.test]
-cmd = '''
-rm -rf pixi_build &&
-cmake -B pixi_build -S . 
-  -DCMAKE_GENERATOR=Ninja
-	-DUFO_BUILD_TESTS=ON 
-	-DUSE_SYSTEM_CATCH2=ON 
-	-DCMAKE_BUILD_TYPE=Release &&
-cmake --build pixi_build --config Release &&
-ctest --test-dir pixi_build --output-on-failure --build-config Release &&
-rm -rf pixi_build
-'''
-# clean-env = true
-
-[tasks.format]
-cmd = '''
-find lib/ -iname '*.hpp' -o -iname '*.cpp' | xargs clang-format -i &&
-find tests/ -iname '*.hpp' -o -iname '*.cpp' | xargs clang-format -i
-'''
+format = { cmd = "scripts/format.bash" }
+format_all = { cmd = "scripts/format_all.bash" }
+test = { cmd = "scripts/test.sh" }
