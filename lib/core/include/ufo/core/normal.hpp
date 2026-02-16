@@ -39,33 +39,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_CLOUD_IO_HPP
-#define UFO_CLOUD_IO_HPP
-
-// UFO
-#include <ufo/cloud/cloud.hpp>
-#include <ufo/cloud/ply.hpp>
+#ifndef UFO_CORE_NORMAL_HPP
+#define UFO_CORE_NORMAL_HPP
 
 // STL
-#include <filesystem>
+#include <type_traits>
 
 namespace ufo
 {
-template <class... T>
-void readCloud(std::filesystem::path const& file, Cloud<T...>& cloud)
-{
-	if (...) {
-		readCloudPly(file, cloud);
-	}
-}
+struct Normal {
+	float x;
+	float y;
+	float z;
+};
 
-template <class... T>
-void writeCloud(std::filesystem::path const& file, Cloud<T...> const& cloud)
-{
-	if (...) {
-		writeCloudPly(file, cloud);
-	}
-}
+// Type traits
+
+template <class T>
+struct is_normal : std::false_type {
+};
+
+template <>
+struct is_normal<Normal> : std::true_type {
+};
+
+template <class T>
+constexpr bool is_normal_v = is_normal<T>::value;
 }  // namespace ufo
 
-#endif  // UFO_CLOUD_IO_HPP
+#endif  // UFO_CORE_NORMAL_HPP

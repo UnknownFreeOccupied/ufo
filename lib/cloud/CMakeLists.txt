@@ -7,6 +7,16 @@ include(GNUInstallDirs)
 add_library(Cloud INTERFACE)
 add_library(UFO::Cloud ALIAS Cloud)
 
+target_sources(Cloud
+	INTERFACE
+  	FILE_SET HEADERS
+    BASE_DIRS
+			include
+    FILES
+			include/ufo/cloud/cloud.hpp
+			include/ufo/cloud/point_cloud.hpp
+)
+
 target_link_libraries(Cloud 
 	INTERFACE
 		UFO::Container
@@ -18,19 +28,9 @@ if(UFO_BUILD_TESTS AND UFO_CLOUD_BUILD_TESTS)
 	add_subdirectory(tests)
 endif()
 
-target_include_directories(Cloud 
-	INTERFACE
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
-
-install(TARGETS Cloud 
-	EXPORT UFO-targets
+install(
+  TARGETS Cloud
+	EXPORT UFOTargets
+  FILE_SET HEADERS
 	COMPONENT Cloud
-	INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-	COMPONENT Cloud
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )

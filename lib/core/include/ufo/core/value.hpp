@@ -42,42 +42,41 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_CORE_LABEL_HPP
-#define UFO_CORE_LABEL_HPP
+#ifndef UFO_CORE_VALUE_HPP
+#define UFO_CORE_VALUE_HPP
 
 // STL
-#include <cstdint>
 #include <ostream>
 
 namespace ufo
 {
-using label_t = std::uint32_t;
+using value_type = float;
 
-struct Label {
-	label_t label{};
+struct Value {
+	value_type value{};
 
-	constexpr Label() noexcept = default;
+	constexpr Value() noexcept = default;
 
-	constexpr Label(label_t label) noexcept : label(label) {}
+	constexpr Value(value_type value) noexcept : value(value) {}
 
-	operator label_t() const noexcept { return label; }
+	operator value_type() const noexcept { return value; }
 };
 
-constexpr bool operator==(Label lhs, Label rhs) { return lhs.label == rhs.label; }
+constexpr bool operator==(Value lhs, Value rhs) { return lhs.value == rhs.value; }
 
-constexpr bool operator!=(Label lhs, Label rhs) { return !(lhs == rhs); }
+constexpr bool operator!=(Value lhs, Value rhs) { return !(lhs == rhs); }
 
-constexpr bool operator<(Label lhs, Label rhs) { return lhs.label < rhs.label; }
+constexpr bool operator<(Value lhs, Value rhs) { return lhs.value < rhs.value; }
 
-constexpr bool operator<=(Label lhs, Label rhs) { return !(rhs < lhs); }
+constexpr bool operator<=(Value lhs, Value rhs) { return !(rhs < lhs); }
 
-constexpr bool operator>(Label lhs, Label rhs) { return rhs < lhs; }
+constexpr bool operator>(Value lhs, Value rhs) { return rhs < lhs; }
 
-constexpr bool operator>=(Label lhs, Label rhs) { return !(lhs < rhs); }
+constexpr bool operator>=(Value lhs, Value rhs) { return !(lhs < rhs); }
 
-inline std::ostream& operator<<(std::ostream& out, ufo::Label s)
+inline std::ostream& operator<<(std::ostream& out, ufo::Value s)
 {
-	return out << s.label;
+	return out << s.value;
 }
 }  // namespace ufo
-#endif  // UFO_CORE_LABEL_HPP
+#endif  // UFO_CORE_VALUE_HPP

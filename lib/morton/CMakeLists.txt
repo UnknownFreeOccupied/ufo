@@ -9,6 +9,20 @@ include(GNUInstallDirs)
 add_library(Morton INTERFACE)
 add_library(UFO::Morton ALIAS Morton)
 
+target_sources(Morton
+	INTERFACE
+  	FILE_SET HEADERS
+    BASE_DIRS
+			include
+    FILES
+			include/ufo/morton/detail/morton.hpp
+			include/ufo/morton/morton.hpp
+			include/ufo/morton/morton1.hpp
+			include/ufo/morton/morton2.hpp
+			include/ufo/morton/morton3.hpp
+			include/ufo/morton/morton4.hpp
+)
+
 target_link_libraries(Morton INTERFACE UFO::Math)
 
 if(UFOMORTON_BMI2)
@@ -41,13 +55,6 @@ if(UFOMORTON_BMI2)
 	cmake_pop_check_state()
 endif()
 
-
-target_include_directories(Morton
-	INTERFACE
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
-
 if(UFO_BUILD_TESTS AND UFO_MORTON_BUILD_TESTS)
 	add_subdirectory(tests)
 endif()
@@ -56,16 +63,9 @@ if(UFO_BUILD_DOCS AND UFO_MORTON_BUILD_DOCS)
 	add_subdirectory(docs)
 endif()
 
-install(TARGETS Morton 
-	EXPORT UFO-targets
+install(
+  TARGETS Morton
+	EXPORT UFOTargets
+  FILE_SET HEADERS
 	COMPONENT Morton
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-	INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-	COMPONENT Morton
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )

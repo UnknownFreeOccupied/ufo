@@ -92,7 +92,8 @@ configure_package_config_file(
 )
 
 # Export all targets under the UFO:: namespace
-install(EXPORT UFO-targets
+install(
+    EXPORT UFOTargets
     FILE ufo-targets.cmake
     NAMESPACE UFO::
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/UFO"

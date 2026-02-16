@@ -43,17 +43,15 @@
 #define UFO_CLOUD_POINT_CLOUD_HPP
 
 // UFO
-// TODO: Add dependency on ufomath
 #include <ufo/cloud/cloud.hpp>
+#include <ufo/execution/execution.hpp>
 #include <ufo/math/transform.hpp>
 #include <ufo/math/vec.hpp>
-// TODO: Add dependency on ufoutility
-#include <ufo/execution/execution.hpp>
 
 // STL
+#include <algorithm>
 #include <cstddef>
 #include <limits>
-#include <type_traits>
 
 namespace ufo
 {
@@ -72,9 +70,8 @@ template <std::size_t Dim, class T, class... Rest>
 	return transform(execution::seq, t, pc);
 }
 
-template <
-    class ExecutionPolicy, std::size_t Dim, class T, class... Rest,
-    std::enable_if_t<execution::is_execution_policy_v<ExecutionPolicy>, bool> = true>
+template <class ExecutionPolicy, std::size_t Dim, class T, class... Rest>
+  requires execution::is_execution_policy_v<ExecutionPolicy>
 [[nodiscard]] PointCloud<Dim, T, Rest...> transform(ExecutionPolicy&&           policy,
                                                     Transform<Dim, T> const&    t,
                                                     PointCloud<Dim, T, Rest...> pc)
@@ -90,9 +87,8 @@ void transformInPlace(Transform<Dim, T> const& t, PointCloud<Dim, T, Rest...>& p
 	transformInPlace(execution::seq, t, pc);
 }
 
-template <
-    class ExecutionPolicy, std::size_t Dim, class T, class... Rest,
-    std::enable_if_t<execution::is_execution_policy_v<ExecutionPolicy>, bool> = true>
+template <class ExecutionPolicy, std::size_t Dim, class T, class... Rest>
+  requires execution::is_execution_policy_v<ExecutionPolicy>
 void transformInPlace(ExecutionPolicy&& policy, Transform<Dim, T> const& t,
                       PointCloud<Dim, T, Rest...>& pc)
 {
@@ -127,21 +123,12 @@ void filterDistanceInPlace(PointCloud<Dim, T, Rest...>& pc, Vec<Dim, T> const& o
 	auto const min_sq = min_distance * min_distance;
 	auto const max_sq = max_distance * max_distance;
 
-	if (filter_nan) {
-		auto it = std::remove_if(pc.begin(), pc.end(),
-		                         [&origin, min_sq, max_sq](Vec<Dim, T> const& x) {
-			                         auto dist_sq = distanceSquared(origin, x);
-			                         return min_sq > dist_sq || max_sq < dist_sq || isnan(x);
-		                         });
-		pc.erase(it, pc.end());
-	} else {
-		auto it = std::remove_if(pc.begin(), pc.end(),
-		                         [&origin, min_sq, max_sq](Vec<Dim, T> const& x) {
-			                         auto dist_sq = distanceSquared(origin, x);
-			                         return min_sq > dist_sq || max_sq < dist_sq;
-		                         });
-		pc.erase(it, pc.end());
-	}
+	auto to_erase = std::ranges::remove_if(
+	    pc, [&origin, min_sq, max_sq, filter_nan](Vec<Dim, T> const& x) {
+		    auto dist_sq = distanceSquared(origin, x);
+		    return min_sq > dist_sq || max_sq < dist_sq || (filter_nan && isnan(x));
+	    });
+	pc.erase(to_erase.begin(), to_erase.end());
 }
 }  // namespace ufo
 

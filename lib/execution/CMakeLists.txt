@@ -7,6 +7,17 @@ include(GNUInstallDirs)
 add_library(Execution INTERFACE)
 add_library(UFO::Execution ALIAS Execution)
 
+target_sources(Execution
+	INTERFACE
+  	FILE_SET HEADERS
+    BASE_DIRS
+			include
+    FILES
+			include/ufo/execution/algorithm.hpp
+			include/ufo/execution/execution.hpp
+)
+
+
 target_link_libraries(Execution INTERFACE UFO::Utility)
 
 # Threading library requires explicit linking on Linux (-pthread); macOS and
@@ -82,7 +93,7 @@ else()
 endif()
 
 message(CHECK_START "Finding OpenMP (OMP)")
-find_package(OpenMP QUIET)
+# find_package(OpenMP QUIET)
 
 if(OpenMP_CXX_FOUND)
 	message(CHECK_PASS "found and enabled")
@@ -107,12 +118,6 @@ else()
 	message(CHECK_PASS "all parallel processing libraries found and enabled: [${foundParallelLibs}]")
 endif()
 
-target_include_directories(Execution
-	INTERFACE
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
-
 if(UFO_BUILD_TESTS AND UFO_EXECUTION_BUILD_TESTS)
 	add_subdirectory(tests)
 endif()
@@ -121,16 +126,9 @@ if(UFO_BUILD_DOCS AND UFO_EXECUTION_BUILD_DOCS)
 	add_subdirectory(docs)
 endif()
 
-install(TARGETS Execution 
-	EXPORT UFO-targets
+install(
+  TARGETS Execution
+	EXPORT UFOTargets
+  FILE_SET HEADERS
 	COMPONENT Execution
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-	INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-	COMPONENT Execution
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )

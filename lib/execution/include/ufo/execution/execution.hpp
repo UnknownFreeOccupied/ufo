@@ -203,6 +203,9 @@ using omp_parallel_policy =
 using omp_parallel_unsequenced_policy =
     execution_policy<detail::ExecutionPolicy::PAR_UNSEQ, detail::ExecutionBackend::OMP>;
 
+template <typename T>
+concept RAR = std::ranges::random_access_range<T>;
+
 template <class, class = void>
 struct is_execution_policy : std::false_type {
 };
