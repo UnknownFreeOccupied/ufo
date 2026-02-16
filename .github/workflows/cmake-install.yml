@@ -1,0 +1,65 @@
+name: Relocatable CMake Install Test
+
+on:
+  push:
+    branches: [ "main" ]
+    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake', '**.clang_format', '**.clang-format-ignore', '**.clang-tidy', '**.clangd', '.github/workflows/cmake-install.yml']
+  pull_request:
+    branches: [ "main" ]
+    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake', '**.clang_format', '**.clang-format-ignore', '**.clang-tidy', '**.clangd', '.github/workflows/cmake-install.yml']
+
+jobs:
+  test-install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install TBB
+        run: |
+          sudo apt-get update -yqq
+          sudo apt-get install -yqq libtbb-dev
+          
+      - name: Checkout UFO Library
+        uses: actions/checkout@v5
+
+      - name: Build and Install UFO
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
+          cmake --install build --prefix $GITHUB_WORKSPACE/dist
+
+      - name: Create Consumer Project
+        run: |
+          mkdir consumer
+          
+          cat <<EOF > consumer/CMakeLists.txt
+          cmake_minimum_required(VERSION 3.20)
+          project(TestConsumer)
+
+          find_package(UFO REQUIRED)
+
+          add_executable(test_consumer main.cpp)
+          target_link_libraries(test_consumer PRIVATE UFO::Map)
+          set_target_properties(test_consumer
+            PROPERTIES
+              VERSION ${PROJECT_VERSION}
+              SOVERSION ${PROJECT_VERSION_MAJOR}
+              CXX_STANDARD 23
+              CXX_EXTENSIONS OFF
+          )
+          EOF
+
+          cat <<EOF > consumer/main.cpp
+          #include <ufo/map/occupancy/map.hpp>
+          #include <ufo/map/ufomap.hpp>
+          int main() {
+              ufo::Map3D<ufo::OccupancyMap> map(0.5, 3);
+              ufo::Vec3f coord(0, 0, 0);
+              map.occupancySet(coord, 0.95f);
+              return 0;
+          }
+          EOF
+
+      - name: Build and Link Consumer
+        run: |
+          cmake -S consumer -B consumer/build \
+                -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/dist
+          cmake --build consumer/build --config Release
