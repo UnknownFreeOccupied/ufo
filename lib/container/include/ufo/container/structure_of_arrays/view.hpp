@@ -43,118 +43,12 @@
 #define UFO_CONTAINER_STRUCTURE_OF_ARRAYS_VIEW_HPP
 
 // STL
-#include <cstddef>
-#include <iterator>
-#include <type_traits>
-#include <vector>
+#include <span>
 
 namespace ufo
 {
-// TODO: Make it so you can convert from non-const to const
-
 template <class T>
-class SoAView
-{
-	template <class... Ts>
-	friend class SoA;
-
- public:
-	/**************************************************************************************
-	|                                                                                     |
-	|                                        Tags                                         |
-	|                                                                                     |
-	**************************************************************************************/
-
-	using element_type           = T;
-	using value_type             = std::remove_cv_t<T>;
-	using size_type              = std::size_t;
-	using difference_type        = std::ptrdiff_t;
-	using pointer                = T*;
-	using const_pointer          = T const*;
-	using reference              = T&;
-	using const_reference        = T const&;
-	using iterator               = std::conditional_t<std::is_const_v<T>,
-	                                                  typename std::vector<value_type>::const_iterator,
-	                                                  typename std::vector<value_type>::iterator>;
-	using const_iterator         = typename std::vector<value_type>::const_iterator;
-	using reverse_iterator       = std::reverse_iterator<iterator>;
-	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
-
-	/**************************************************************************************
-	|                                                                                     |
-	|                                    Constructors                                     |
-	|                                                                                     |
-	**************************************************************************************/
-
-	SoAView() = default;
-
-	/**************************************************************************************
-	|                                                                                     |
-	|                                      Iterators                                      |
-	|                                                                                     |
-	**************************************************************************************/
-
-	iterator begin() const noexcept { return data_->begin(); }
-
-	const_iterator cbegin() const noexcept { return data_->cbegin(); }
-
-	iterator end() const noexcept { return data_->end(); }
-
-	const_iterator cend() const noexcept { return data_->cend(); }
-
-	reverse_iterator rbegin() const noexcept { return data_->rbegin(); }
-
-	const_reverse_iterator crbegin() const noexcept { return data_->crbegin(); }
-
-	reverse_iterator rend() const noexcept { return data_->rend(); }
-
-	const_reverse_iterator crend() const noexcept { return data_->crend(); }
-
-	/**************************************************************************************
-	|                                                                                     |
-	|                                   Element access                                    |
-	|                                                                                     |
-	**************************************************************************************/
-
-	[[nodiscard]] reference front() const { return data_->front(); }
-
-	[[nodiscard]] reference back() const { return data_->back(); }
-
-	[[nodiscard]] reference at(size_type pos) const { return data_->at(pos); }
-
-	[[nodiscard]] reference operator[](size_type idx) const { return (*data_)[idx]; }
-
-	[[nodiscard]] pointer data() const noexcept { return data_->data(); }
-
-	/**************************************************************************************
-	|                                                                                     |
-	|                                      Observers                                      |
-	|                                                                                     |
-	**************************************************************************************/
-
-	[[nodiscard]] size_type size() const noexcept { return data_->size(); }
-
-	[[nodiscard]] bool empty() const noexcept { return data_->empty(); }
-
- private:
-	/**************************************************************************************
-	|                                                                                     |
-	|                                    Constructors                                     |
-	|                                                                                     |
-	**************************************************************************************/
-
-	SoAView(std::conditional_t<std::is_const_v<T>, std::vector<value_type> const&,
-	                           std::vector<value_type>&>
-	            data)
-	    : data_(&data)
-	{
-	}
-
- private:
-	std::conditional_t<std::is_const_v<T>, std::vector<value_type> const*,
-	                   std::vector<value_type>*>
-	    data_ = nullptr;
-};
+using SoAView = std::span<T, std::dynamic_extent>;
 }  // namespace ufo
 
 #endif  // UFO_CONTAINER_STRUCTURE_OF_ARRAYS_VIEW_HPP
