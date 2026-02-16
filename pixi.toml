@@ -42,3 +42,9 @@ ctest --test-dir pixi_build --output-on-failure --build-config Release &&
 rm -rf pixi_build
 '''
 # clean-env = true
+
+[tasks.format]
+cmd = '''
+find lib/ -iname '*.hpp' -o -iname '*.cpp' | xargs clang-format -i &&
+find tests/ -iname '*.hpp' -o -iname '*.cpp' | xargs clang-format -i
+'''
