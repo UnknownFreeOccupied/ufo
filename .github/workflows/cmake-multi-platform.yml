@@ -5,10 +5,10 @@ name: CMake
 on:
   push:
     branches: [ "main" ]
-    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake', '**.clang_format', '**.clang-format-ignore', '**.clang-tidy', '**.clangd']
+    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake', '**.clang_format', '**.clang-format-ignore', '**.clang-tidy', '**.clangd', '.github/workflows/cmake-multi-platform.yml']
   pull_request:
     branches: [ "main" ]
-    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake', '**.clang_format', '**.clang-format-ignore', '**.clang-tidy', '**.clangd']
+    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.cxx', '**.hxx', '**.cc', '**.hh', '**CMakeLists.txt', 'meson.build', '**.cmake', '**.clang_format', '**.clang-format-ignore', '**.clang-tidy', '**.clangd', '.github/workflows/cmake-multi-platform.yml']
 
 jobs:
   build:
