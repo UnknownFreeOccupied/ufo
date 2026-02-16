@@ -93,7 +93,7 @@ else()
 endif()
 
 message(CHECK_START "Finding OpenMP (OMP)")
-# find_package(OpenMP QUIET)
+find_package(OpenMP QUIET)
 
 if(OpenMP_CXX_FOUND)
 	message(CHECK_PASS "found and enabled")
