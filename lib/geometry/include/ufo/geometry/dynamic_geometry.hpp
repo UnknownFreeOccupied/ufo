@@ -130,35 +130,35 @@ class DynamicGeometry
 	}
 
 	template <class Geometry>
-	[[nodiscard]] constexpr bool contains(Geometry const& geometry) const
+	[[nodiscard]] constexpr bool contains([[maybe_unused]] Geometry const& geometry) const
 	{
 		// TODO: Implement
 		return true;
 	}
 
 	template <class Geometry>
-	[[nodiscard]] constexpr bool disjoint(Geometry const& geometry) const
+	[[nodiscard]] constexpr bool disjoint([[maybe_unused]] Geometry const& geometry) const
 	{
 		// TODO: Implement
 		return true;
 	}
 
 	template <class Geometry>
-	[[nodiscard]] constexpr bool inside(Geometry const& geometry) const
+	[[nodiscard]] constexpr bool inside([[maybe_unused]] Geometry const& geometry) const
 	{
 		// TODO: Implement
 		return true;
 	}
 
 	template <class Geometry>
-	[[nodiscard]] constexpr bool intersects(Geometry const& geometry) const
+	[[nodiscard]] constexpr bool intersects([[maybe_unused]] Geometry const& geometry) const
 	{
 		// TODO: Implement
 		return true;
 	}
 
 	template <class Geometry>
-	[[nodiscard]] constexpr double distance(Geometry const& geometry) const
+	[[nodiscard]] constexpr double distance([[maybe_unused]] Geometry const& geometry) const
 	{
 		// TODO: Should this also be able to return double?
 		// TODO: Implement

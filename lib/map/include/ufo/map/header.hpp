@@ -354,11 +354,12 @@ struct MapHeader {
 		ltrim(value);
 
 		if (reading_map_info && '-' == param[0]) {
-			MapTypeInfo info;
-			if (2 !=
-			    std::sscanf(value.c_str(), "%" SCNx64 ", %" SCNx64, &info.type, &info.size)) {
+			MapTypeInfo   info;
+			std::uint64_t type;
+			if (2 != std::sscanf(value.c_str(), "%" SCNx64 ", %" SCNx64, &type, &info.size)) {
 				throw std::logic_error("Wrong map type info");
 			}
+			info.type = static_cast<MapType>(type);
 			map_info.push_back(info);
 			return false;
 		}
