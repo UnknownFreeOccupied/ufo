@@ -31,6 +31,9 @@ if(NOT USE_SYSTEM_CLI11)
 endif()
 
 # Doxygen
+if(UFO_BUILD_DOCS)
+	find_package(Doxygen REQUIRED dot)
+endif()
 
 # ImGUI
 

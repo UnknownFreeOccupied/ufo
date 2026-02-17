@@ -1,0 +1,23 @@
+---
+title: Installation
+description: Installera UFO.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+## Grundförutsättning
+
+<Tabs syncKey="os">
+  <TabItem label="Linux" icon="linux">Du behöver [`Git`](https://git-scm.com/), [`CMake`](https://cmake.org/) och en `C++` kompilator installerad. För att använda parallell bearbetning kan du behöva installera [`oneTBB`](https://uxlfoundation.github.io/oneTBB/) eller [`OpenMP`](https://www.openmp.org/).</TabItem>
+  <TabItem label="macOS" icon="apple">Du behöver [`Git`](https://git-scm.com/), [`CMake`](https://cmake.org/) och en `C++` kompilator installerad.</TabItem>
+	<TabItem label="Windows" icon="seti:windows">Du behöver [`Git`](https://git-scm.com/), [`CMake`](https://cmake.org/) och en `C++` kompilator installerad.</TabItem>
+</Tabs>
+
+## Install
+
+```sh
+git clone https://github.com/UnknownFreeOccupied/ufo.git
+cd ufo
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+```

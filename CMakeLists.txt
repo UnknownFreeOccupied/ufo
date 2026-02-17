@@ -20,7 +20,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(USE_SYSTEM_CATCH2 "Use system-installed Catch2 instead of fetching/building it" OFF)
 option(USE_SYSTEM_CLI11 "Use system-installed CLI11 instead of fetching/building it" OFF)
-option(USE_SYSTEM_DOXYGEN "Use system-installed Doxygen instead of fetching/building it" OFF)
 option(USE_SYSTEM_IMGUI "Use system-installed ImGUI instead of fetching/building it" OFF)
 option(USE_SYSTEM_JPEG "Use system-installed libjpeg-turbo instead of fetching/building it" OFF)
 option(USE_SYSTEM_SPNG "Use system-installed libspng instead of fetching/building it" OFF)
@@ -70,6 +69,31 @@ target_link_libraries(ufo INTERFACE
     UFO::Vision
     # UFO::Viz
 )
+
+if(UFO_BUILD_DOCS)
+    find_package(Doxygen REQUIRED OPTIONAL_COMPONENTS dot)
+
+    if(DOXYGEN_DOT_FOUND)
+        set(DOXYGEN_HAVE_DOT YES)
+    else()
+        set(DOXYGEN_HAVE_DOT NO)
+    endif()
+
+    set(DOXYGEN_OUTPUT_DIR "${PROJECT_BINARY_DIR}/docs")
+
+    configure_file(
+        "${PROJECT_SOURCE_DIR}/Doxyfile.in"
+        "${PROJECT_BINARY_DIR}/Doxyfile"
+        @ONLY
+    )
+
+    add_custom_target(Docs
+        COMMAND "${DOXYGEN_EXECUTABLE}" "${PROJECT_BINARY_DIR}/Doxyfile"
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM
+    )
+endif()
 
 if(UFO_BUILD_EXAMPLES)
     add_subdirectory(examples)

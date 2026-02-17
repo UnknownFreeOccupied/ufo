@@ -1,0 +1,30 @@
+---
+title: Host Website Locally
+description: A guide to build and host this website.
+---
+
+import { Code, Tabs, TabItem } from '@astrojs/starlight/components';
+
+## Prerequisite
+
+Install [`Node.js`](https://nodejs.org/en/download).
+
+Install [`Bun`](https://bun.com/docs/installation).
+
+## Build and host
+
+Comment out:
+
+```mjs
+	site: 'https://unknownfreeoccupied.github.io',
+  base: '/ufo',
+```
+
+from `ufo/docs/astro.config.mjs`, then run:
+
+```bash
+cd ufo/docs
+bun run dev
+```
+
+Go to http://localhost:4321/ or whatever it says in the terminal.

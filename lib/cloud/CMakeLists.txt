@@ -1,4 +1,3 @@
-option(UFO_CLOUD_BUILD_DOCS "Generate documentation" ON)
 option(UFO_CLOUD_BUILD_TESTS "Unit testing" ON)
 option(UFO_CLOUD_BUILD_COVERAGE "Test Coverage" ON)
 
