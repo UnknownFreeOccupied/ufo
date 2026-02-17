@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22...3.31)
+cmake_minimum_required(VERSION 3.23...3.31)
 
 # set(CMAKE_EXPERIMENTAL_EXPORT_PACKAGE_DEPENDENCIES "1942b4fa-b2c5-4546-9385-83f254070067")
 
