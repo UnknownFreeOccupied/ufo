@@ -42,12 +42,9 @@
 #ifndef UFO_EXECUTION_EXECUTION_HPP
 #define UFO_EXECUTION_EXECUTION_HPP
 
-// UFO
-#include <ufo/utility/enum.hpp>
-#include <ufo/utility/type_traits.hpp>
-
 // STL
 #include <type_traits>
+#include <utility>
 
 #if defined(UFO_PAR_STL)
 #include <execution>
@@ -112,28 +109,28 @@ enum class ExecutionBackend : unsigned {
 	ALL = STL | GCD | TBB | OMP
 };
 
-constexpr ExecutionPolicy operator|(ExecutionPolicy const& lhs,
-                                    ExecutionPolicy const& rhs)
+[[nodiscard]] constexpr ExecutionPolicy operator|(ExecutionPolicy lhs,
+                                                  ExecutionPolicy rhs) noexcept
 {
-	return ExecutionPolicy(to_underlying(lhs) | to_underlying(rhs));
+	return ExecutionPolicy(std::to_underlying(lhs) | std::to_underlying(rhs));
 }
 
-constexpr ExecutionPolicy operator&(ExecutionPolicy const& lhs,
-                                    ExecutionPolicy const& rhs)
+[[nodiscard]] constexpr ExecutionPolicy operator&(ExecutionPolicy lhs,
+                                                  ExecutionPolicy rhs) noexcept
 {
-	return ExecutionPolicy(to_underlying(lhs) & to_underlying(rhs));
+	return ExecutionPolicy(std::to_underlying(lhs) & std::to_underlying(rhs));
 }
 
-constexpr ExecutionBackend operator|(ExecutionBackend const& lhs,
-                                     ExecutionBackend const& rhs)
+[[nodiscard]] constexpr ExecutionBackend operator|(ExecutionBackend lhs,
+                                                   ExecutionBackend rhs) noexcept
 {
-	return ExecutionBackend(to_underlying(lhs) | to_underlying(rhs));
+	return ExecutionBackend(std::to_underlying(lhs) | std::to_underlying(rhs));
 }
 
-constexpr ExecutionBackend operator&(ExecutionBackend const& lhs,
-                                     ExecutionBackend const& rhs)
+[[nodiscard]] constexpr ExecutionBackend operator&(ExecutionBackend lhs,
+                                                   ExecutionBackend rhs) noexcept
 {
-	return ExecutionBackend(to_underlying(lhs) & to_underlying(rhs));
+	return ExecutionBackend(std::to_underlying(lhs) & std::to_underlying(rhs));
 }
 }  // namespace detail
 
@@ -203,63 +200,62 @@ using omp_parallel_policy =
 using omp_parallel_unsequenced_policy =
     execution_policy<detail::ExecutionPolicy::PAR_UNSEQ, detail::ExecutionBackend::OMP>;
 
-template <typename T>
-concept RAR = std::ranges::random_access_range<T>;
-
-template <class, class = void>
+template <class T>
 struct is_execution_policy : std::false_type {
 };
 
 template <detail::ExecutionPolicy Policy, detail::ExecutionBackend Backend>
-struct is_execution_policy<execution_policy<Policy, Backend>,
-                           std::enable_if_t<detail::ExecutionBackend::NONE != Backend &&
-                                            detail::ExecutionPolicy::NONE != Policy>>
-    : std::true_type {
+  requires(detail::ExecutionBackend::NONE != Backend &&
+           detail::ExecutionPolicy::NONE != Policy)
+struct is_execution_policy<execution_policy<Policy, Backend>> : std::true_type {
 };
 
 template <class T>
 constexpr inline bool is_execution_policy_v =
-    is_execution_policy<remove_cvref_t<T>>::value;
+    is_execution_policy<std::remove_cvref_t<T>>::value;
+
+template <class T>
+concept ExecutionPolicyType = is_execution_policy_v<T>;
 
 template <class T>
 constexpr inline bool is_seq_v =
     detail::ExecutionPolicy::NONE !=
-    (detail::ExecutionPolicy::SEQ & remove_cvref_t<T>::policy);
+    (detail::ExecutionPolicy::SEQ & std::remove_cvref_t<T>::policy);
 
 template <class T>
 constexpr inline bool is_unseq_v =
     detail::ExecutionPolicy::NONE !=
-    (detail::ExecutionPolicy::UNSEQ & remove_cvref_t<T>::policy);
+    (detail::ExecutionPolicy::UNSEQ & std::remove_cvref_t<T>::policy);
 
 template <class T>
 constexpr inline bool is_par_v =
     detail::ExecutionPolicy::NONE !=
-    (detail::ExecutionPolicy::PAR & remove_cvref_t<T>::policy);
+    (detail::ExecutionPolicy::PAR & std::remove_cvref_t<T>::policy);
 
 template <class T>
 constexpr inline bool is_par_unseq_v =
     detail::ExecutionPolicy::NONE !=
-    (detail::ExecutionPolicy::PAR_UNSEQ & remove_cvref_t<T>::policy);
+    (detail::ExecutionPolicy::PAR_UNSEQ & std::remove_cvref_t<T>::policy);
 
 template <class T>
 constexpr inline bool is_stl_v =
     detail::ExecutionBackend::NONE !=
-    (detail::ExecutionBackend::STL & remove_cvref_t<T>::backend);
+    (detail::ExecutionBackend::STL & std::remove_cvref_t<T>::backend);
 
 template <class T>
 constexpr inline bool is_gcd_v =
     detail::ExecutionBackend::NONE !=
-    (detail::ExecutionBackend::GCD & remove_cvref_t<T>::backend);
+    (detail::ExecutionBackend::GCD & std::remove_cvref_t<T>::backend);
 
 template <class T>
 constexpr inline bool is_tbb_v =
     detail::ExecutionBackend::NONE !=
-    (detail::ExecutionBackend::TBB & remove_cvref_t<T>::backend);
+    (detail::ExecutionBackend::TBB & std::remove_cvref_t<T>::backend);
 
 template <class T>
 constexpr inline bool is_omp_v =
     detail::ExecutionBackend::NONE !=
-    (detail::ExecutionBackend::OMP & remove_cvref_t<T>::backend);
+    (detail::ExecutionBackend::OMP & std::remove_cvref_t<T>::backend);
 
 constexpr inline sequenced_policy                seq{};
 constexpr inline unsequenced_policy              unseq{};
@@ -278,27 +274,23 @@ constexpr inline omp_unsequenced_policy          omp_unseq{};
 constexpr inline omp_parallel_policy             omp_par{};
 constexpr inline omp_parallel_unsequenced_policy omp_par_unseq{};
 
+#if defined(UFO_PAR_STL)
 template <class ExecutionPolicy>
 [[nodiscard]] constexpr auto&& toSTL([[maybe_unused]] ExecutionPolicy&& policy)
 {
-#if defined(UFO_PAR_STL)
 	if constexpr (is_stl_v<ExecutionPolicy>) {
 		if constexpr (is_seq_v<ExecutionPolicy>) {
 			return std::execution::seq;
 		} else if constexpr (is_unseq_v<ExecutionPolicy>) {
-#if __cplusplus >= 201902L
 			return std::execution::unseq;
-#else
-			return std::execution::seq;
-#endif
 		} else if constexpr (is_par_v<ExecutionPolicy>) {
 			return std::execution::par;
 		} else if constexpr (is_par_unseq_v<ExecutionPolicy>) {
 			return std::execution::par_unseq;
 		}
 	}
-#endif
 }
+#endif
 }  // namespace ufo::execution
 
 #endif  // UFO_EXECUTION_EXECUTION_HPP
