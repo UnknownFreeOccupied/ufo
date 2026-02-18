@@ -58,6 +58,13 @@ namespace ufo
 template <std::size_t Dim, class T, class... Rest>
 using PointCloud = Cloud<Vec<Dim, T>, Rest...>;
 
+using PointCloud2f = PointCloud<2, float>;
+using PointCloud3f = PointCloud<3, float>;
+using PointCloud4f = PointCloud<4, float>;
+using PointCloud2d = PointCloud<2, double>;
+using PointCloud3d = PointCloud<3, double>;
+using PointCloud4d = PointCloud<4, double>;
+
 //
 // Transform
 //
@@ -66,8 +73,7 @@ template <std::size_t Dim, class T, class... Rest>
 [[nodiscard]] PointCloud<Dim, T, Rest...> transform(Transform<Dim, T> const&    t,
                                                     PointCloud<Dim, T, Rest...> pc)
 {
-	// TODO: Implement
-	return transform(execution::seq, t, pc);
+	return transform(execution::seq, t, std::move(pc));
 }
 
 template <class ExecutionPolicy, std::size_t Dim, class T, class... Rest>
@@ -83,7 +89,6 @@ template <class ExecutionPolicy, std::size_t Dim, class T, class... Rest>
 template <std::size_t Dim, class T, class... Rest>
 void transformInPlace(Transform<Dim, T> const& t, PointCloud<Dim, T, Rest...>& pc)
 {
-	// TODO: Implement
 	transformInPlace(execution::seq, t, pc);
 }
 
