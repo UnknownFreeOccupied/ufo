@@ -274,10 +274,10 @@ constexpr inline omp_unsequenced_policy          omp_unseq{};
 constexpr inline omp_parallel_policy             omp_par{};
 constexpr inline omp_parallel_unsequenced_policy omp_par_unseq{};
 
-#if defined(UFO_PAR_STL)
 template <class ExecutionPolicy>
 [[nodiscard]] constexpr auto&& toSTL([[maybe_unused]] ExecutionPolicy&& policy)
 {
+#if defined(UFO_PAR_STL)
 	if constexpr (is_stl_v<ExecutionPolicy>) {
 		if constexpr (is_seq_v<ExecutionPolicy>) {
 			return std::execution::seq;
@@ -289,8 +289,8 @@ template <class ExecutionPolicy>
 			return std::execution::par_unseq;
 		}
 	}
-}
 #endif
+}
 }  // namespace ufo::execution
 
 #endif  // UFO_EXECUTION_EXECUTION_HPP
