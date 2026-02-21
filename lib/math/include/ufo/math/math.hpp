@@ -1,16 +1,15 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
- * @author Daniel Duberg (dduberg@kth.se)
- * @see https://github.com/UnknownFreeOccupied/ufomath
- * @version 2.0
- * @date 2024-06-14
- *
- * @copyright Copyright (c) 2024, Daniel Duberg
+ * @author Daniel Duberg (danielduberg@gmail.com)
+ * @see https://github.com/UnknownFreeOccupied/ufo
+ * @version 1.0.0
+ * @date 2026-02-21
+ * @copyright Copyright (c) 2020-2026, Daniel Duberg
  *
  * BSD 3-Clause License
  *
- * Copyright (c) 2024, Daniel Duberg
+ * Copyright (c) 2020-2026, Daniel Duberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,16 +41,25 @@
 #ifndef UFO_MATH_MATH_HPP
 #define UFO_MATH_MATH_HPP
 
-// UFO
-#include <ufo/math/numbers.hpp>
-
 // STL
+#include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <type_traits>
+#include <concepts>
+#include <limits>
+#include <numbers>
+#include <ranges>
 
 namespace ufo
 {
+/**
+ * @brief Returns the sign of a value.
+ * @tparam T Numeric type (e.g., int, float).
+ * @param [in] val The value to check.
+ * @retval -1 `val < 0`
+ * @retval 0 `val == 0`
+ * @retval 1 `val > 0`
+ */
 template <class T>
 [[nodiscard]] constexpr int sign(T val) noexcept
 {
@@ -62,55 +70,76 @@ template <class T>
 	}
 }
 
-template <class T>
-[[nodiscard]] constexpr T radians(T degrees) noexcept
+/**
+ * @brief Converts degrees to radians.
+ * @tparam T Floating point type (e.g., float, double).
+ * @param [in] deg The angle in degrees.
+ * @return The angle in radians.
+ */
+template <std::floating_point T>
+[[nodiscard]] constexpr T radians(T deg) noexcept
 {
-	return degrees * numbers::pi_v<T> / T(180);
+	return deg * std::numbers::pi_v<T> / T(180);
 }
 
-template <class T>
-[[nodiscard]] constexpr T degrees(T radians) noexcept
+/**
+ * @brief Converts radians to degrees.
+ * @tparam T Floating point type (e.g., float, double).
+ * @param [in] rad The angle in radians.
+ * @return The angle in degrees.
+ */
+template <std::floating_point T>
+[[nodiscard]] constexpr T degrees(T rad) noexcept
 {
-	return radians * T(180) / numbers::pi_v<T>;
+	return rad * T(180) / std::numbers::pi_v<T>;
 }
 
+/**
+ * @brief Computes integer power of a base.
+ * @tparam T Numeric type (e.g., int, float).
+ * @param [in] base The base value.
+ * @param [in] exp The exponent (can be negative).
+ * @return The result of raising the base to the exponent.
+ */
 template <class T>
-[[nodiscard]] constexpr T ipow(T base, int exp)
+  requires std::is_arithmetic_v<T>
+[[nodiscard]] constexpr T ipow(T base, int exp) noexcept
 {
-	T result = static_cast<T>(sign(base));
-	for (int e = 0 <= exp ? exp : -exp; 0 != e; --e) {
-		result *= base;
-	}
+	T result = std::ranges::fold_left(std::views::repeat(base, std::abs(exp)), T(1),
+	                                  std::multiplies<>());
 	return 0 <= exp ? result : T(1) / result;
 }
 
-template <class T>
-[[nodiscard]] constexpr T mix(T const& x, T const& y, T const& a)
-{
-	return x * (T(1) - a) + y * a;
-}
-
-template <class T>
-[[nodiscard]] constexpr T mix(T const& x, T const& y, bool const& a)
-{
-	return a ? y : x;
-}
-
-template <class T>
-[[nodiscard]] constexpr T lerp(T const& x, T const& y, T const& a)
-{
-	return mix(x, y, a);
-}
-
-template <class T>
-[[nodiscard]] T probabilityToLogit(T probability)
+/**
+ * @brief Converts probability to logit value.
+ * @tparam T Floating point type (e.g., float, double).
+ * @param [in] probability The probability value in the range [0, 1].
+ * @return The corresponding logit value.
+ *
+ * @details
+ * Handles edge cases for `probability == 0` or `probability == 1`.
+ */
+template <std::floating_point T>
+[[nodiscard]] constexpr T probabilityToLogit(T probability)
 {
 	assert(T(0) <= probability && T(1) >= probability);
+	if (T(0) >= probability) {
+		return -std::numeric_limits<T>::infinity();
+	}
+	if (T(1) <= probability) {
+		return std::numeric_limits<T>::infinity();
+	}
 	return std::log(probability / (T(1) - probability));
 }
 
-template <class T>
-[[nodiscard]] T logitToProbability(T logit)
+/**
+ * @brief Converts logit value to probability.
+ * @tparam T Floating point type (e.g., float, double).
+ * @param [in] logit The logit value.
+ * @return The corresponding probability value in the range [0, 1].
+ */
+template <std::floating_point T>
+[[nodiscard]] constexpr T logitToProbability(T logit)
 {
 	return T(1) / (T(1) + std::exp(-logit));
 }
