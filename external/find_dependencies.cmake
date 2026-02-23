@@ -38,24 +38,17 @@ endif()
 # ImGUI
 
 # libjpeg-turbo
+message(STATUS "Fetching and building libjpeg-turbo from source")
+include("${CMAKE_CURRENT_LIST_DIR}/libjpeg_turbo/libjpeg_turbo.cmake")
 
 # libspng
-# if(USE_SYSTEM_SPNG)
-# 	find_package(PkgConfig REQUIRED)
-# 	pkg_check_modules(SPNG REQUIRED libspng)
-# 	if(TARGET spng)
-# 		message(STATUS "Using installed third-party library SPNG ${CLI11_VERSION}")
-# 	else()
-# 		message(STATUS "Unable to find installed third-party library SPNG")
-# 		set(USE_SYSTEM_SPNG OFF)
-# 	endif()
-# endif()
-# if(NOT USE_SYSTEM_SPNG)
-# message(STATUS "Fetching and building CLI11 from source")
-# 	include("${CMAKE_CURRENT_LIST_DIR}/libspng/libspng.cmake")
-# endif()
+message(STATUS "Fetching and building libspng from source")
+include("${CMAKE_CURRENT_LIST_DIR}/libspng/libspng.cmake")
 
 # Rply
+message(STATUS "Fetching and building rply from source")
+# include("${CMAKE_CURRENT_LIST_DIR}/rply/rply.cmake")
+add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/rply")
 
 # WGPU Native
 include("${CMAKE_CURRENT_LIST_DIR}/wgpu_native/wgpu_native.cmake")

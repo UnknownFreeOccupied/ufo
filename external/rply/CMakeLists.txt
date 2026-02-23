@@ -1,6 +1,17 @@
 project(rply)
 
-add_library(rply STATIC rply/rply.c rply/rply.h)
+add_library(rply STATIC)
+
+target_sources(rply
+	PRIVATE
+		rply/rply.c
+	PUBLIC
+		FILE_SET HEADERS
+		BASE_DIRS
+			rply
+		FILES
+			rply/rply.h
+)
 
 set_target_properties(rply PROPERTIES
     POSITION_INDEPENDENT_CODE ON
