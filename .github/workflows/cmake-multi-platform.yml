@@ -30,8 +30,8 @@ jobs:
             c_compiler: clang
             cpp_compiler: clang++
           - os: macos-latest
-            c_compiler: clang
-            cpp_compiler: clang++
+            c_compiler: /opt/homebrew/opt/llvm@19/bin/clang
+            cpp_compiler: /opt/homebrew/opt/llvm@19/bin/clang++
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
@@ -50,14 +50,14 @@ jobs:
     steps:
     - uses: actions/checkout@v5
 
-    # Step to specifically install LLVM 19 on macOS
     - name: Install LLVM 19 (macOS)
       if: matrix.os == 'macos-latest'
       run: |
         brew install llvm@19
         echo "SDKROOT=$(xcrun --show-sdk-path)" >> $GITHUB_ENV
-        # Add the LLVM bin folder to the path
-        echo "/opt/homebrew/opt/llvm@19/bin" >> $GITHUB_PATH
+        # Set flags for C++23 Ranges support in libc++
+        echo "LDFLAGS=-L/opt/homebrew/opt/llvm@19/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@19/lib/c++" >> $GITHUB_ENV
+        echo "CPPFLAGS=-I/opt/homebrew/opt/llvm@19/include/c++/v1" >> $GITHUB_ENV
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
@@ -69,23 +69,12 @@ jobs:
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      shell: bash
-      run: |
-        if [ "${{ matrix.os }}" == "macos-latest" ]; then
-          export CC=/opt/homebrew/opt/llvm@19/bin/clang
-          export CXX=/opt/homebrew/opt/llvm@19/bin/clang++
-          export LDFLAGS="-L/opt/homebrew/opt/llvm@19/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@19/lib/c++"
-          export CPPFLAGS="-I/opt/homebrew/opt/llvm@19/include/c++/v1"
-        else
-          export CC=${{ matrix.c_compiler }}
-          export CXX=${{ matrix.cpp_compiler }}
-        fi
-        
-        cmake -B ${{ steps.strings.outputs.build-output-dir }} \
-        -DCMAKE_CXX_COMPILER=$CXX \
-        -DCMAKE_C_COMPILER=$CC \
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-        -S ${{ github.workspace }} \
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -S ${{ github.workspace }}
         -DUFO_BUILD_TESTS=ON
 
     - name: Build
