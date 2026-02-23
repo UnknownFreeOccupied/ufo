@@ -1018,7 +1018,7 @@ template <std::size_t Rows, std::size_t Cols, class T>
  * @param [in] b Right-hand side matrix of shape `Shared × Cols`.
  * @return A `Mat<Rows, Cols, T>` where `result[r][c] = sum_k a[r][k] * b[k][c]`.
  */
-// Mat<Rows, Shared, T> * Mat<Shared, Cols, T> → Mat<Rows, Cols, T>
+// Mat<Rows, Shared, T> * Mat<Shared, Cols, T> -> Mat<Rows, Cols, T>
 template <std::size_t Rows, std::size_t Shared, std::size_t Cols, class T>
 [[nodiscard]] constexpr Mat<Rows, Cols, T> operator*(
     Mat<Rows, Shared, T> const& a, Mat<Shared, Cols, T> const& b) noexcept

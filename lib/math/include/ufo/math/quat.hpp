@@ -279,7 +279,7 @@ struct Quat {
 	**************************************************************************************/
 
 	/**
-	 * @brief Component access by index: 0→w, 1→x, 2→y, 3→z.
+	 * @brief Component access by index: 0->w, 1->x, 2->y, 3->z.
 	 * @param [in] pos Component index (must be `< 4`; asserted in debug builds).
 	 * @return Reference to the selected component (const or non-const, deduced from
 	 * `this`).

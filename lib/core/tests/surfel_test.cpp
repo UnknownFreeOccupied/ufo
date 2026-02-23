@@ -235,7 +235,7 @@ TEST_CASE("[core] [surfel] operator+= and operator+")
 
 TEST_CASE("[core] [surfel] remove(Vec3f) is inverse of add(Vec3f)")
 {
-	SECTION("Single point round-trip → empty")
+	SECTION("Single point round-trip -> empty")
 	{
 		ufo::Surfel s{v3(1.0f, 2.0f, 3.0f)};
 		s.remove(v3(1.0f, 2.0f, 3.0f));
@@ -243,7 +243,7 @@ TEST_CASE("[core] [surfel] remove(Vec3f) is inverse of add(Vec3f)")
 		REQUIRE(s.numPoints() == 0);
 	}
 
-	SECTION("Two points, remove one → back to single-point state")
+	SECTION("Two points, remove one -> back to single-point state")
 	{
 		ufo::Surfel ref{v3(1.0f, 2.0f, 3.0f)};
 
@@ -291,7 +291,7 @@ TEST_CASE("[core] [surfel] remove(Surfel) is inverse of add(Surfel)")
 	}
 }
 
-TEST_CASE("[core] [surfel] remove all points → empty")
+TEST_CASE("[core] [surfel] remove all points -> empty")
 {
 	ufo::Surfel s{{v3(1.0f, 2.0f, 3.0f), v3(4.0f, 5.0f, 6.0f)}};
 	s.remove(s);
@@ -386,7 +386,7 @@ TEST_CASE("[core] [surfel] mean()")
 
 	SECTION("Four points - mean is centroid")
 	{
-		// Points: (0,0,0), (4,0,0), (0,4,0), (4,4,0) → mean = (2,2,0)
+		// Points: (0,0,0), (4,0,0), (0,4,0), (4,4,0) -> mean = (2,2,0)
 		ufo::Surfel s{{v3(0.0f, 0.0f, 0.0f), v3(4.0f, 0.0f, 0.0f), v3(0.0f, 4.0f, 0.0f),
 		               v3(4.0f, 4.0f, 0.0f)}};
 		auto        m = s.mean();
@@ -433,14 +433,14 @@ TEST_CASE("[core] [surfel] normal() - perpendicular to point plane")
 
 TEST_CASE("[core] [surfel] planarity()")
 {
-	SECTION("Perfectly planar → planarity == 1")
+	SECTION("Perfectly planar -> planarity == 1")
 	{
 		ufo::Surfel s{{v3(1.0f, 0.0f, 0.0f), v3(-1.0f, 0.0f, 0.0f), v3(0.0f, 1.0f, 0.0f),
 		               v3(0.0f, -1.0f, 0.0f)}};
 		REQUIRE(s.planarity() == Catch::Approx(1.0).margin(kEps));
 	}
 
-	SECTION("Isotropic distribution → planarity == 0")
+	SECTION("Isotropic distribution -> planarity == 0")
 	{
 		// Six points on unit axes - by symmetry covariance = (2/5)*I,
 		// all eigenvalues equal, so planarity = 0.

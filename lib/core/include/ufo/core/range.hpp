@@ -372,9 +372,9 @@ namespace ufo
 /**
  * @brief Writes the range to @p out in human-readable format.
  *
- * Degenerate: [a, a] → "[a]"
- * Range:      [a, b] → "[a..b]"
- * Float:      [a, b] → "[a,b]"
+ * Degenerate: [a, a] -> "[a]"
+ * Range:      [a, b] -> "[a..b]"
+ * Float:      [a, b] -> "[a,b]"
  *
  * @tparam T Scalar type.
  * @param out Output stream.
