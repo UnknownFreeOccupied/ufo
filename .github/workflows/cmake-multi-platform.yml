@@ -54,11 +54,19 @@ jobs:
       if: matrix.os == 'macos-latest'
       run: |
         brew install llvm@19
+        # Add LLVM to PATH so CMake finds the right 'clang' and 'clang++'
+        echo "/opt/homebrew/opt/llvm@19/bin" >> $GITHUB_PATH
+        
+        # Point to the specific SDK for macOS
         echo "SDKROOT=$(xcrun --show-sdk-path)" >> $GITHUB_ENV
-        # Set flags for C++23 Ranges support in libc++
+        
+        # Set specific compiler paths for the next steps
+        echo "CC=/opt/homebrew/opt/llvm@19/bin/clang" >> $GITHUB_ENV
+        echo "CXX=/opt/homebrew/opt/llvm@19/bin/clang++" >> $GITHUB_ENV
+        
+        # Standard flags for linking the newer libc++
         echo "LDFLAGS=-L/opt/homebrew/opt/llvm@19/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@19/lib/c++" >> $GITHUB_ENV
-        echo "CPPFLAGS=-I/opt/homebrew/opt/llvm@19/include/c++/v1" >> $GITHUB_ENV
-
+        
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
