@@ -55,7 +55,7 @@ TEST_CASE("[core] [normal] Default construction")
 
 TEST_CASE("[core] [normal] Component construction")
 {
-	SECTION("3D float — axis-aligned")
+	SECTION("3D float - axis-aligned")
 	{
 		ufo::Normal3f nx{1.0f, 0.0f, 0.0f};
 		REQUIRE(nx[0] == Catch::Approx(1.0f));
@@ -73,7 +73,7 @@ TEST_CASE("[core] [normal] Component construction")
 		REQUIRE(nz[2] == Catch::Approx(1.0f));
 	}
 
-	SECTION("3D float — diagonal (not normalized, caller's responsibility)")
+	SECTION("3D float - diagonal (not normalized, caller's responsibility)")
 	{
 		ufo::Normal3f n{1.0f, 1.0f, 0.0f};
 		REQUIRE(n[0] == Catch::Approx(1.0f));

@@ -624,7 +624,7 @@ TEST_CASE(
 
 TEST_CASE("[Mat3d] [cross-size constructor] Cross-size constructor")
 {
-	SECTION("Mat2d expanded to Mat3d — extra elements are zero")
+	SECTION("Mat2d expanded to Mat3d - extra elements are zero")
 	{
 		ufo::Mat2d small(1.0, 2.0, 3.0, 4.0);
 		ufo::Mat3d big(small);
@@ -637,7 +637,7 @@ TEST_CASE("[Mat3d] [cross-size constructor] Cross-size constructor")
 		REQUIRE(big[2][2] == 0.0);
 	}
 
-	SECTION("Mat3d truncated to Mat2d — only overlapping elements copied")
+	SECTION("Mat3d truncated to Mat2d - only overlapping elements copied")
 	{
 		ufo::Mat3d big(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0);
 		ufo::Mat2d small(big);

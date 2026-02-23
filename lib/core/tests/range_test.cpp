@@ -126,22 +126,22 @@ TEST_CASE("[core] [range] contains(Range)")
 
 	SECTION("Touching upper bound") { REQUIRE(r.contains(ufo::Range<int>{5, 10})); }
 
-	SECTION("Partially outside — lower")
+	SECTION("Partially outside - lower")
 	{
 		REQUIRE_FALSE(r.contains(ufo::Range<int>{0, 5}));
 	}
 
-	SECTION("Partially outside — upper")
+	SECTION("Partially outside - upper")
 	{
 		REQUIRE_FALSE(r.contains(ufo::Range<int>{5, 11}));
 	}
 
-	SECTION("Completely outside — before")
+	SECTION("Completely outside - before")
 	{
 		REQUIRE_FALSE(r.contains(ufo::Range<int>{-5, -1}));
 	}
 
-	SECTION("Completely outside — after")
+	SECTION("Completely outside - after")
 	{
 		REQUIRE_FALSE(r.contains(ufo::Range<int>{11, 15}));
 	}
@@ -173,28 +173,28 @@ TEST_CASE("[core] [range] Range-Range interval ordering")
 {
 	// These operators implement interval ordering, NOT value ordering.
 
-	SECTION("operator< — entirely before")
+	SECTION("operator< - entirely before")
 	{
 		REQUIRE(ufo::Range<int>{1, 3} < ufo::Range<int>{4, 6});        // 3 < 4
 		REQUIRE_FALSE(ufo::Range<int>{1, 3} < ufo::Range<int>{3, 6});  // 3 < 3 false
 		REQUIRE_FALSE(ufo::Range<int>{4, 6} < ufo::Range<int>{1, 3});
 	}
 
-	SECTION("operator<= — upper <= rhs.lower")
+	SECTION("operator<= - upper <= rhs.lower")
 	{
 		REQUIRE(ufo::Range<int>{1, 3} <= ufo::Range<int>{3, 6});        // 3 <= 3 true
 		REQUIRE(ufo::Range<int>{1, 3} <= ufo::Range<int>{4, 6});        // 3 <= 4 true
 		REQUIRE_FALSE(ufo::Range<int>{1, 4} <= ufo::Range<int>{3, 6});  // 4 <= 3 false
 	}
 
-	SECTION("operator> — entirely after")
+	SECTION("operator> - entirely after")
 	{
 		REQUIRE(ufo::Range<int>{4, 6} > ufo::Range<int>{1, 3});        // 4 > 3
 		REQUIRE_FALSE(ufo::Range<int>{3, 6} > ufo::Range<int>{1, 3});  // 3 > 3 false
 		REQUIRE_FALSE(ufo::Range<int>{1, 3} > ufo::Range<int>{4, 6});
 	}
 
-	SECTION("operator>= — lower >= rhs.upper")
+	SECTION("operator>= - lower >= rhs.upper")
 	{
 		REQUIRE(ufo::Range<int>{3, 6} >= ufo::Range<int>{1, 3});        // 3 >= 3 true
 		REQUIRE(ufo::Range<int>{4, 6} >= ufo::Range<int>{1, 3});        // 4 >= 3 true
@@ -204,7 +204,7 @@ TEST_CASE("[core] [range] Range-Range interval ordering")
 
 TEST_CASE("[core] [range] Range-scalar ordering")
 {
-	SECTION("Range < T — upper < rhs")
+	SECTION("Range < T - upper < rhs")
 	{
 		REQUIRE(ufo::Range<int>{1, 5} < 6);
 		REQUIRE(ufo::Range<int>{1, 5} < 100);
@@ -212,14 +212,14 @@ TEST_CASE("[core] [range] Range-scalar ordering")
 		REQUIRE_FALSE(ufo::Range<int>{1, 5} < 3);
 	}
 
-	SECTION("Range <= T — upper <= rhs")
+	SECTION("Range <= T - upper <= rhs")
 	{
 		REQUIRE(ufo::Range<int>{1, 5} <= 5);
 		REQUIRE(ufo::Range<int>{1, 5} <= 6);
 		REQUIRE_FALSE(ufo::Range<int>{1, 5} <= 4);
 	}
 
-	SECTION("Range > T — lower > rhs")
+	SECTION("Range > T - lower > rhs")
 	{
 		REQUIRE(ufo::Range<int>{5, 10} > 4);
 		REQUIRE(ufo::Range<int>{5, 10} > 0);
@@ -227,7 +227,7 @@ TEST_CASE("[core] [range] Range-scalar ordering")
 		REQUIRE_FALSE(ufo::Range<int>{5, 10} > 7);
 	}
 
-	SECTION("Range >= T — lower >= rhs")
+	SECTION("Range >= T - lower >= rhs")
 	{
 		REQUIRE(ufo::Range<int>{5, 10} >= 5);
 		REQUIRE(ufo::Range<int>{5, 10} >= 4);
@@ -237,28 +237,28 @@ TEST_CASE("[core] [range] Range-scalar ordering")
 
 TEST_CASE("[core] [range] Scalar-Range ordering")
 {
-	SECTION("T < Range — lhs < rhs.lower")
+	SECTION("T < Range - lhs < rhs.lower")
 	{
 		REQUIRE(3 < ufo::Range<int>{5, 10});
 		REQUIRE_FALSE(5 < ufo::Range<int>{5, 10});  // 5 < 5 false
 		REQUIRE_FALSE(7 < ufo::Range<int>{5, 10});
 	}
 
-	SECTION("T <= Range — lhs <= rhs.lower")
+	SECTION("T <= Range - lhs <= rhs.lower")
 	{
 		REQUIRE(5 <= ufo::Range<int>{5, 10});
 		REQUIRE(4 <= ufo::Range<int>{5, 10});
 		REQUIRE_FALSE(6 <= ufo::Range<int>{5, 10});
 	}
 
-	SECTION("T > Range — lhs > rhs.upper")
+	SECTION("T > Range - lhs > rhs.upper")
 	{
 		REQUIRE(11 > ufo::Range<int>{5, 10});
 		REQUIRE_FALSE(10 > ufo::Range<int>{5, 10});  // 10 > 10 false
 		REQUIRE_FALSE(7 > ufo::Range<int>{5, 10});
 	}
 
-	SECTION("T >= Range — lhs >= rhs.upper")
+	SECTION("T >= Range - lhs >= rhs.upper")
 	{
 		REQUIRE(10 >= ufo::Range<int>{5, 10});
 		REQUIRE(11 >= ufo::Range<int>{5, 10});
@@ -306,32 +306,32 @@ TEST_CASE("[core] [range] Comparator in std::set")
 
 TEST_CASE("[core] [range] std::format")
 {
-	SECTION("Integral — degenerate")
+	SECTION("Integral - degenerate")
 	{
 		REQUIRE(std::format("{}", ufo::Range<int>{5, 5}) == "[5]");
 	}
 
-	SECTION("Integral — range")
+	SECTION("Integral - range")
 	{
 		REQUIRE(std::format("{}", ufo::Range<int>{1, 5}) == "[1..5]");
 	}
 
-	SECTION("Integral — negative range")
+	SECTION("Integral - negative range")
 	{
 		REQUIRE(std::format("{}", ufo::Range<int>{-3, 2}) == "[-3..2]");
 	}
 
-	SECTION("Float — degenerate")
+	SECTION("Float - degenerate")
 	{
 		REQUIRE(std::format("{}", ufo::Range<float>{3.0f, 3.0f}) == "[3]");
 	}
 
-	SECTION("Float — range")
+	SECTION("Float - range")
 	{
 		REQUIRE(std::format("{}", ufo::Range<float>{1.5f, 2.5f}) == "[1.5,2.5]");
 	}
 
-	SECTION("Char — promoted to int, not printed as character")
+	SECTION("Char - promoted to int, not printed as character")
 	{
 		ufo::Range<char> r{65, 65};  // ASCII 'A'
 		REQUIRE(std::format("{}", r) == "[65]");

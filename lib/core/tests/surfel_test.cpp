@@ -17,11 +17,6 @@
 
 static constexpr double kEps = 1e-4;
 
-static bool approxEq(double a, double b, double eps = kEps)
-{
-	return std::abs(a - b) < eps;
-}
-
 // Shorthand: Vec3f from three floats.
 static ufo::Vec3f v3(float x, float y, float z) { return {x, y, z}; }
 
@@ -57,7 +52,7 @@ TEST_CASE("[core] [surfel] Single-point construction")
 	REQUIRE(sum[1] == Catch::Approx(2.0f));
 	REQUIRE(sum[2] == Catch::Approx(3.0f));
 
-	// Single point has no variance — scatter matrix is zero.
+	// Single point has no variance - scatter matrix is zero.
 	for (auto v : s.sumSquares()) {
 		REQUIRE(v == Catch::Approx(0.0f));
 	}
@@ -380,7 +375,7 @@ TEST_CASE("[core] [surfel] clear()")
 
 TEST_CASE("[core] [surfel] mean()")
 {
-	SECTION("Two symmetric points — mean at origin")
+	SECTION("Two symmetric points - mean at origin")
 	{
 		ufo::Surfel s{{v3(1.0f, 0.0f, 0.0f), v3(-1.0f, 0.0f, 0.0f)}};
 		auto        m = s.mean();
@@ -389,7 +384,7 @@ TEST_CASE("[core] [surfel] mean()")
 		REQUIRE(m[2] == Catch::Approx(0.0).margin(kEps));
 	}
 
-	SECTION("Four points — mean is centroid")
+	SECTION("Four points - mean is centroid")
 	{
 		// Points: (0,0,0), (4,0,0), (0,4,0), (4,4,0) → mean = (2,2,0)
 		ufo::Surfel s{{v3(0.0f, 0.0f, 0.0f), v3(4.0f, 0.0f, 0.0f), v3(0.0f, 4.0f, 0.0f),
@@ -401,7 +396,7 @@ TEST_CASE("[core] [surfel] mean()")
 	}
 }
 
-TEST_CASE("[core] [surfel] covariance() — known distribution via sumSquares")
+TEST_CASE("[core] [surfel] covariance() - known distribution via sumSquares")
 {
 	// Points (1,0,0) and (-1,0,0): mean = (0,0,0).
 	// Scatter matrix: Sxx = (1-0)^2 + (-1-0)^2 = 2, all others = 0.
@@ -419,21 +414,21 @@ TEST_CASE("[core] [surfel] covariance() — known distribution via sumSquares")
 
 	// Covariance matrix is symmetric by construction.
 	auto C = s.covariance();
-	REQUIRE(approxEq(C[0][1], C[1][0]));
-	REQUIRE(approxEq(C[0][2], C[2][0]));
-	REQUIRE(approxEq(C[1][2], C[2][1]));
+	REQUIRE(C[0][1] == Catch::Approx(C[1][0]).margin(kEps));
+	REQUIRE(C[0][2] == Catch::Approx(C[2][0]).margin(kEps));
+	REQUIRE(C[1][2] == Catch::Approx(C[2][1]).margin(kEps));
 }
 
-TEST_CASE("[core] [surfel] normal() — perpendicular to point plane")
+TEST_CASE("[core] [surfel] normal() - perpendicular to point plane")
 {
 	// Four points in the z=0 plane. Normal must be (0, 0, ±1).
 	ufo::Surfel s{{v3(1.0f, 0.0f, 0.0f), v3(-1.0f, 0.0f, 0.0f), v3(0.0f, 1.0f, 0.0f),
 	               v3(0.0f, -1.0f, 0.0f)}};
 
 	auto n = s.normal();
-	REQUIRE(approxEq(std::abs(n[2]), 1.0));
-	REQUIRE(approxEq(n[0], 0.0));
-	REQUIRE(approxEq(n[1], 0.0));
+	REQUIRE(std::abs(n[2]) == Catch::Approx(1.0).margin(kEps));
+	REQUIRE(n[0] == Catch::Approx(0.0).margin(kEps));
+	REQUIRE(n[1] == Catch::Approx(0.0).margin(kEps));
 }
 
 TEST_CASE("[core] [surfel] planarity()")
@@ -447,7 +442,7 @@ TEST_CASE("[core] [surfel] planarity()")
 
 	SECTION("Isotropic distribution → planarity == 0")
 	{
-		// Six points on unit axes — by symmetry covariance = (2/5)*I,
+		// Six points on unit axes - by symmetry covariance = (2/5)*I,
 		// all eigenvalues equal, so planarity = 0.
 		ufo::Surfel s{{v3(1.0f, 0.0f, 0.0f), v3(-1.0f, 0.0f, 0.0f), v3(0.0f, 1.0f, 0.0f),
 		               v3(0.0f, -1.0f, 0.0f), v3(0.0f, 0.0f, 1.0f), v3(0.0f, 0.0f, -1.0f)}};
