@@ -7,6 +7,7 @@
 
 // STL
 #include <numeric>
+#include <utility>
 #include <vector>
 
 using namespace ufo;
@@ -51,8 +52,8 @@ void test_transform_binary(Policy&& policy)
 	std::size_t const size = 1000;
 	std::vector<int>  v1(size);
 	std::vector<int>  v2(size);
-	std::iota(v1.begin(), v1.end(), 0);
-	std::iota(v2.begin(), v2.end(), size);
+	std::iota(v1.begin(), v1.end(), static_cast<int>(0));
+	std::iota(v2.begin(), v2.end(), static_cast<int>(size));
 
 	std::vector<int> results(size);
 

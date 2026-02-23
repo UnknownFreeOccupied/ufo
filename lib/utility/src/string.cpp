@@ -92,14 +92,14 @@ bool ufo::contains(std::string const& s, std::string const& sub)
 std::string ufo::tolower(std::string s)
 {
 	std::transform(s.begin(), s.end(), s.begin(),
-	               [](unsigned char c) { return std::tolower(c); });
+	               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
 	return s;
 }
 
 std::string ufo::toupper(std::string s)
 {
 	std::transform(s.begin(), s.end(), s.begin(),
-	               [](unsigned char c) { return std::toupper(c); });
+	               [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
 	return s;
 }
 

@@ -108,8 +108,9 @@ template <class T, std::integral Index, class UnaryFunc>
 void for_each(T&& policy, Index first, Index last, UnaryFunc f)
 {
 	if constexpr (execution::STLBackend<T>) {
-		std::ranges::iota_view it{first, last};
-		std::for_each(execution::toSTL(std::forward<T>(policy)), it.begin(), it.end(), f);
+		auto r = std::views::iota(first, last);
+		std::for_each(execution::toSTL(std::forward<T>(policy)), std::ranges::begin(r),
+		              std::ranges::end(r), f);
 	}
 #if defined(UFO_PAR_GCD)
 	else if constexpr (execution::GCDBackend<T>) {
@@ -125,9 +126,11 @@ void for_each(T&& policy, Index first, Index last, UnaryFunc f)
 	}
 #endif
 	else if constexpr (execution::OMPBackend<T>) {
+		auto s_first = static_cast<std::make_signed_t<Index>>(first);
+		auto s_last  = static_cast<std::make_signed_t<Index>>(last);
 #pragma omp parallel for
-		for (auto it = first; last != it; ++it) {
-			f(it);
+		for (auto i = s_first; i < s_last; ++i) {
+			f(static_cast<Index>(i));
 		}
 	} else {
 		std::unreachable();
@@ -206,9 +209,11 @@ void for_each(T&& policy, RandomIt first, RandomIt last, UnaryFunc f)
 	}
 #endif
 	else if constexpr (execution::OMPBackend<T>) {
+		auto s = static_cast<std::make_signed_t<std::size_t>>(
+		    static_cast<std::size_t>(std::distance(first, last)));
 #pragma omp parallel for
-		for (auto it = first; last != it; ++it) {
-			f(*it);
+		for (auto i = static_cast<decltype(s)>(0); i < s; ++i) {
+			f(first[i]);
 		}
 	} else {
 		std::unreachable();
