@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -44,13 +44,12 @@
 
 // UFO
 #include <ufo/execution/execution.hpp>
-#include <ufo/utility/index_iterator.hpp>
-#include <ufo/utility/type_traits.hpp>
 
 // STL
 #include <algorithm>
+#include <concepts>
 #include <iterator>
-#include <type_traits>
+#include <ranges>
 
 namespace ufo
 {
@@ -60,8 +59,22 @@ namespace ufo
 |                                                                                     |
 **************************************************************************************/
 
-template <class Index, class UnaryFunc,
-          std::enable_if_t<std::is_integral_v<Index>, bool> = true>
+/**
+ * @brief Applies @p f to each integer index in `[first, last)` sequentially.
+ *
+ * A convenience overload that avoids manually constructing an iterator range when
+ * iterating over a contiguous index space (e.g., element indices of a flat array).
+ *
+ * @tparam Index  An integral type used as the loop index.
+ * @tparam UnaryFunc  A callable with signature compatible with `void(Index)`.
+ *
+ * @param first  First index in the half-open range (inclusive).
+ * @param last   One past the last index (exclusive).
+ * @param f      Function object to invoke for each index.
+ *
+ * @return The (possibly moved) function object @p f after all invocations.
+ */
+template <std::integral Index, class UnaryFunc>
 UnaryFunc for_each(Index first, Index last, UnaryFunc f)
 {
 	for (; last != first; ++first) {
@@ -70,82 +83,135 @@ UnaryFunc for_each(Index first, Index last, UnaryFunc f)
 	return f;
 }
 
-template <
-    class ExecutionPolicy, class Index, class UnaryFunc,
-    std::enable_if_t<std::is_integral_v<Index>, bool>                         = true,
-    std::enable_if_t<execution::is_execution_policy_v<ExecutionPolicy>, bool> = true>
-void for_each(ExecutionPolicy&& policy, Index first, Index last, UnaryFunc f)
+/**
+ * @brief Applies @p f to each integer index in `[first, last)` using the given
+ * execution policy.
+ *
+ * Dispatches to the appropriate parallel backend at compile time:
+ * - **STL**: wraps the range in an `IndexIterator` and forwards to
+ *   `std::for_each` with the translated STL execution policy.
+ * - **GCD** (`UFO_PAR_GCD`): uses `dispatch_apply` on the global concurrent queue.
+ * - **TBB** (`UFO_PAR_TBB`): uses `oneapi::tbb::parallel_for`.
+ * - **OMP**: uses an `#pragma omp parallel for` loop.
+ *
+ * @tparam ExecutionPolicy  A UFO execution policy type (see `execution.hpp`).
+ * @tparam Index            An integral type used as the loop index.
+ * @tparam UnaryFunc        A callable with signature compatible with `void(Index)`.
+ *
+ * @param policy  The execution policy controlling parallelism.
+ * @param first   First index in the half-open range (inclusive).
+ * @param last    One past the last index (exclusive).
+ * @param f       Function object to invoke for each index.
+ */
+template <class T, std::integral Index, class UnaryFunc>
+  requires execution::ExecutionPolicy<T>
+void for_each(T&& policy, Index first, Index last, UnaryFunc f)
 {
-	if constexpr (execution::is_stl_v<ExecutionPolicy>) {
-		IndexIterator<Index> it(first, last);
-		std::for_each(execution::toSTL(std::forward<ExecutionPolicy>(policy)), it.begin(),
-		              it.end(), f);
+	if constexpr (execution::STLBackend<T>) {
+		std::ranges::iota_view it{first, last};
+		std::for_each(execution::toSTL(std::forward<T>(policy)), it.begin(), it.end(), f);
 	}
 #if defined(UFO_PAR_GCD)
-	else if constexpr (execution::is_gcd_v<ExecutionPolicy>) {
-		dispatch_apply(last - first, dispatch_get_global_queue(0, 0), ^(Index i) {
-			f(first + i);
-		});
+	else if constexpr (execution::GCDBackend<T>) {
+		dispatch_apply(static_cast<std::size_t>(last - first),
+		               dispatch_get_global_queue(0, 0), ^(std::size_t i) {
+			               f(first + static_cast<Index>(i));
+		               });
 	}
 #endif
 #if defined(UFO_PAR_TBB)
-	else if constexpr (execution::is_tbb_v<ExecutionPolicy>) {
+	else if constexpr (execution::TBBBackend<T>) {
 		oneapi::tbb::parallel_for(first, last, f);
 	}
 #endif
-	else if constexpr (execution::is_omp_v<ExecutionPolicy>) {
+	else if constexpr (execution::OMPBackend<T>) {
 #pragma omp parallel for
 		for (auto it = first; last != it; ++it) {
 			f(it);
 		}
 	} else {
-		static_assert(dependent_false_v<ExecutionPolicy>,
-		              "Not implemented for the execution policy 'Unknown'");
+		std::unreachable();
 	}
 }
 
-template <class InputIt, class UnaryFunc,
-          std::enable_if_t<!std::is_integral_v<InputIt>, bool> = true>
+/**
+ * @brief Applies @p f to each element in `[first, last)` sequentially.
+ *
+ * A thin wrapper around `std::for_each` for non-integral iterator types.
+ * The `requires(!std::integral<InputIt>)` constraint prevents this overload from
+ * competing with the index-based overload when an integral type is passed.
+ *
+ * @tparam InputIt    An input iterator type (must not be an integral type).
+ * @tparam UnaryFunc  A callable with signature compatible with `void(decltype(*first))`.
+ *
+ * @param first  Iterator to the first element.
+ * @param last   Iterator one past the last element.
+ * @param f      Function object to invoke for each dereferenced element.
+ *
+ * @return The (possibly moved) function object @p f after all invocations.
+ */
+template <class InputIt, class UnaryFunc>
+  requires(!std::integral<InputIt>)
 UnaryFunc for_each(InputIt first, InputIt last, UnaryFunc f)
 {
 	return std::for_each(first, last, f);
 }
 
-template <
-    class ExecutionPolicy, class RandomIt, class UnaryFunc,
-    std::enable_if_t<!std::is_integral_v<RandomIt>, bool>                     = true,
-    std::enable_if_t<execution::is_execution_policy_v<ExecutionPolicy>, bool> = true>
-void for_each(ExecutionPolicy&& policy, RandomIt first, RandomIt last, UnaryFunc f)
+/**
+ * @brief Applies @p f to each element in `[first, last)` using the given execution
+ * policy.
+ *
+ * Dispatches to the appropriate parallel backend at compile time:
+ * - **STL**: forwards directly to `std::for_each` with the translated STL policy.
+ * - **GCD** (`UFO_PAR_GCD`): uses `dispatch_apply`; iterators must support
+ *   random access (`first[i]`).
+ * - **TBB** (`UFO_PAR_TBB`): uses `oneapi::tbb::parallel_for` over an index range
+ *   mapped back to iterator offsets.
+ * - **OMP**: uses an `#pragma omp parallel for` loop.
+ *
+ * The `requires(!std::integral<RandomIt>)` constraint prevents this overload from
+ * competing with the index-based overload when an integral type is passed.
+ *
+ * @tparam ExecutionPolicy  A UFO execution policy type (see `execution.hpp`).
+ * @tparam RandomIt         A random-access iterator type (must not be integral).
+ * @tparam UnaryFunc        A callable with signature compatible with
+ *                          `void(decltype(*first))`.
+ *
+ * @param policy  The execution policy controlling parallelism.
+ * @param first   Iterator to the first element.
+ * @param last    Iterator one past the last element.
+ * @param f       Function object to invoke for each dereferenced element.
+ */
+template <execution::ExecutionPolicy T, class RandomIt, class UnaryFunc>
+  requires(!std::integral<RandomIt>)
+void for_each(T&& policy, RandomIt first, RandomIt last, UnaryFunc f)
 {
-	if constexpr (execution::is_stl_v<ExecutionPolicy>) {
-		std::for_each(execution::toSTL(std::forward<ExecutionPolicy>(policy)), first, last,
-		              f);
+	if constexpr (execution::STLBackend<T>) {
+		std::for_each(execution::toSTL(std::forward<T>(policy)), first, last, f);
 	}
 #if defined(UFO_PAR_GCD)
-	else if constexpr (execution::is_gcd_v<ExecutionPolicy>) {
-		std::size_t s = std::distance(first, last);
+	else if constexpr (execution::GCDBackend<T>) {
+		std::size_t s = static_cast<std::size_t>(std::distance(first, last));
 		dispatch_apply(s, dispatch_get_global_queue(0, 0), ^(std::size_t i) {
 			f(first[i]);
 		});
 	}
 #endif
 #if defined(UFO_PAR_TBB)
-	else if constexpr (execution::is_tbb_v<ExecutionPolicy>) {
+	else if constexpr (execution::TBBBackend<T>) {
 		// TODO: Benchmark against parallel_for_each
-
-		std::size_t s = std::distance(first, last);
-		oneapi::tbb::parallel_for(std::size_t(0), s,
+		std::size_t s = static_cast<std::size_t>(std::distance(first, last));
+		oneapi::tbb::parallel_for(std::size_t{}, s,
 		                          [first, f](std::size_t i) { f(first[i]); });
 	}
 #endif
-	else if constexpr (execution::is_omp_v<ExecutionPolicy>) {
+	else if constexpr (execution::OMPBackend<T>) {
 #pragma omp parallel for
 		for (auto it = first; last != it; ++it) {
 			f(*it);
 		}
 	} else {
-		static_assert(dependent_false_v<ExecutionPolicy>,
-		              "Not implemented for the execution policy 'Unknown'");
+		std::unreachable();
 	}
 }
 
@@ -155,31 +221,90 @@ void for_each(ExecutionPolicy&& policy, RandomIt first, RandomIt last, UnaryFunc
 |                                                                                     |
 **************************************************************************************/
 
+/**
+ * @brief Applies @p unary_op to each element of `[first1, last1)` and writes the
+ * results to `[d_first, ...)` sequentially.
+ *
+ * A thin wrapper around `std::transform`.
+ *
+ * @tparam InputIt   An input iterator type.
+ * @tparam OutputIt  An output iterator type.
+ * @tparam UnaryOp   A callable with signature compatible with
+ *                   `OutputIt::value_type(InputIt::value_type)`.
+ *
+ * @param first1    Iterator to the first source element.
+ * @param last1     Iterator one past the last source element.
+ * @param d_first   Iterator to the first destination element.
+ * @param unary_op  Unary transformation to apply to each source element.
+ *
+ * @return Iterator one past the last written destination element.
+ */
 template <class InputIt, class OutputIt, class UnaryOp>
 OutputIt transform(InputIt first1, InputIt last1, OutputIt d_first, UnaryOp unary_op)
 {
 	return std::transform(first1, last1, d_first, unary_op);
 }
 
-template <
-    class ExecutionPolicy, class RandomIt1, class RandomIt2, class UnaryOp,
-    std::enable_if_t<execution::is_execution_policy_v<ExecutionPolicy>, bool> = true>
-RandomIt2 transform(ExecutionPolicy&& policy, RandomIt1 first1, RandomIt1 last1,
-                    RandomIt2 d_first, UnaryOp unary_op)
+/**
+ * @brief Applies @p unary_op to each element of `[first1, last1)` and writes the
+ * results to `[d_first, ...)` using the given execution policy.
+ *
+ * - **STL**: forwards to `std::transform` with the translated STL policy.
+ * - **All other backends**: delegates to the parallel `for_each` over an index
+ *   range, requiring random-access iterators.
+ *
+ * @tparam ExecutionPolicy  A UFO execution policy type (see `execution.hpp`).
+ * @tparam RandomIt1        A random-access iterator type for the source range.
+ * @tparam RandomIt2        A random-access iterator type for the destination range.
+ * @tparam UnaryOp          A callable with signature compatible with
+ *                          `RandomIt2::value_type(RandomIt1::value_type)`.
+ *
+ * @param policy    The execution policy controlling parallelism.
+ * @param first1    Iterator to the first source element.
+ * @param last1     Iterator one past the last source element.
+ * @param d_first   Iterator to the first destination element.
+ * @param unary_op  Unary transformation to apply to each source element.
+ *
+ * @return Iterator one past the last written destination element.
+ */
+template <execution::ExecutionPolicy T, class RandomIt1, class RandomIt2, class UnaryOp>
+RandomIt2 transform(T&& policy, RandomIt1 first1, RandomIt1 last1, RandomIt2 d_first,
+                    UnaryOp unary_op)
 {
-	if constexpr (execution::is_stl_v<ExecutionPolicy>) {
-		return std::transform(execution::toSTL(std::forward<ExecutionPolicy>(policy)), first1,
-		                      last1, d_first, unary_op);
+	if constexpr (execution::STLBackend<T>) {
+		return std::transform(execution::toSTL(std::forward<T>(policy)), first1, last1,
+		                      d_first, unary_op);
 	} else {
-		std::size_t s = std::distance(first1, last1);
+		std::size_t s = static_cast<std::size_t>(std::distance(first1, last1));
 		for_each(
-		    std::forward<ExecutionPolicy>(policy), std::size_t(0), s,
+		    std::forward<T>(policy), std::size_t{}, s,
 		    [first1, d_first, unary_op](std::size_t i) { d_first[i] = unary_op(first1[i]); });
 
 		return d_first + s;
 	}
 }
 
+/**
+ * @brief Applies @p binary_op to corresponding pairs of elements from
+ * `[first1, last1)` and `[first2, ...)`, writing results to `[d_first, ...)`
+ * sequentially.
+ *
+ * A thin wrapper around `std::transform`.
+ *
+ * @tparam InputIt1  An input iterator type for the first source range.
+ * @tparam InputIt2  An input iterator type for the second source range.
+ * @tparam OutputIt  An output iterator type for the destination range.
+ * @tparam BinaryOp  A callable with signature compatible with
+ *                   `OutputIt::value_type(InputIt1::value_type, InputIt2::value_type)`.
+ *
+ * @param first1     Iterator to the first element of the first source range.
+ * @param last1      Iterator one past the last element of the first source range.
+ * @param first2     Iterator to the first element of the second source range.
+ * @param d_first    Iterator to the first destination element.
+ * @param binary_op  Binary transformation applied to each pair of source elements.
+ *
+ * @return Iterator one past the last written destination element.
+ */
 template <class InputIt1, class InputIt2, class OutputIt, class BinaryOp>
 OutputIt transform(InputIt1 first1, InputIt1 last1, InputIt2 first2, OutputIt d_first,
                    BinaryOp binary_op)
@@ -187,19 +312,43 @@ OutputIt transform(InputIt1 first1, InputIt1 last1, InputIt2 first2, OutputIt d_
 	return std::transform(first1, last1, first2, d_first, binary_op);
 }
 
-template <
-    class ExecutionPolicy, class RandomIt1, class RandomIt2, class RandomIt3,
-    class BinaryOp,
-    std::enable_if_t<execution::is_execution_policy_v<ExecutionPolicy>, bool> = true>
-RandomIt3 transform(ExecutionPolicy&& policy, RandomIt1 first1, RandomIt1 last1,
-                    RandomIt2 first2, RandomIt3 d_first, BinaryOp binary_op)
+/**
+ * @brief Applies @p binary_op to corresponding pairs of elements from
+ * `[first1, last1)` and `[first2, ...)`, writing results to `[d_first, ...)`
+ * using the given execution policy.
+ *
+ * - **STL**: forwards to `std::transform` with the translated STL policy.
+ * - **All other backends**: delegates to the parallel `for_each` over an index
+ *   range, requiring random-access iterators for all three ranges.
+ *
+ * @tparam ExecutionPolicy  A UFO execution policy type (see `execution.hpp`).
+ * @tparam RandomIt1        A random-access iterator type for the first source range.
+ * @tparam RandomIt2        A random-access iterator type for the second source range.
+ * @tparam RandomIt3        A random-access iterator type for the destination range.
+ * @tparam BinaryOp         A callable with signature compatible with
+ *                          `RandomIt3::value_type(RandomIt1::value_type,
+ *                          RandomIt2::value_type)`.
+ *
+ * @param policy     The execution policy controlling parallelism.
+ * @param first1     Iterator to the first element of the first source range.
+ * @param last1      Iterator one past the last element of the first source range.
+ * @param first2     Iterator to the first element of the second source range.
+ * @param d_first    Iterator to the first destination element.
+ * @param binary_op  Binary transformation applied to each pair of source elements.
+ *
+ * @return Iterator one past the last written destination element.
+ */
+template <execution::ExecutionPolicy T, class RandomIt1, class RandomIt2, class RandomIt3,
+          class BinaryOp>
+RandomIt3 transform(T&& policy, RandomIt1 first1, RandomIt1 last1, RandomIt2 first2,
+                    RandomIt3 d_first, BinaryOp binary_op)
 {
-	if constexpr (execution::is_stl_v<ExecutionPolicy>) {
-		return std::transform(execution::toSTL(std::forward<ExecutionPolicy>(policy)), first1,
-		                      last1, first2, d_first, binary_op);
+	if constexpr (execution::STLBackend<T>) {
+		return std::transform(execution::toSTL(std::forward<T>(policy)), first1, last1,
+		                      first2, d_first, binary_op);
 	} else {
-		std::size_t s = std::distance(first1, last1);
-		for_each(std::forward<ExecutionPolicy>(policy), std::size_t(0), s,
+		std::size_t s = static_cast<std::size_t>(std::distance(first1, last1));
+		for_each(std::forward<T>(policy), std::size_t{}, s,
 		         [first1, first2, d_first, binary_op](std::size_t i) {
 			         d_first[i] = binary_op(first1[i], first2[i]);
 		         });

@@ -21,12 +21,6 @@ set_target_properties(CoreTests
 		CXX_SCAN_FOR_MODULES OFF
 )
 
-if (MSVC)
-	target_compile_options(CoreTests PRIVATE /W4)
-else()
-	target_compile_options(CoreTests PRIVATE -Wall -Wextra -Wpedantic)
-endif()
-
-target_link_libraries(CoreTests PRIVATE Catch2::Catch2WithMain UFO::Core)
+target_link_libraries(CoreTests PRIVATE Catch2::Catch2WithMain UFO::Core UFO::Warnings)
 
 catch_discover_tests(CoreTests)

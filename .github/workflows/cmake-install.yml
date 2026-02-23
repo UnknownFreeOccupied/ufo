@@ -17,7 +17,7 @@ jobs:
 
       - name: Build and Install UFO
         run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-14 -DCMAKE_C_COMPILER=gcc-14
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-14 -DCMAKE_C_COMPILER=gcc-14 -DUFO_DEV_MODE=OFF
           cmake --build build
           cmake --install build --prefix $GITHUB_WORKSPACE/dist
 

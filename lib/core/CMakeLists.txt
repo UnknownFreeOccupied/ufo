@@ -1,8 +1,3 @@
-option(UFO_CORE_BUILD_TESTS    "Unit testing"           ON)
-option(UFO_CORE_BUILD_COVERAGE "Test Coverage"          ON)
-
-include(GNUInstallDirs)
-
 add_library(Core INTERFACE)
 add_library(UFO::Core ALIAS Core)
 
@@ -24,15 +19,11 @@ target_sources(Core
 
 set_target_properties(Core PROPERTIES CXX_SCAN_FOR_MODULES OFF)
 
-target_link_libraries(Core 
-	INTERFACE 
-		UFO::Math
-)
+target_link_libraries(Core INTERFACE UFO::Math)
 
-if(UFO_BUILD_TESTS AND UFO_CORE_BUILD_TESTS)
+if(UFO_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
-
 
 install(
   TARGETS Core

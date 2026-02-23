@@ -22,16 +22,10 @@ set_target_properties(App
 		OUTPUT_NAME "ufo"
 )
 
-target_link_libraries(App PRIVATE CLI11::CLI11 UFO::UFO)
+target_link_libraries(App PRIVATE CLI11::CLI11 UFO::UFO $<BUILD_INTERFACE:UFO::Warnings>)
 
 if(WIN32)
 	target_link_libraries(App PRIVATE advapi32)
-endif()
-
-if (MSVC)
-	target_compile_options(App PRIVATE /W4 /Zc:__cplusplus)
-else()
-	target_compile_options(App PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
 if(UFO_ENABLE_LTO)

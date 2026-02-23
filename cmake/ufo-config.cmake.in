@@ -1,19 +1,24 @@
 @PACKAGE_INIT@
 
-# message(WARNING "TBB: @TBB_FOUND@, OpenMP: @OpenMP_CXX_FOUND@")
-
 include(CMakeFindDependencyMacro)
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   find_dependency(Threads)
 endif()
+
 if(@TBB_FOUND@)
   find_dependency(TBB)
 endif()
+
 if(@OpenMP_CXX_FOUND@)
   find_dependency(OpenMP)
 endif()
 
-include("${CMAKE_CURRENT_LIST_DIR}/wgpu_native-targets.cmake")
+# WGPU Native targets (only if the Compute component was installed)
+if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/wgpu_native-targets.cmake")
+  include("${CMAKE_CURRENT_LIST_DIR}/wgpu_native-targets.cmake")
+endif()
+
 include("${CMAKE_CURRENT_LIST_DIR}/ufo-targets.cmake")
 
 foreach(_comp ${UFO_FIND_COMPONENTS})

@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -43,6 +43,7 @@
 #define UFO_EXECUTION_EXECUTION_HPP
 
 // STL
+#include <cstdint>
 #include <type_traits>
 #include <utility>
 
@@ -71,7 +72,7 @@ namespace ufo::execution
 {
 namespace detail
 {
-enum class ExecutionPolicy : unsigned {
+enum class ExecutionMode : std::uint32_t {
 	NONE      = 0u,
 	SEQ       = 1u << 0,
 	UNSEQ     = 1u << 1,
@@ -79,7 +80,7 @@ enum class ExecutionPolicy : unsigned {
 	PAR_UNSEQ = 1u << 3,
 };
 
-enum class ExecutionBackend : unsigned {
+enum class ExecutionBackend : std::uint32_t {
 	NONE = 0u,
 
 #if defined(UFO_PAR_STL)
@@ -109,16 +110,16 @@ enum class ExecutionBackend : unsigned {
 	ALL = STL | GCD | TBB | OMP
 };
 
-[[nodiscard]] constexpr ExecutionPolicy operator|(ExecutionPolicy lhs,
-                                                  ExecutionPolicy rhs) noexcept
+[[nodiscard]] constexpr ExecutionMode operator|(ExecutionMode lhs,
+                                                ExecutionMode rhs) noexcept
 {
-	return ExecutionPolicy(std::to_underlying(lhs) | std::to_underlying(rhs));
+	return ExecutionMode(std::to_underlying(lhs) | std::to_underlying(rhs));
 }
 
-[[nodiscard]] constexpr ExecutionPolicy operator&(ExecutionPolicy lhs,
-                                                  ExecutionPolicy rhs) noexcept
+[[nodiscard]] constexpr ExecutionMode operator&(ExecutionMode lhs,
+                                                ExecutionMode rhs) noexcept
 {
-	return ExecutionPolicy(std::to_underlying(lhs) & std::to_underlying(rhs));
+	return ExecutionMode(std::to_underlying(lhs) & std::to_underlying(rhs));
 }
 
 [[nodiscard]] constexpr ExecutionBackend operator|(ExecutionBackend lhs,
@@ -134,79 +135,79 @@ enum class ExecutionBackend : unsigned {
 }
 }  // namespace detail
 
-template <detail::ExecutionPolicy Policy, detail::ExecutionBackend Backend>
+template <detail::ExecutionMode Policy, detail::ExecutionBackend Backend>
 struct execution_policy {
-	static constexpr detail::ExecutionPolicy const  policy  = Policy;
+	static constexpr detail::ExecutionMode const    policy  = Policy;
 	static constexpr detail::ExecutionBackend const backend = Backend;
 };
 
 using sequenced_policy =
-    execution_policy<detail::ExecutionPolicy::SEQ, detail::ExecutionBackend::ALL>;
+    execution_policy<detail::ExecutionMode::SEQ, detail::ExecutionBackend::ALL>;
 
 using unsequenced_policy =
-    execution_policy<detail::ExecutionPolicy::UNSEQ, detail::ExecutionBackend::ALL>;
+    execution_policy<detail::ExecutionMode::UNSEQ, detail::ExecutionBackend::ALL>;
 
 using parallel_policy =
-    execution_policy<detail::ExecutionPolicy::PAR, detail::ExecutionBackend::ALL>;
+    execution_policy<detail::ExecutionMode::PAR, detail::ExecutionBackend::ALL>;
 
 using parallel_unsequenced_policy =
-    execution_policy<detail::ExecutionPolicy::PAR_UNSEQ, detail::ExecutionBackend::ALL>;
+    execution_policy<detail::ExecutionMode::PAR_UNSEQ, detail::ExecutionBackend::ALL>;
 
 using stl_sequenced_policy =
-    execution_policy<detail::ExecutionPolicy::SEQ, detail::ExecutionBackend::STL>;
+    execution_policy<detail::ExecutionMode::SEQ, detail::ExecutionBackend::STL>;
 
 using stl_unsequenced_policy =
-    execution_policy<detail::ExecutionPolicy::UNSEQ, detail::ExecutionBackend::STL>;
+    execution_policy<detail::ExecutionMode::UNSEQ, detail::ExecutionBackend::STL>;
 
 using stl_parallel_policy =
-    execution_policy<detail::ExecutionPolicy::PAR, detail::ExecutionBackend::STL>;
+    execution_policy<detail::ExecutionMode::PAR, detail::ExecutionBackend::STL>;
 
 using stl_parallel_unsequenced_policy =
-    execution_policy<detail::ExecutionPolicy::PAR_UNSEQ, detail::ExecutionBackend::STL>;
+    execution_policy<detail::ExecutionMode::PAR_UNSEQ, detail::ExecutionBackend::STL>;
 
 using gcd_sequenced_policy =
-    execution_policy<detail::ExecutionPolicy::SEQ, detail::ExecutionBackend::GCD>;
+    execution_policy<detail::ExecutionMode::SEQ, detail::ExecutionBackend::GCD>;
 
 using gcd_unsequenced_policy =
-    execution_policy<detail::ExecutionPolicy::UNSEQ, detail::ExecutionBackend::GCD>;
+    execution_policy<detail::ExecutionMode::UNSEQ, detail::ExecutionBackend::GCD>;
 
 using gcd_parallel_policy =
-    execution_policy<detail::ExecutionPolicy::PAR, detail::ExecutionBackend::GCD>;
+    execution_policy<detail::ExecutionMode::PAR, detail::ExecutionBackend::GCD>;
 
 using gcd_parallel_unsequenced_policy =
-    execution_policy<detail::ExecutionPolicy::PAR_UNSEQ, detail::ExecutionBackend::GCD>;
+    execution_policy<detail::ExecutionMode::PAR_UNSEQ, detail::ExecutionBackend::GCD>;
 
 using tbb_sequenced_policy =
-    execution_policy<detail::ExecutionPolicy::SEQ, detail::ExecutionBackend::TBB>;
+    execution_policy<detail::ExecutionMode::SEQ, detail::ExecutionBackend::TBB>;
 
 using tbb_unsequenced_policy =
-    execution_policy<detail::ExecutionPolicy::UNSEQ, detail::ExecutionBackend::TBB>;
+    execution_policy<detail::ExecutionMode::UNSEQ, detail::ExecutionBackend::TBB>;
 
 using tbb_parallel_policy =
-    execution_policy<detail::ExecutionPolicy::PAR, detail::ExecutionBackend::TBB>;
+    execution_policy<detail::ExecutionMode::PAR, detail::ExecutionBackend::TBB>;
 
 using tbb_parallel_unsequenced_policy =
-    execution_policy<detail::ExecutionPolicy::PAR_UNSEQ, detail::ExecutionBackend::TBB>;
+    execution_policy<detail::ExecutionMode::PAR_UNSEQ, detail::ExecutionBackend::TBB>;
 
 using omp_sequenced_policy =
-    execution_policy<detail::ExecutionPolicy::SEQ, detail::ExecutionBackend::OMP>;
+    execution_policy<detail::ExecutionMode::SEQ, detail::ExecutionBackend::OMP>;
 
 using omp_unsequenced_policy =
-    execution_policy<detail::ExecutionPolicy::UNSEQ, detail::ExecutionBackend::OMP>;
+    execution_policy<detail::ExecutionMode::UNSEQ, detail::ExecutionBackend::OMP>;
 
 using omp_parallel_policy =
-    execution_policy<detail::ExecutionPolicy::PAR, detail::ExecutionBackend::OMP>;
+    execution_policy<detail::ExecutionMode::PAR, detail::ExecutionBackend::OMP>;
 
 using omp_parallel_unsequenced_policy =
-    execution_policy<detail::ExecutionPolicy::PAR_UNSEQ, detail::ExecutionBackend::OMP>;
+    execution_policy<detail::ExecutionMode::PAR_UNSEQ, detail::ExecutionBackend::OMP>;
 
 template <class T>
 struct is_execution_policy : std::false_type {
 };
 
-template <detail::ExecutionPolicy Policy, detail::ExecutionBackend Backend>
+template <detail::ExecutionMode Policy, detail::ExecutionBackend Backend>
   requires(detail::ExecutionBackend::NONE != Backend &&
-           detail::ExecutionPolicy::NONE != Policy)
+           detail::ExecutionMode::NONE != Policy)
 struct is_execution_policy<execution_policy<Policy, Backend>> : std::true_type {
 };
 
@@ -215,27 +216,27 @@ constexpr inline bool is_execution_policy_v =
     is_execution_policy<std::remove_cvref_t<T>>::value;
 
 template <class T>
-concept ExecutionPolicyType = is_execution_policy_v<T>;
+concept ExecutionPolicy = is_execution_policy_v<T>;
 
 template <class T>
 constexpr inline bool is_seq_v =
-    detail::ExecutionPolicy::NONE !=
-    (detail::ExecutionPolicy::SEQ & std::remove_cvref_t<T>::policy);
+    detail::ExecutionMode::NONE !=
+    (detail::ExecutionMode::SEQ & std::remove_cvref_t<T>::policy);
 
 template <class T>
 constexpr inline bool is_unseq_v =
-    detail::ExecutionPolicy::NONE !=
-    (detail::ExecutionPolicy::UNSEQ & std::remove_cvref_t<T>::policy);
+    detail::ExecutionMode::NONE !=
+    (detail::ExecutionMode::UNSEQ & std::remove_cvref_t<T>::policy);
 
 template <class T>
 constexpr inline bool is_par_v =
-    detail::ExecutionPolicy::NONE !=
-    (detail::ExecutionPolicy::PAR & std::remove_cvref_t<T>::policy);
+    detail::ExecutionMode::NONE !=
+    (detail::ExecutionMode::PAR & std::remove_cvref_t<T>::policy);
 
 template <class T>
 constexpr inline bool is_par_unseq_v =
-    detail::ExecutionPolicy::NONE !=
-    (detail::ExecutionPolicy::PAR_UNSEQ & std::remove_cvref_t<T>::policy);
+    detail::ExecutionMode::NONE !=
+    (detail::ExecutionMode::PAR_UNSEQ & std::remove_cvref_t<T>::policy);
 
 template <class T>
 constexpr inline bool is_stl_v =
@@ -257,6 +258,34 @@ constexpr inline bool is_omp_v =
     detail::ExecutionBackend::NONE !=
     (detail::ExecutionBackend::OMP & std::remove_cvref_t<T>::backend);
 
+//
+// Concepts
+//
+
+template <class T>
+concept Sequenced = ExecutionPolicy<T> && is_seq_v<T>;
+
+template <class T>
+concept Unsequenced = ExecutionPolicy<T> && is_unseq_v<T>;
+
+template <class T>
+concept Parallel = ExecutionPolicy<T> && is_par_v<T>;
+
+template <class T>
+concept ParallelUnsequenced = ExecutionPolicy<T> && is_par_unseq_v<T>;
+
+template <class T>
+concept STLBackend = ExecutionPolicy<T> && is_stl_v<T>;
+
+template <class T>
+concept GCDBackend = ExecutionPolicy<T> && is_gcd_v<T>;
+
+template <class T>
+concept TBBBackend = ExecutionPolicy<T> && is_tbb_v<T>;
+
+template <class T>
+concept OMPBackend = ExecutionPolicy<T> && is_omp_v<T>;
+
 constexpr inline sequenced_policy                seq{};
 constexpr inline unsequenced_policy              unseq{};
 constexpr inline parallel_policy                 par{};
@@ -274,21 +303,27 @@ constexpr inline omp_unsequenced_policy          omp_unseq{};
 constexpr inline omp_parallel_policy             omp_par{};
 constexpr inline omp_parallel_unsequenced_policy omp_par_unseq{};
 
-template <class ExecutionPolicy>
-[[nodiscard]] constexpr auto&& toSTL([[maybe_unused]] ExecutionPolicy&& policy)
+template <ExecutionPolicy T>
+[[nodiscard]] constexpr auto toSTL([[maybe_unused]] T&& policy)
 {
 #if defined(UFO_PAR_STL)
-	if constexpr (is_stl_v<ExecutionPolicy>) {
-		if constexpr (is_seq_v<ExecutionPolicy>) {
+	if constexpr (is_stl_v<T>) {
+		if constexpr (is_seq_v<T>) {
 			return std::execution::seq;
-		} else if constexpr (is_unseq_v<ExecutionPolicy>) {
+		} else if constexpr (is_unseq_v<T>) {
 			return std::execution::unseq;
-		} else if constexpr (is_par_v<ExecutionPolicy>) {
+		} else if constexpr (is_par_v<T>) {
 			return std::execution::par;
-		} else if constexpr (is_par_unseq_v<ExecutionPolicy>) {
+		} else if constexpr (is_par_unseq_v<T>) {
 			return std::execution::par_unseq;
+		} else {
+			std::unreachable();
 		}
+	} else {
+		std::unreachable();
 	}
+#else
+	std::unreachable();
 #endif
 }
 }  // namespace ufo::execution

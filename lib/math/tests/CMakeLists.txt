@@ -18,12 +18,6 @@ set_target_properties(MathTests
 		CXX_SCAN_FOR_MODULES OFF
 )
 
-if (MSVC)
-	target_compile_options(MathTests PRIVATE /W4)
-else()
-	target_compile_options(MathTests PRIVATE -Wall -Wextra -Wpedantic)
-endif()
-
-target_link_libraries(MathTests PRIVATE Catch2::Catch2WithMain UFO::Math)
+target_link_libraries(MathTests PRIVATE Catch2::Catch2WithMain UFO::Math UFO::Warnings)
 
 catch_discover_tests(MathTests)

@@ -1,8 +1,3 @@
-option(UFO_UTILITY_BUILD_TESTS    "Unit testing"           ON)
-option(UFO_UTILITY_BUILD_COVERAGE "Test Coverage"          ON)
-
-include(GNUInstallDirs)
-
 add_library(Utility STATIC)
 add_library(UFO::Utility ALIAS Utility)
 
@@ -36,16 +31,11 @@ set_target_properties(Utility
 		POSITION_INDEPENDENT_CODE ON
 )
 
-if (MSVC)
-	target_compile_options(Utility PRIVATE /W4)
-else()
-	target_compile_options(Utility PRIVATE -Wall -Wextra -Wpedantic)
-endif()
+target_link_libraries(Utility PRIVATE $<BUILD_INTERFACE:UFO::Warnings>)
 
-if(UFO_BUILD_TESTS AND UFO_UTILITY_BUILD_TESTS)
+if(UFO_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
-
 
 install(
   TARGETS Utility

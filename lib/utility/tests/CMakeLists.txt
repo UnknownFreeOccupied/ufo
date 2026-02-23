@@ -16,12 +16,6 @@ set_target_properties(UtilityTests
 		CXX_SCAN_FOR_MODULES OFF
 )
 
-if (MSVC)
-	target_compile_options(UtilityTests PRIVATE /W4)
-else()
-	target_compile_options(UtilityTests PRIVATE -Wall -Wextra -Wpedantic)
-endif()
-
-target_link_libraries(UtilityTests PRIVATE UFO::Utility Catch2::Catch2WithMain)
+target_link_libraries(UtilityTests PRIVATE Catch2::Catch2WithMain UFO::Utility UFO::Warnings)
 
 catch_discover_tests(UtilityTests)
