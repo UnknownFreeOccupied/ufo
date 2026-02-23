@@ -1085,7 +1085,7 @@ template <VecType To, std::size_t Dim, class U>
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr T dot(Vec<Dim, T> const& a, Vec<Dim, T> const& b) noexcept
 {
-	return std::ranges::fold_left(std::views::zip_transform(std::multiplies{}, a, b), T{},
+	return std::ranges::fold_left(std::ranges::zip_transform_view(std::multiplies{}, a, b), T{},
 	                              std::plus{});
 }
 
