@@ -37,18 +37,18 @@ endif()
 
 # ImGUI
 
-# libjpeg-turbo
-message(STATUS "Fetching and building libjpeg-turbo from source")
-include("${CMAKE_CURRENT_LIST_DIR}/libjpeg_turbo/libjpeg_turbo.cmake")
+# # libjpeg-turbo
+# message(STATUS "Fetching and building libjpeg-turbo from source")
+# include("${CMAKE_CURRENT_LIST_DIR}/libjpeg_turbo/libjpeg_turbo.cmake")
 
-# libspng
-message(STATUS "Fetching and building libspng from source")
-include("${CMAKE_CURRENT_LIST_DIR}/libspng/libspng.cmake")
+# # libspng
+# message(STATUS "Fetching and building libspng from source")
+# include("${CMAKE_CURRENT_LIST_DIR}/libspng/libspng.cmake")
 
-# Rply
-message(STATUS "Fetching and building rply from source")
-# include("${CMAKE_CURRENT_LIST_DIR}/rply/rply.cmake")
-add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/rply")
+# # Rply
+# message(STATUS "Fetching and building rply from source")
+# # include("${CMAKE_CURRENT_LIST_DIR}/rply/rply.cmake")
+# add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/rply")
 
 # WGPU Native
 include("${CMAKE_CURRENT_LIST_DIR}/wgpu_native/wgpu_native.cmake")
