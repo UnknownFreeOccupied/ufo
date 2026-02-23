@@ -17,6 +17,14 @@ dependency:
 - changed-files:
   - any-glob-to-any-file: 'external/**'
 
+application:
+- changed-files:
+  - any-glob-to-any-file: 'apps/**'
+
+example:
+- changed-files:
+  - any-glob-to-any-file: 'examples/**'
+
 # Add 'lib-cloud' label to any changes within the cloud library 
 lib-cloud:
 - changed-files:
