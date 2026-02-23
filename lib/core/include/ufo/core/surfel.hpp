@@ -381,9 +381,9 @@ class Surfel
 	//! @brief Resets the surfel to an empty state (no points, zero statistics).
 	constexpr void clear() noexcept
 	{
-		num_points_  = {};
-		sum_         = {};
 		sum_squares_ = {};
+		sum_         = {};
+		num_points_  = {};
 	}
 
 	//
