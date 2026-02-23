@@ -54,18 +54,20 @@ jobs:
       if: matrix.os == 'macos-latest'
       run: |
         brew install llvm@21
-        # Add LLVM to PATH so CMake finds the right 'clang' and 'clang++'
+        
+        # Force the shell to find LLVM 21 binaries first
         echo "/opt/homebrew/opt/llvm@21/bin" >> $GITHUB_PATH
         
-        # Point to the specific SDK for macOS
+        # Point to the macOS SDK
         echo "SDKROOT=$(xcrun --show-sdk-path)" >> $GITHUB_ENV
         
-        # Set specific compiler paths for the next steps
-        echo "CC=/opt/homebrew/opt/llvm@21/bin/clang" >> $GITHUB_ENV
-        echo "CXX=/opt/homebrew/opt/llvm@21/bin/clang++" >> $GITHUB_ENV
+        # Tell the compiler and linker to use the LLVM 21 library/headers 
+        # instead of the outdated Apple Clang system headers
+        echo "LDFLAGS=-L/opt/homebrew/opt/llvm@21/lib -Wl,-rpath,/opt/homebrew/opt/llvm@21/lib" >> $GITHUB_ENV
+        echo "CPPFLAGS=-I/opt/homebrew/opt/llvm@21/include" >> $GITHUB_ENV
         
-        # Standard flags for linking the newer libc++
-        echo "LDFLAGS=-L/opt/homebrew/opt/llvm@21/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@21/lib/c++" >> $GITHUB_ENV
+        # These help CMake find the correct standard library for C++23 Ranges
+        echo "CXXFLAGS=-stdlib=libc++" >> $GITHUB_ENV
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
@@ -77,10 +79,11 @@ jobs:
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      # On macOS, we explicitly pass the Homebrew paths to CMake
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.os == 'macos-latest' && '/opt/homebrew/opt/llvm@21/bin/clang++' || matrix.cpp_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.os == 'macos-latest' && '/opt/homebrew/opt/llvm@21/bin/clang' || matrix.c_compiler }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
         -DUFO_BUILD_TESTS=ON
