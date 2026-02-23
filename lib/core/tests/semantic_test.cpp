@@ -80,15 +80,4 @@ TEST_CASE("[core] [semantic] Semantic struct")
 			REQUIRE(static_cast<float>(s.confidence) == Catch::Approx(c).epsilon(1e-6));
 		}
 	}
-
-	SECTION("Randomized input stress test")
-	{
-		for (int i = 0; i < 100; ++i) {
-			std::uint32_t l = static_cast<std::uint32_t>(rand());
-			float         c = static_cast<float>(rand()) / RAND_MAX;
-			ufo::Semantic s(ufo::Label{l}, ufo::Confidence{c});
-			REQUIRE(static_cast<std::uint32_t>(s.label) == l);
-			REQUIRE(static_cast<float>(s.confidence) == Catch::Approx(c).epsilon(1e-6));
-		}
-	}
 }

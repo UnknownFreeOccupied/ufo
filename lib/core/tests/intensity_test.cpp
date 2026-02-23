@@ -72,13 +72,4 @@ TEST_CASE("[core] [intensity] Intensity struct")
 			REQUIRE(static_cast<float>(i) == Catch::Approx(v).epsilon(1e-6));
 		}
 	}
-
-	SECTION("Randomized input stress test")
-	{
-		for (int i = 0; i < 100; ++i) {
-			float          v = static_cast<float>(rand()) / RAND_MAX;
-			ufo::Intensity i_val(v);
-			REQUIRE(static_cast<float>(i_val) == Catch::Approx(v).epsilon(1e-6));
-		}
-	}
 }

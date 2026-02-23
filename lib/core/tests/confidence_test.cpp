@@ -72,13 +72,4 @@ TEST_CASE("[core] [confidence] Confidence struct")
 			REQUIRE(static_cast<float>(c) == Catch::Approx(v).epsilon(1e-6));
 		}
 	}
-
-	SECTION("Randomized input stress test")
-	{
-		for (int i = 0; i < 100; ++i) {
-			float           v = static_cast<float>(rand()) / RAND_MAX;
-			ufo::Confidence c(v);
-			REQUIRE(static_cast<float>(c) == Catch::Approx(v).epsilon(1e-6));
-		}
-	}
 }

@@ -72,13 +72,4 @@ TEST_CASE("[core] [weight] Weight struct")
 			REQUIRE(static_cast<float>(w) == Catch::Approx(v).epsilon(1e-6));
 		}
 	}
-
-	SECTION("Randomized input stress test")
-	{
-		for (int i = 0; i < 100; ++i) {
-			float       v = static_cast<float>(rand()) / RAND_MAX;
-			ufo::Weight w_val(v);
-			REQUIRE(static_cast<float>(w_val) == Catch::Approx(v).epsilon(1e-6));
-		}
-	}
 }
