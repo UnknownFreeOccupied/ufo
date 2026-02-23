@@ -22,6 +22,8 @@ target_sources(Core
 			include/ufo/core/weight.hpp
 )
 
+set_target_properties(Core PROPERTIES CXX_SCAN_FOR_MODULES OFF)
+
 target_link_libraries(Core 
 	INTERFACE 
 		UFO::Math

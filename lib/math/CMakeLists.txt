@@ -19,6 +19,8 @@ target_sources(Math
 			include/ufo/math/vec.hpp
 )
 
+set_target_properties(Math PROPERTIES CXX_SCAN_FOR_MODULES OFF)
+
 if(UFO_BUILD_TESTS AND UFO_MATH_BUILD_TESTS)
   add_subdirectory(tests)
 endif()

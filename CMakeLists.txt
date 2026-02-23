@@ -2,11 +2,18 @@ cmake_minimum_required(VERSION 3.23...3.31)
 
 # set(CMAKE_EXPERIMENTAL_EXPORT_PACKAGE_DEPENDENCIES "1942b4fa-b2c5-4546-9385-83f254070067")
 
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 project(UFO
 	VERSION 1.0.0
 	DESCRIPTION "UFO"
 	LANGUAGES CXX C
 )
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+
 
 option(UFO_BUILD_DOCS                 "Generate documentation"             OFF)
 option(UFO_BUILD_TESTS                "Build all unit tests"               OFF)
@@ -15,10 +22,6 @@ option(UFO_COVERAGE                   "Test Coverage"                      OFF)
 option(UFO_DEV_MODE                   "Set up development helper settings" ON)
 # option(UFO_ENABLE_NATIVE_OPTIMIZATION "Optimize for the host CPU"          ON)
 option(UFO_ENABLE_LTO                 "Enable Link Time Optimization"      ON)
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(USE_SYSTEM_CATCH2 "Use system-installed Catch2 instead of fetching/building it" OFF)
 option(USE_SYSTEM_CLI11 "Use system-installed CLI11 instead of fetching/building it" OFF)
@@ -71,7 +74,7 @@ target_link_libraries(UFO INTERFACE
     # UFO::Plan
     # UFO::Sensor
     # UFO::Time
-    # UFO::Utility
+    UFO::Utility
     # UFO::Vision
     # # UFO::Viz
 )
