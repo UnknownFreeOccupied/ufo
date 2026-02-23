@@ -11,14 +11,9 @@ set_target_properties(ComputeTests
 		SOVERSION ${PROJECT_VERSION_MAJOR}
 		CXX_STANDARD 23
 		CXX_EXTENSIONS OFF
+		CXX_SCAN_FOR_MODULES OFF
 )
 
-if (MSVC)
-	target_compile_options(ComputeTests PRIVATE /W4)
-else()
-	target_compile_options(ComputeTests PRIVATE -Wall -Wextra -Wpedantic)
-endif()
-
-target_link_libraries(ComputeTests PRIVATE UFO::Compute Catch2::Catch2WithMain)
+target_link_libraries(ComputeTests PRIVATE Catch2::Catch2WithMain UFO::Compute UFO::Warnings)
 
 catch_discover_tests(ComputeTests)

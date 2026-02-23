@@ -44,7 +44,7 @@ if(UFO_BUILD_TESTS)
 endif()
 
 # add_subdirectory(lib/cloud)
-# add_subdirectory(lib/compute)
+add_subdirectory(lib/compute)
 # add_subdirectory(lib/container)
 add_subdirectory(lib/core)
 add_subdirectory(lib/execution)
@@ -73,7 +73,7 @@ add_library(UFO::UFO ALIAS UFO)
 
 target_link_libraries(UFO INTERFACE 
 	# UFO::Cloud
-	# UFO::Compute
+	UFO::Compute
 	# UFO::Container
 	UFO::Core
 	UFO::Execution

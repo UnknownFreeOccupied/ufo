@@ -38,7 +38,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+// UFO
 #include <ufo/apps/system_info.hpp>
+#include <ufo/compute/compute.hpp>
 
 // STL
 #include <bit>
@@ -427,6 +429,28 @@ namespace
 
 std::string ufo::systemInfo()
 {
+	auto const gpus = compute::gpusInfo();
+
+	std::string gpu_str;
+	for (std::size_t i = 0; i < gpus.size(); ++i) {
+		auto const& gpu = gpus[i];
+		if (i > 0) {
+			gpu_str += std::format("\n{:<20}", std::format("GPU {}:", i));
+		}
+
+		gpu_str += std::format("{} [{}]", gpu.name, gpu.backend);
+		gpu_str +=
+		    std::format("\n{:<20}Vendor:             {} ({})", " ", gpu.vendor, gpu.type);
+
+		if (!gpu.architecture.empty()) {
+			gpu_str += std::format("\n{:<20}Architecture:       {}", " ", gpu.architecture);
+		}
+
+		if (!gpu.description.empty()) {
+			gpu_str += std::format("\n{:<20}Driver:             {}", " ", gpu.description);
+		}
+	}
+
 	return std::format(
 	    "==================== SYSTEM INFO ====================\n"
 	    "OS:                 {}\n"
@@ -438,6 +462,7 @@ std::string ufo::systemInfo()
 	    "Logical Cores:      {}\n"
 	    "Physical RAM:       {:.1f} GB\n"
 	    "Available RAM:      {}\n"
+	    "GPU:                {}\n"
 	    "Address Model:      {}-bit\n"
 	    "Endianness:         {}\n"
 	    "Compiler:           {}\n"
@@ -446,6 +471,6 @@ std::string ufo::systemInfo()
 	    "Build Time:         {} {}\n"
 	    "=====================================================",
 	    os(), kernelVersion(), cpuModel(), cpuArch(), simdExtensions(), physicalCores(),
-	    cpuCores(), physicalRam(), availableRam(), addressModel(), endianness(), compiler(),
-	    cppVersion(), __cplusplus, buildType(), __DATE__, __TIME__);
+	    cpuCores(), physicalRam(), availableRam(), gpu_str, addressModel(), endianness(),
+	    compiler(), cppVersion(), __cplusplus, buildType(), __DATE__, __TIME__);
 }

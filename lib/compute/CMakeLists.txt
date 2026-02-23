@@ -1,15 +1,9 @@
-option(UFO_COMPUTE_BUILD_TESTS "Unit testing" ON)
-option(UFO_COMPUTE_BUILD_COVERAGE "Test Coverage" ON)
-
-include(GNUInstallDirs)
-
 add_library(Compute STATIC)
 add_library(UFO::Compute ALIAS Compute)
 
 target_sources(Compute
 	PRIVATE
 		src/compute.cpp
-
 	PUBLIC
   	FILE_SET HEADERS
     BASE_DIRS
@@ -24,15 +18,12 @@ set_target_properties(Compute
 		SOVERSION ${PROJECT_VERSION_MAJOR}
 		CXX_STANDARD 23
 		CXX_EXTENSIONS OFF
+		CXX_SCAN_FOR_MODULES OFF
 		OUTPUT_NAME "UFOCompute"
 		POSITION_INDEPENDENT_CODE ON
 )
 
-if (MSVC)
-	target_compile_options(Compute PRIVATE /W4)
-else()
-	target_compile_options(Compute PRIVATE -Wall -Wextra -Wpedantic)
-endif()
+target_link_libraries(Compute PRIVATE $<BUILD_INTERFACE:UFO::Warnings>)
 
 target_link_libraries(Compute 
   PUBLIC
@@ -45,10 +36,9 @@ target_include_directories(Compute
 		$<BUILD_INTERFACE:${WGPU_DIR}/include>
 )
 
-if(UFO_BUILD_TESTS AND UFO_COMPUTE_BUILD_TESTS)
+if(UFO_BUILD_TESTS)
 	add_subdirectory(tests)
 endif()
-
 
 install(
   TARGETS Compute
