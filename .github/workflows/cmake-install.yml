@@ -55,6 +55,5 @@ jobs:
 
       - name: Build and Link Consumer
         run: |
-          cmake -S consumer -B consumer/build \
-                -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/dist
+          cmake -S consumer -B consumer/build -DCMAKE_CXX_COMPILER=g++-14 -DCMAKE_C_COMPILER=gcc-14 -DCMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/dist
           cmake --build consumer/build --config Release
