@@ -1085,8 +1085,16 @@ template <VecType To, std::size_t Dim, class U>
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr T dot(Vec<Dim, T> const& a, Vec<Dim, T> const& b) noexcept
 {
+#if defined(__cpp_lib_ranges_zip) && defined(__cpp_lib_fold_left)
 	return std::ranges::fold_left(std::views::zip_transform(std::multiplies{}, a, b), T{},
 	                              std::plus{});
+#else
+	T res{};
+	for (std::size_t i{}; Dim > i; ++i) {
+		res += a[i] * b[i];
+	}
+	return res;
+#endif
 }
 
 /**
@@ -1307,7 +1315,15 @@ template <std::size_t Dim, class T>
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr T sum(Vec<Dim, T> const& v) noexcept
 {
+#ifdef __cpp_lib_fold_left
 	return std::ranges::fold_left(v, T{}, std::plus{});
+#else
+	T res{};
+	for (auto x : v) {
+		res += x;
+	}
+	return res;
+#endif
 }
 
 /**
@@ -1320,7 +1336,15 @@ template <std::size_t Dim, class T>
 template <std::size_t Dim, class T>
 [[nodiscard]] constexpr T product(Vec<Dim, T> const& v) noexcept
 {
+#ifdef __cpp_lib_fold_left
 	return std::ranges::fold_left(v, T{1}, std::multiplies{});
+#else
+	T res{1};
+	for (auto x : v) {
+		res *= x;
+	}
+	return res;
+#endif
 }
 
 /**
@@ -1350,9 +1374,15 @@ template <std::size_t Dim, class T>
 [[nodiscard]] constexpr Vec<Dim, T> clamp(Vec<Dim, T> v, Vec<Dim, T> const& lo,
                                           Vec<Dim, T> const& hi) noexcept
 {
+#ifdef __cpp_lib_ranges_zip
 	for (auto [vi, li, hi_i] : std::views::zip(v, lo, hi)) {
 		vi = std::clamp(vi, li, hi_i);
 	}
+#else
+	for (std::size_t i{}; Dim > i; ++i) {
+		v[i] = std::clamp(v[i], lo[i], hi[i]);
+	}
+#endif
 	return v;
 }
 
@@ -1760,10 +1790,17 @@ template <std::size_t Dim, class T>
 std::ostream& operator<<(std::ostream& out, Vec<Dim, T> const& v)
 {
 	static constexpr std::array names = {'x', 'y', 'z', 'w'};
+#ifdef __cpp_lib_ranges_enumerate
 	for (auto const [i, name] : std::views::enumerate(names)) {
 		if (i) out << ' ';
 		out << name << ": " << v[i];
 	}
+#else
+	for (std::size_t i{}; std::min(Dim, names.size()) > i; ++i) {
+		if (i) out << ' ';
+		out << names[i] << ": " << v[i];
+	}
+#endif
 	return out;
 }
 }  // namespace ufo
@@ -1786,10 +1823,17 @@ struct std::formatter<ufo::Vec<Dim, T>> {
 	{
 		static constexpr std::array names = {'x', 'y', 'z', 'w'};
 		auto                        out   = ctx.out();
+#ifdef __cpp_lib_ranges_enumerate
 		for (auto const [i, name] : std::views::enumerate(names)) {
 			if (i) out = std::format_to(out, " ");
 			out = std::format_to(out, "{}: {}", name, v[i]);
 		}
+#else
+		for (std::size_t i{}; std::min(Dim, names.size()) > i; ++i) {
+			if (i) out = std::format_to(out, " ");
+			out = std::format_to(out, "{}: {}", names[i], v[i]);
+		}
+#endif
 		return out;
 	}
 };
