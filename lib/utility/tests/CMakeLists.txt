@@ -2,7 +2,9 @@ add_executable(UtilityTests)
 
 target_sources(UtilityTests
 	PRIVATE
-		iterator_wrapper_test.cpp
+		create_array_test.cpp
+		spinlock_test.cpp
+		string_test.cpp
 )
 
 set_target_properties(UtilityTests

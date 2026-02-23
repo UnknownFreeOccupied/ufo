@@ -1,18 +1,14 @@
-/*!
- * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the
- * Unknown
- *
- * @author Daniel Duberg (dduberg@kth.se)
- * @see https://github.com/UnknownFreeOccupied/ufomap
+/**
+ * @author Daniel Duberg (danielduberg@gmail.com)
+ * @see https://github.com/UnknownFreeOccupied/ufo
  * @version 1.0
- * @date 2022-05-13
+ * @date 2026-02-22
  *
- * @copyright Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of
- * Technology
+ * @copyright Copyright (c) 2020-2026, Daniel Duberg
  *
  * BSD 3-Clause License
  *
- * Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of Technology
+ * Copyright (c) 2020-2026, Daniel Duberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,41 +38,26 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_CORE_VALUE_HPP
-#define UFO_CORE_VALUE_HPP
+// UFO
+#include <ufo/utility/spinlock.hpp>
 
 // STL
-#include <ostream>
+#include <atomic>
 
-namespace ufo
+void ufo::Spinlock::lock() noexcept
 {
-using value_type = float;
-
-struct Value {
-	value_type value{};
-
-	constexpr Value() noexcept = default;
-
-	constexpr Value(value_type value) noexcept : value(value) {}
-
-	operator value_type() const noexcept { return value; }
-};
-
-constexpr bool operator==(Value lhs, Value rhs) { return lhs.value == rhs.value; }
-
-constexpr bool operator!=(Value lhs, Value rhs) { return !(lhs == rhs); }
-
-constexpr bool operator<(Value lhs, Value rhs) { return lhs.value < rhs.value; }
-
-constexpr bool operator<=(Value lhs, Value rhs) { return !(rhs < lhs); }
-
-constexpr bool operator>(Value lhs, Value rhs) { return rhs < lhs; }
-
-constexpr bool operator>=(Value lhs, Value rhs) { return !(lhs < rhs); }
-
-inline std::ostream& operator<<(std::ostream& out, ufo::Value s)
-{
-	return out << s.value;
+	while (flag_.test_and_set(std::memory_order_acquire)) {
+		flag_.wait(true, std::memory_order_relaxed);
+	}
 }
-}  // namespace ufo
-#endif  // UFO_CORE_VALUE_HPP
+
+bool ufo::Spinlock::try_lock() noexcept
+{
+	return !flag_.test_and_set(std::memory_order_acquire);
+}
+
+void ufo::Spinlock::unlock() noexcept
+{
+	flag_.clear(std::memory_order_release);
+	flag_.notify_one();
+}

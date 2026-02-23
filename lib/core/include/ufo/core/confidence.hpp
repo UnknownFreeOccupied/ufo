@@ -38,8 +38,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_CORE_INTENSITY_HPP
-#define UFO_CORE_INTENSITY_HPP
+#ifndef UFO_CORE_CONFIDENCE_HPP
+#define UFO_CORE_CONFIDENCE_HPP
 
 // STL
 #include <format>
@@ -47,36 +47,36 @@
 
 namespace ufo
 {
+
 /**
- * @brief Represents LiDAR/sensor return intensity as a single float value.
+ * @brief Represents a confidence score as a single float value.
  *
  * @details
- * `Intensity` is a lightweight, trivially-copyable value type with no overhead over a
- * bare `float`. It is implicitly convertible to and from `float`, fully ordered via
- * `<=>`, and supports `std::ostream` streaming and `std::format`.
+ * `Confidence` is a lightweight, trivially-copyable value type used as the confidence or
+ * score component of `Semantic`. It pairs with `Label` to form a complete semantic
+ * annotation: a class ID and a measure of certainty for that class.
  *
- * Intended for use as a per-point attribute in a `Cloud`/`PointCloud`, where it can be
- * stored as a separate SoA channel alongside position data.
+ * It is implicitly convertible to and from `float`, fully ordered via `<=>`, and supports
+ * `std::ostream` streaming and `std::format`.
  */
-struct Intensity {
+struct Confidence {
 	/**
 	 * @brief Underlying scalar type.
 	 */
 	using value_type = float;
 
 	/**
-	 * @brief The raw intensity value.
+	 * @brief The confidence score (e.g., a value in [0, 1]).
 	 */
-	value_type intensity{};
+	value_type confidence{};
 
 	/**
 	 * @brief Implicitly converts to the underlying scalar type.
-	 * @return The intensity value as a float.
 	 *
-	 * @details
-	 * Allows `Intensity` to be used wherever a `float` is expected.
+	 * Allows `Confidence` to be used wherever a `float` is expected.
+	 * @return The confidence score as a float.
 	 */
-	[[nodiscard]] constexpr operator value_type() const noexcept { return intensity; }
+	[[nodiscard]] constexpr operator value_type() const noexcept { return confidence; }
 
 	/**
 	 * @brief Three-way comparison (total order on the underlying float).
@@ -85,47 +85,47 @@ struct Intensity {
 	 * @param rhs Right operand.
 	 * @return Comparison result.
 	 */
-	[[nodiscard]] friend constexpr auto operator<=>(Intensity lhs,
-	                                                Intensity rhs) noexcept = default;
+	[[nodiscard]] friend constexpr auto operator<=>(Confidence lhs,
+	                                                Confidence rhs) noexcept = default;
 
 	/**
 	 * @brief Equality comparison.
 	 *
 	 * @param lhs Left operand.
 	 * @param rhs Right operand.
-	 * @return True if both intensity values are equal.
+	 * @return True if both confidence scores are equal.
 	 */
-	[[nodiscard]] friend constexpr bool operator==(Intensity lhs,
-	                                               Intensity rhs) noexcept = default;
+	[[nodiscard]] friend constexpr bool operator==(Confidence lhs,
+	                                               Confidence rhs) noexcept = default;
 };
 
 /**
- * @brief Writes the raw intensity scalar to @p out.
+ * @brief Writes the confidence score to @p out.
  *
  * @param out Output stream.
- * @param i Intensity to print.
+ * @param c Confidence to print.
  * @return Reference to the output stream.
  */
-inline std::ostream& operator<<(std::ostream& out, Intensity i)
+inline std::ostream& operator<<(std::ostream& out, Confidence c)
 {
-	return out << i.intensity;
+	return out << c.confidence;
 }
 }  // namespace ufo
 
 /**
- * @brief `std::format` / `std::formatter` specialization for `ufo::Intensity`.
+ * @brief `std::format` / `std::formatter` specialization for `ufo::Confidence`.
  *
  * Delegates to the `float` formatter, so all standard float format specifiers (e.g.,
- * `{:.2f}`) are supported.
+ * `{:.4f}`) are supported.
  *
  * @tparam T Scalar type.
  */
 template <>
-struct std::formatter<ufo::Intensity> : std::formatter<ufo::Intensity::value_type> {
-	auto format(ufo::Intensity i, std::format_context& ctx) const
+struct std::formatter<ufo::Confidence> : std::formatter<ufo::Confidence::value_type> {
+	auto format(ufo::Confidence v, std::format_context& ctx) const
 	{
-		return std::formatter<ufo::Intensity::value_type>::format(i.intensity, ctx);
+		return std::formatter<ufo::Confidence::value_type>::format(v.confidence, ctx);
 	}
 };
 
-#endif  // UFO_CORE_INTENSITY_HPP
+#endif  // UFO_CORE_CONFIDENCE_HPP

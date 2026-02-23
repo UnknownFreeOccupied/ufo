@@ -12,12 +12,14 @@ target_sources(Core
     BASE_DIRS
 			include
     FILES
+			include/ufo/core/confidence.hpp
 			include/ufo/core/intensity.hpp
 			include/ufo/core/label.hpp
 			include/ufo/core/normal.hpp
+			include/ufo/core/range.hpp
 			include/ufo/core/semantic.hpp
 			include/ufo/core/surfel.hpp
-			include/ufo/core/value.hpp
+			include/ufo/core/weight.hpp
 )
 
 target_link_libraries(Core 

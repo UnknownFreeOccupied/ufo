@@ -2,7 +2,14 @@ add_executable(CoreTests)
 
 target_sources(CoreTests
 	PRIVATE
+		confidence_test.cpp
 		intensity_test.cpp
+		label_test.cpp
+		normal_test.cpp
+		range_test.cpp
+		semantic_test.cpp
+		surfel_test.cpp
+		weight_test.cpp
 )
 
 set_target_properties(CoreTests
@@ -19,6 +26,6 @@ else()
 	target_compile_options(CoreTests PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-target_link_libraries(CoreTests PRIVATE UFO::Core Catch2::Catch2WithMain)
+target_link_libraries(CoreTests PRIVATE Catch2::Catch2WithMain UFO::Core)
 
 catch_discover_tests(CoreTests)

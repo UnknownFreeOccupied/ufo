@@ -1,18 +1,14 @@
-/*!
- * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the
- * Unknown
- *
- * @author Daniel Duberg (dduberg@kth.se)
- * @see https://github.com/UnknownFreeOccupied/ufomap
+/**
+ * @author Daniel Duberg (danielduberg@gmail.com)
+ * @see https://github.com/UnknownFreeOccupied/ufo
  * @version 1.0
- * @date 2022-05-13
+ * @date 2026-02-22
  *
- * @copyright Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of
- * Technology
+ * @copyright Copyright (c) 2020-2026, Daniel Duberg
  *
  * BSD 3-Clause License
  *
- * Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of Technology
+ * Copyright (c) 2020-2026, Daniel Duberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,37 +43,90 @@
 
 // STL
 #include <cstdint>
+#include <format>
 #include <ostream>
 
 namespace ufo
 {
-using label_t = std::uint32_t;
-
+/**
+ * @brief Represents a semantic class label as a single unsigned integer value.
+ *
+ * @details
+ * `Label` is a lightweight, trivially-copyable value type with no overhead over a
+ * bare `uint32_t`. It is implicitly convertible to and from `uint32_t`, fully ordered via
+ * `<=>`, and supports `std::ostream` streaming and `std::format`.
+ *
+ * Intended for use as a per-point or per-node attribute in a semantic segmentation
+ * pipeline, where it can be stored as a separate SoA channel alongside position or
+ * intensity data. The integer backing allows up to ~4 billion distinct categories (e.g.,
+ * "car", "wall", "ground").
+ *
+ * `Label` is the category component of `Semantic`; pair it with `Confidence` when you
+ * also need a per-label confidence score.
+ */
 struct Label {
-	label_t label{};
+	/**
+	 * @brief Underlying integer type.
+	 */
+	using value_type = std::uint32_t;
 
-	constexpr Label() noexcept = default;
+	/**
+	 * @brief The raw class label identifier.
+	 */
+	value_type label{};
 
-	constexpr Label(label_t label) noexcept : label(label) {}
+	/**
+	 * @brief Implicitly converts to the underlying integer type.
+	 * @return The label value as a uint32_t.
+	 *
+	 * @details
+	 * Allows `Label` to be used wherever a `uint32_t` is expected.
+	 */
+	[[nodiscard]] constexpr operator value_type() const noexcept { return label; }
 
-	operator label_t() const noexcept { return label; }
+	/**
+	 * @brief Three-way comparison (total order on the underlying integer).
+	 *
+	 * @param lhs Left operand.
+	 * @param rhs Right operand.
+	 * @return Comparison result.
+	 */
+	[[nodiscard]] friend constexpr auto operator<=>(Label lhs,
+	                                                Label rhs) noexcept = default;
+
+	/**
+	 * @brief Equality comparison.
+	 *
+	 * @param lhs Left operand.
+	 * @param rhs Right operand.
+	 * @return True if both label values are equal.
+	 */
+	[[nodiscard]] friend constexpr bool operator==(Label lhs, Label rhs) noexcept = default;
 };
 
-constexpr bool operator==(Label lhs, Label rhs) { return lhs.label == rhs.label; }
-
-constexpr bool operator!=(Label lhs, Label rhs) { return !(lhs == rhs); }
-
-constexpr bool operator<(Label lhs, Label rhs) { return lhs.label < rhs.label; }
-
-constexpr bool operator<=(Label lhs, Label rhs) { return !(rhs < lhs); }
-
-constexpr bool operator>(Label lhs, Label rhs) { return rhs < lhs; }
-
-constexpr bool operator>=(Label lhs, Label rhs) { return !(lhs < rhs); }
-
-inline std::ostream& operator<<(std::ostream& out, ufo::Label s)
-{
-	return out << s.label;
-}
+/**
+ * @brief Writes the raw label integer to @p out.
+ *
+ * @param out Output stream.
+ * @param l Label to print.
+ * @return Reference to the output stream.
+ */
+inline std::ostream& operator<<(std::ostream& out, Label l) { return out << l.label; }
 }  // namespace ufo
+
+/**
+ * @brief `std::format` / `std::formatter` specialization for `ufo::Label`.
+ *
+ * Delegates to the `uint32_t` formatter, so all standard integer format specifiers (e.g.,
+ * `{:05d}`) are supported.
+ *
+ * @tparam T Scalar type.
+ */
+template <>
+struct std::formatter<ufo::Label> : std::formatter<ufo::Label::value_type> {
+	auto format(ufo::Label l, std::format_context& ctx) const
+	{
+		return std::formatter<ufo::Label::value_type>::format(l.label, ctx);
+	}
+};
 #endif  // UFO_CORE_LABEL_HPP

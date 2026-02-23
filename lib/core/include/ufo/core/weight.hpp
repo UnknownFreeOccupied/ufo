@@ -38,8 +38,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_CORE_INTENSITY_HPP
-#define UFO_CORE_INTENSITY_HPP
+#ifndef UFO_CORE_WEIGHT_HPP
+#define UFO_CORE_WEIGHT_HPP
 
 // STL
 #include <format>
@@ -48,35 +48,36 @@
 namespace ufo
 {
 /**
- * @brief Represents LiDAR/sensor return intensity as a single float value.
+ * @brief Represents a generic scalar weight as a single float value.
  *
  * @details
- * `Intensity` is a lightweight, trivially-copyable value type with no overhead over a
+ * `Weight` is a lightweight, trivially-copyable value type with no overhead over a
  * bare `float`. It is implicitly convertible to and from `float`, fully ordered via
  * `<=>`, and supports `std::ostream` streaming and `std::format`.
  *
- * Intended for use as a per-point attribute in a `Cloud`/`PointCloud`, where it can be
- * stored as a separate SoA channel alongside position data.
+ * Intended for use as a per-point or per-node attribute, typically as a confidence score
+ * or weight in probabilistic or semantic mapping. It pairs with `Label` to form a
+ * complete semantic annotation: a class ID and a measure of certainty for that class.
  */
-struct Intensity {
+struct Weight {
 	/**
 	 * @brief Underlying scalar type.
 	 */
 	using value_type = float;
 
 	/**
-	 * @brief The raw intensity value.
+	 * @brief The raw scalar weight (e.g., a confidence in [0, 1]).
 	 */
-	value_type intensity{};
+	value_type weight{};
 
 	/**
 	 * @brief Implicitly converts to the underlying scalar type.
-	 * @return The intensity value as a float.
+	 * @return The weight value as a float.
 	 *
 	 * @details
-	 * Allows `Intensity` to be used wherever a `float` is expected.
+	 * Allows `Weight` to be used wherever a `float` is expected.
 	 */
-	[[nodiscard]] constexpr operator value_type() const noexcept { return intensity; }
+	[[nodiscard]] constexpr operator value_type() const noexcept { return weight; }
 
 	/**
 	 * @brief Three-way comparison (total order on the underlying float).
@@ -85,47 +86,43 @@ struct Intensity {
 	 * @param rhs Right operand.
 	 * @return Comparison result.
 	 */
-	[[nodiscard]] friend constexpr auto operator<=>(Intensity lhs,
-	                                                Intensity rhs) noexcept = default;
+	[[nodiscard]] friend constexpr auto operator<=>(Weight lhs,
+	                                                Weight rhs) noexcept = default;
 
 	/**
 	 * @brief Equality comparison.
 	 *
 	 * @param lhs Left operand.
 	 * @param rhs Right operand.
-	 * @return True if both intensity values are equal.
+	 * @return True if both weight values are equal.
 	 */
-	[[nodiscard]] friend constexpr bool operator==(Intensity lhs,
-	                                               Intensity rhs) noexcept = default;
+	[[nodiscard]] friend constexpr bool operator==(Weight lhs,
+	                                               Weight rhs) noexcept = default;
 };
 
 /**
- * @brief Writes the raw intensity scalar to @p out.
+ * @brief Writes the raw scalar weight to @p out.
  *
  * @param out Output stream.
- * @param i Intensity to print.
+ * @param v Weight to print.
  * @return Reference to the output stream.
  */
-inline std::ostream& operator<<(std::ostream& out, Intensity i)
-{
-	return out << i.intensity;
-}
+inline std::ostream& operator<<(std::ostream& out, Weight v) { return out << v.weight; }
 }  // namespace ufo
 
 /**
- * @brief `std::format` / `std::formatter` specialization for `ufo::Intensity`.
+ * @brief `std::format` / `std::formatter` specialization for `ufo::Weight`.
  *
  * Delegates to the `float` formatter, so all standard float format specifiers (e.g.,
- * `{:.2f}`) are supported.
+ * `{:.4f}`) are supported.
  *
  * @tparam T Scalar type.
  */
 template <>
-struct std::formatter<ufo::Intensity> : std::formatter<ufo::Intensity::value_type> {
-	auto format(ufo::Intensity i, std::format_context& ctx) const
+struct std::formatter<ufo::Weight> : std::formatter<ufo::Weight::value_type> {
+	auto format(ufo::Weight v, std::format_context& ctx) const
 	{
-		return std::formatter<ufo::Intensity::value_type>::format(i.intensity, ctx);
+		return std::formatter<ufo::Weight::value_type>::format(v.weight, ctx);
 	}
 };
-
-#endif  // UFO_CORE_INTENSITY_HPP
+#endif  // UFO_CORE_WEIGHT_HPP

@@ -1,23 +1,21 @@
-/*!
- * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
- *
- * @author Daniel Duberg (dduberg@kth.se)
- * @see https://github.com/UnknownFreeOccupied/ufomap
+/**
+ * @author Daniel Duberg (danielduberg@gmail.com)
+ * @see https://github.com/UnknownFreeOccupied/ufo
  * @version 1.0
- * @date 2022-05-13
+ * @date 2026-02-22
  *
- * @copyright Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of Technology
+ * @copyright Copyright (c) 2020-2026, Daniel Duberg
  *
  * BSD 3-Clause License
  *
- * Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of Technology
+ * Copyright (c) 2020-2026, Daniel Duberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *     list of conditions and the following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *     this list of conditions and the following disclaimer in the documentation
@@ -29,14 +27,15 @@
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef UFO_UTILITY_TYPE_TRAITS
@@ -100,7 +99,7 @@ argument_helper_2_t<ArgNum, Args...> argument_helper(Ret (F::*)(Args...) const);
 template <std::size_t ArgNum, typename F>
 decltype(argument_helper<ArgNum>(&F::operator())) argument_helper(F);
 
-/*!
+/**
  * @brief Get the argument type ArgNum argument of function F.
  *
  */
@@ -145,6 +144,23 @@ template <class T>
 constexpr inline bool is_tuple_v = is_tuple<T>::value;
 
 //
+// As tuple
+//
+
+template <class T>
+struct as_tuple {
+	using type = std::tuple<T>;
+};
+
+template <class... U>
+struct as_tuple<std::tuple<U...>> {
+	using type = std::tuple<U...>;
+};
+
+template <class T>
+using as_tuple_t = typename as_tuple<T>::type;
+
+//
 // Is unique
 //
 
@@ -171,6 +187,18 @@ struct contains_type : std::disjunction<std::is_same<T, Ts>...> {
 
 template <class T, class... Ts>
 constexpr inline bool contains_type_v = contains_type<T, Ts...>::value;
+
+//
+// Contains constructible type
+//
+
+template <class T, class... Ts>
+struct contains_constructible_type : std::disjunction<std::is_constructible<T, Ts>...> {
+};
+
+template <class T, class... Ts>
+constexpr inline bool contains_constructible_type_v =
+    contains_constructible_type<T, Ts...>::value;
 
 //
 // Contains convertible type

@@ -8,29 +8,20 @@ add_library(UFO::Utility ALIAS Utility)
 
 target_sources(Utility
 	PRIVATE
-		src/io/buffer.cpp
-		src/io/read_buffer.cpp
-		src/io/write_buffer.cpp
-
+		src/spinlock.cpp
+		src/string.cpp
 	PUBLIC
   	FILE_SET HEADERS
     BASE_DIRS
 			include
     FILES
-			include/ufo/utility/io/buffer.hpp
-			include/ufo/utility/io/read_buffer.hpp
-			include/ufo/utility/io/write_buffer.hpp
-
 			include/ufo/utility/bit_set.hpp
 			include/ufo/utility/create_array.hpp
-			include/ufo/utility/enum.hpp
-			include/ufo/utility/index_iterator.hpp
-			include/ufo/utility/iterator_wrapper.hpp
 			include/ufo/utility/macros.hpp
 			include/ufo/utility/proxy_arrow_result.hpp
+			include/ufo/utility/scalar_type.hpp
 			include/ufo/utility/spinlock.hpp
 			include/ufo/utility/string.hpp
-			include/ufo/utility/tuple_iterator.hpp
 			include/ufo/utility/type_traits.hpp
 )
 
