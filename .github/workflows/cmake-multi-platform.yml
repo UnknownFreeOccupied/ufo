@@ -71,11 +71,9 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       shell: bash
       run: |
-        # If macOS, we explicitly override the compiler paths to the Homebrew version
         if [ "${{ matrix.os }}" == "macos-latest" ]; then
           export CC=/opt/homebrew/opt/llvm@19/bin/clang
           export CXX=/opt/homebrew/opt/llvm@19/bin/clang++
-          # Ensure we use the LLVM libc++ instead of the old system one
           export LDFLAGS="-L/opt/homebrew/opt/llvm@19/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@19/lib/c++"
           export CPPFLAGS="-I/opt/homebrew/opt/llvm@19/include/c++/v1"
         else
