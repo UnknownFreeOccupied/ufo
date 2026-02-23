@@ -21,20 +21,31 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         build_type: [Debug, Release]
+        c_compiler: [gcc-14, clang, cl]
         include:
           - os: ubuntu-latest
             c_compiler: gcc-14
             cpp_compiler: g++-14
           - os: ubuntu-latest
-            c_compiler: clang-19
-            cpp_compiler: clang++-19
+            c_compiler: clang
+            cpp_compiler: clang++
           - os: macos-latest
-            # We will use the Homebrew path specifically
-            c_compiler: /opt/homebrew/opt/llvm@19/bin/clang
-            cpp_compiler: /opt/homebrew/opt/llvm@19/bin/clang++
+            c_compiler: clang
+            cpp_compiler: clang++
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
+        exclude:
+          - os: ubuntu-latest
+            c_compiler: cl
+          - os: macos-latest
+            c_compiler: gcc-14
+          - os: macos-latest
+            c_compiler: cl
+          - os: windows-latest
+            c_compiler: gcc-14
+          - os: windows-latest
+            c_compiler: clang
 
     steps:
     - uses: actions/checkout@v5
