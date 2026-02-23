@@ -67,7 +67,7 @@ jobs:
         echo "CPPFLAGS=-I/opt/homebrew/opt/llvm@21/include" >> $GITHUB_ENV
         
         # These help CMake find the correct standard library for C++23 Ranges
-        echo "CXXFLAGS=-stdlib=libc++" >> $GITHUB_ENV
+        echo "CXXFLAGS=-stdlib=libc++ -fexperimental-library" >> $GITHUB_ENV
 
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
