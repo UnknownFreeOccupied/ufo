@@ -8,11 +8,13 @@ project(UFO
 	LANGUAGES CXX C
 )
 
-option(UFO_BUILD_DOCS       "Generate documentation"             OFF)
-option(UFO_BUILD_TESTS      "Build all unit tests"               OFF)
-option(UFO_BUILD_EXAMPLES   "Build example applications"         OFF)
-option(UFO_COVERAGE         "Test Coverage"                      OFF)
-option(UFO_DEV_MODE         "Set up development helper settings" ON)
+option(UFO_BUILD_DOCS                 "Generate documentation"             OFF)
+option(UFO_BUILD_TESTS                "Build all unit tests"               OFF)
+option(UFO_BUILD_EXAMPLES             "Build example applications"         OFF)
+option(UFO_COVERAGE                   "Test Coverage"                      OFF)
+option(UFO_DEV_MODE                   "Set up development helper settings" ON)
+# option(UFO_ENABLE_NATIVE_OPTIMIZATION "Optimize for the host CPU"          ON)
+option(UFO_ENABLE_LTO                 "Enable Link Time Optimization"      ON)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -34,41 +36,47 @@ if(UFO_BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
-add_subdirectory(lib/cloud)
-add_subdirectory(lib/compute)
-add_subdirectory(lib/container)
+# add_subdirectory(lib/cloud)
+# add_subdirectory(lib/compute)
+# add_subdirectory(lib/container)
 add_subdirectory(lib/core)
-add_subdirectory(lib/execution)
-add_subdirectory(lib/geometry)
-add_subdirectory(lib/map)
+# add_subdirectory(lib/execution)
+# add_subdirectory(lib/geometry)
+# add_subdirectory(lib/io)
+# add_subdirectory(lib/map)
 add_subdirectory(lib/math)
-add_subdirectory(lib/morton)
-add_subdirectory(lib/plan)
-add_subdirectory(lib/time)
+# add_subdirectory(lib/morton)
+# add_subdirectory(lib/plan)
+# add_subdirectory(lib/sensor)
+# add_subdirectory(lib/time)
 add_subdirectory(lib/utility)
-add_subdirectory(lib/vision)
-# add_subdirectory(lib/viz)
+# add_subdirectory(lib/vision)
+# # add_subdirectory(lib/viz)
 
 
-add_library(ufo INTERFACE)
-add_library(UFO::UFO ALIAS ufo)
+add_library(UFO INTERFACE)
+add_library(UFO::UFO ALIAS UFO)
 
-target_link_libraries(ufo INTERFACE 
-    UFO::Cloud
-    UFO::Compute
-    UFO::Container
+target_link_libraries(UFO INTERFACE 
+    # UFO::Cloud
+    # UFO::Compute
+    # UFO::Container
     UFO::Core
-    UFO::Execution
-    UFO::Geometry
-    UFO::Map
+    # UFO::Execution
+    # UFO::Geometry
+    # UFO::IO
+    # UFO::Map
     UFO::Math
-    UFO::Morton
-    UFO::Plan
-    UFO::Time
-    UFO::Utility
-    UFO::Vision
-    # UFO::Viz
+    # UFO::Morton
+    # UFO::Plan
+    # UFO::Sensor
+    # UFO::Time
+    # UFO::Utility
+    # UFO::Vision
+    # # UFO::Viz
 )
+
+add_subdirectory(apps)
 
 if(UFO_BUILD_DOCS)
     find_package(Doxygen REQUIRED OPTIONAL_COMPONENTS dot)
