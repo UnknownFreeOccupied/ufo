@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -45,6 +45,9 @@
 // UFO
 #include <ufo/container/tree/predicate/filter.hpp>
 
+// STL
+#include <functional>
+
 namespace ufo::pred
 {
 template <class Fun, bool Negated = false>
@@ -55,46 +58,72 @@ struct Satisfies {
 };
 
 template <class Fun, bool Negated>
-constexpr Satisfies<Fun, !Negated> operator!(Satisfies<Fun, Negated> const& p)
+[[nodiscard]] constexpr Satisfies<Fun, !Negated> operator!(
+    Satisfies<Fun, Negated> const& p) noexcept
 {
 	return Satisfies<Fun, !Negated>(p.fun);
 }
 
 template <class Fun, bool Negated>
-struct Filter<Satisfies<Fun, Negated>> : public FilterBase<Satisfies<Fun, Negated>> {
+struct Filter<Satisfies<Fun, Negated>> {
 	using Pred = Satisfies<Fun, Negated>;
 
 	template <class Tree>
-	static constexpr void init(Pred&, Tree const&)
+	static constexpr void init(Pred&, Tree const&) noexcept
 	{
 	}
 
 	template <class Value>
-	[[nodiscard]] static constexpr bool returnable(Pred const& p, Value const& v)
+	[[nodiscard]] static constexpr bool returnableValue(Pred const&  p,
+	                                                    Value const& v) noexcept
 	{
+		static_assert(std::is_invocable_r_v<bool, Fun, Value const&>,
+		              "Satisfies: The provided function is not invocable with 'Value const&' "
+		              "or does not return a boolean-convertible value.");
 		if constexpr (Negated) {
-			return !p.fun(v);
+			return !std::invoke_r<bool>(p.fun, v);
 		} else {
-			return p.fun(v);
+			return std::invoke_r<bool>(p.fun, v);
 		}
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const& t,
-	                                               typename Tree::Node const& n)
+	                                               typename Tree::Node const& n) noexcept
 	{
+		static_assert(
+		    std::is_invocable_r_v<bool, Fun, Tree const&, typename Tree::Node const&>,
+		    "Satisfies: The provided function is not invocable with 'Tree const&, "
+		    "typename Tree::Node const&' or does not return a "
+		    "boolean-convertible value.");
 		if constexpr (Negated) {
-			return !p.fun(n);
+			return !std::invoke_r<bool>(p.fun, t, n);
 		} else {
-			return p.fun(n);
+			return std::invoke_r<bool>(p.fun, t, n);
 		}
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool traversable(Pred const&, Tree const&,
-	                                                typename Tree::Node const&)
+	                                                typename Tree::Node const&) noexcept
 	{
 		return true;
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool returnableRay(Pred const& p, Tree const& t,
+	                                                  typename Tree::Node const& n,
+	                                                  typename Tree::Ray const&) noexcept
+	{
+		return returnable(p, t, n);
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool traversableRay(Pred const& p, Tree const& t,
+	                                                   typename Tree::Node const& n,
+	                                                   typename Tree::Ray const&) noexcept
+	{
+		return traversable(p, t, n);
 	}
 };
 }  // namespace ufo::pred

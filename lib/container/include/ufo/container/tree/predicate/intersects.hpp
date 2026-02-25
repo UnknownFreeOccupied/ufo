@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -39,69 +39,82 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_CONTAINER_TREE_PREDICATE_DEPTH_INTERVAL_HPP
-#define UFO_CONTAINER_TREE_PREDICATE_DEPTH_INTERVAL_HPP
+#ifndef UFO_CONTAINER_TREE_PREDICATE_INTERSECTS_HPP
+#define UFO_CONTAINER_TREE_PREDICATE_INTERSECTS_HPP
 
 // UFO
-#include <ufo/container/tree/predicate/depth.hpp>
 #include <ufo/container/tree/predicate/filter.hpp>
+#include <ufo/container/tree/predicate/spatial.hpp>
+#include <ufo/geometry/intersects.hpp>
+
+// STL
+#include <type_traits>
 
 namespace ufo::pred
 {
-/*!
- * @brief
- *
- * @note The interval is inclusive (i.e., [min .. max]).
- *
- */
-template <bool Negated = false>
-struct DepthInterval {
-	DepthMin min;
-	DepthMax max;
-
-	constexpr DepthInterval(int min, int max) noexcept : min(min), max(max) {}
+template <class Geometry>
+struct Intersects {
+	Geometry geometry;
 };
 
-template <bool Negated>
-constexpr DepthInterval<!Negated> operator!(DepthInterval<Negated> const& p)
-{
-	return DepthInterval<!Negated>(p.min, p.max);
-}
-
-template <bool Negated>
-struct Filter<DepthInterval<Negated>> : public FilterBase<DepthInterval<Negated>> {
-	using Pred = DepthInterval<Negated>;
+template <class Geometry>
+struct Filter<Intersects<Geometry>> {
+	using Pred = Intersects<Geometry>;
 
 	template <class Tree>
-	static constexpr void init(Pred&, Tree const&)
+	static constexpr void init(Pred&, Tree const&) noexcept
 	{
+	}
+
+	template <class Value>
+	[[nodiscard]] static constexpr bool returnableValue(Pred const&  p,
+	                                                    Value const& v) noexcept
+	{
+		if constexpr (is_pair_v<std::remove_cvref_t<Value>>) {
+			return intersects(v.first, p.geometry);
+		} else {
+			return intersects(v, p.geometry);
+		}
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const& t,
-	                                               typename Tree::Node const& n)
+	                                               typename Tree::Node const& n) noexcept
 	{
-		if constexpr (Negated) {
-			return !(Filter<DepthMin>::returnable(p.min, t, n) &&
-			         Filter<DepthMax>::returnable(p.max, t, n));
-		} else {
-			return Filter<DepthMin>::returnable(p.min, t, n) &&
-			       Filter<DepthMax>::returnable(p.max, t, n);
-		}
+		return intersects(t.bounds(n), p.geometry);
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool traversable(Pred const& p, Tree const& t,
-	                                                typename Tree::Node const& n)
+	                                                typename Tree::Node const& n) noexcept
 	{
-		if constexpr (Negated) {
-			return 0 < p.min.depth || p.max.depth + 1 < t.depth(n);
-		} else {
-			return Filter<DepthMin>::traversable(p.min, t, n) &&
-			       Filter<DepthMax>::traversable(p.max, t, n);
-		}
+		return intersects(t.bounds(n), p.geometry);
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool returnableRay(Pred const& p, Tree const& t,
+	                                                  typename Tree::Node const& n,
+	                                                  typename Tree::Ray const&) noexcept
+	{
+		return returnable(p, t, n);
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool traversableRay(Pred const& p, Tree const& t,
+	                                                   typename Tree::Node const& n,
+	                                                   typename Tree::Ray const&) noexcept
+	{
+		return traversable(p, t, n);
 	}
 };
+
+namespace detail
+{
+template <class Geometry>
+struct is_spatial_pred<Intersects<Geometry>> : std::true_type {
+};
+}  // namespace detail
+
 }  // namespace ufo::pred
 
-#endif  // UFO_CONTAINER_TREE_PREDICATE_DEPTH_INTERVAL_HPP
+#endif  // UFO_CONTAINER_TREE_PREDICATE_INTERSECTS_HPP

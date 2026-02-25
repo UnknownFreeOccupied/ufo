@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -44,77 +44,77 @@
 
 // UFO
 #include <ufo/container/tree/predicate/filter.hpp>
-#include <ufo/container/tree/predicate/predicate_compare.hpp>
+#include <ufo/container/tree/predicate/predicate_interval.hpp>
 
 namespace ufo::pred
 {
-template <PredicateCompare PC = PredicateCompare::EQUAL>
+namespace detail
+{
 struct Depth {
-	// It is int because length predicate requires it
-	int depth;
-
-	constexpr Depth(int depth = 0) noexcept : depth(depth) {}
+	using value_type = int;
 };
+}  // namespace detail
 
-using DepthE  = Depth<PredicateCompare::EQUAL>;
-using DepthNE = Depth<PredicateCompare::NOT_EQUAL>;
-using DepthLE = Depth<PredicateCompare::LESS_EQUAL>;
-using DepthGE = Depth<PredicateCompare::GREATER_EQUAL>;
-using DepthL  = Depth<PredicateCompare::LESS>;
-using DepthG  = Depth<PredicateCompare::GREATER>;
+template <bool Negated = false>
+using Depth = PredicateInterval<detail::Depth, Negated>;
 
-using DepthMin = DepthGE;
-using DepthMax = DepthLE;
+static constexpr inline Depth<false> const depth;
 
-template <PredicateCompare PC>
-struct Filter<Depth<PC>> : public FilterBase<Depth<PC>> {
-	using Pred = Depth<PC>;
+template <bool Negated>
+struct Filter<Depth<Negated>> {
+	using Pred = Depth<Negated>;
 
 	template <class Tree>
-	static constexpr void init(Pred&, Tree const&)
+	static constexpr void init(Pred&, Tree const&) noexcept
 	{
+	}
+
+	template <class Value>
+	[[nodiscard]] static constexpr bool returnableValue(Pred const&, Value const&) noexcept
+	{
+		return true;
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const& t,
-	                                               typename Tree::Node const& n)
+	                                               typename Tree::Node const& n) noexcept
 	{
 		// Cast to int to prevent int to be promoted to unsigned
-		int n_depth = static_cast<int>(t.depth(n));
-		if constexpr (PredicateCompare::EQUAL == PC) {
-			return n_depth == p.depth;
-		} else if constexpr (PredicateCompare::NOT_EQUAL == PC) {
-			return n_depth != p.depth;
-		} else if constexpr (PredicateCompare::LESS_EQUAL == PC) {
-			return n_depth <= p.depth;
-		} else if constexpr (PredicateCompare::GREATER_EQUAL == PC) {
-			return n_depth >= p.depth;
-		} else if constexpr (PredicateCompare::LESS == PC) {
-			return n_depth < p.depth;
-		} else if constexpr (PredicateCompare::GREATER == PC) {
-			return n_depth > p.depth;
+		int depth = static_cast<int>(t.depth(n));
+		if constexpr (Negated) {
+			return p.min > depth || p.max < depth;
+		} else {
+			return p.min <= depth && p.max >= depth;
 		}
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool traversable(Pred const& p, Tree const& t,
-	                                                typename Tree::Node const& n)
+	                                                typename Tree::Node const& n) noexcept
 	{
 		// Cast to int to prevent int to be promoted to unsigned
-		int n_depth = static_cast<int>(t.depth(n));
-		if constexpr (PredicateCompare::EQUAL == PC) {
-			return n_depth > p.depth;
-		} else if constexpr (PredicateCompare::NOT_EQUAL == PC) {
-			return true;
-		} else if constexpr (PredicateCompare::LESS_EQUAL == PC) {
-			return true;
-		} else if constexpr (PredicateCompare::GREATER_EQUAL == PC) {
-			return n_depth > p.depth;
-		} else if constexpr (PredicateCompare::LESS == PC) {
-			return true;
-		} else if constexpr (PredicateCompare::GREATER == PC) {
-			return n_depth > (p.depth + 1);
+		int depth = static_cast<int>(t.depth(n));
+		if constexpr (Negated) {
+			return 0 < p.min || p.max + 1 < depth;
+		} else {
+			return p.min < depth;
 		}
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool returnableRay(Pred const& p, Tree const& t,
+	                                                  typename Tree::Node const& n,
+	                                                  typename Tree::Ray const&) noexcept
+	{
+		return returnable(p, t, n);
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool traversableRay(Pred const& p, Tree const& t,
+	                                                   typename Tree::Node const& n,
+	                                                   typename Tree::Ray const&) noexcept
+	{
+		return traversable(p, t, n);
 	}
 };
 }  // namespace ufo::pred

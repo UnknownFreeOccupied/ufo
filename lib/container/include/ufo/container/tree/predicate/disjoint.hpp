@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -39,71 +39,82 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_CONTAINER_TREE_PREDICATE_LENGTH_INTERVAL_HPP
-#define UFO_CONTAINER_TREE_PREDICATE_LENGTH_INTERVAL_HPP
+#ifndef UFO_CONTAINER_TREE_PREDICATE_DISJOINT_HPP
+#define UFO_CONTAINER_TREE_PREDICATE_DISJOINT_HPP
 
 // UFO
 #include <ufo/container/tree/predicate/filter.hpp>
-#include <ufo/container/tree/predicate/length.hpp>
+#include <ufo/container/tree/predicate/spatial.hpp>
+#include <ufo/geometry/disjoint.hpp>
+#include <ufo/geometry/inside.hpp>
+
+// STL
+#include <type_traits>
 
 namespace ufo::pred
 {
-/*!
- * @brief
- *
- * @note The interval is inclusive (i.e., [min .. max]).
- *
- */
-template <bool Negated = false>
-struct LengthInterval {
-	LengthMin min;
-	LengthMax max;
-
-	constexpr LengthInterval(double min, double max) noexcept : min(min), max(max) {}
+template <class Geometry>
+struct Disjoint {
+	Geometry geometry;
 };
 
-template <bool Negated>
-constexpr LengthInterval<!Negated> operator!(LengthInterval<Negated> const& p)
-{
-	return LengthInterval<!Negated>(p.min, p.max);
-}
-
-template <bool Negated>
-struct Filter<LengthInterval<Negated>> : public FilterBase<LengthInterval<Negated>> {
-	using Pred = LengthInterval<Negated>;
+template <class Geometry>
+struct Filter<Disjoint<Geometry>> {
+	using Pred = Disjoint<Geometry>;
 
 	template <class Tree>
-	static constexpr void init(Pred& p, Tree const& t)
+	static constexpr void init(Pred&, Tree const&) noexcept
 	{
-		Filter<LengthMin>::init(p.min, t);
-		Filter<LengthMax>::init(p.max, t);
+	}
+
+	template <class Value>
+	[[nodiscard]] static constexpr bool returnableValue(Pred const&  p,
+	                                                    Value const& v) noexcept
+	{
+		if constexpr (is_pair_v<std::remove_cvref_t<Value>>) {
+			return disjoint(v.first, p.geometry);
+		} else {
+			return disjoint(v, p.geometry);
+		}
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const& t,
-	                                               typename Tree::Node const& n)
+	                                               typename Tree::Node const& n) noexcept
 	{
-		if constexpr (Negated) {
-			return !(Filter<LengthMin>::returnable(p.min, t, n) &&
-			         Filter<LengthMax>::returnable(p.max, t, n));
-		} else {
-			return Filter<LengthMin>::returnable(p.min, t, n) &&
-			       Filter<LengthMax>::returnable(p.max, t, n);
-		}
+		return disjoint(t.bounds(n), p.geometry);
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool traversable(Pred const& p, Tree const& t,
-	                                                typename Tree::Node const& n)
+	                                                typename Tree::Node const& n) noexcept
 	{
-		if constexpr (Negated) {
-			return 0 < p.min.depth_ || p.max.depth_ + 1 < t.depth(n);
-		} else {
-			return Filter<LengthMin>::traversable(p.min, t, n) &&
-			       Filter<LengthMax>::traversable(p.max, t, n);
-		}
+		return !inside(t.bounds(n), p.geometry);
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool returnableRay(Pred const& p, Tree const& t,
+	                                                  typename Tree::Node const& n,
+	                                                  typename Tree::Ray const&) noexcept
+	{
+		return returnable(p, t, n);
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool traversableRay(Pred const& p, Tree const& t,
+	                                                   typename Tree::Node const& n,
+	                                                   typename Tree::Ray const&) noexcept
+	{
+		return traversable(p, t, n);
 	}
 };
+
+namespace detail
+{
+template <class Geometry>
+struct is_spatial_pred<Disjoint<Geometry>> : std::true_type {
+};
+}  // namespace detail
 }  // namespace ufo::pred
 
-#endif  // UFO_CONTAINER_TREE_PREDICATE_LENGTH_INTERVAL_HPP
+#endif  // UFO_CONTAINER_TREE_PREDICATE_DISJOINT_HPP

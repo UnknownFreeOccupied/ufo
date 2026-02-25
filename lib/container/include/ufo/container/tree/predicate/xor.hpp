@@ -39,93 +39,107 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_CONTAINER_TREE_PREDICATE_CHILD_OF_HPP
-#define UFO_CONTAINER_TREE_PREDICATE_CHILD_OF_HPP
+#ifndef UFO_CONTAINER_TREE_PREDICATE_XOR_HPP
+#define UFO_CONTAINER_TREE_PREDICATE_XOR_HPP
 
 // UFO
-#include <ufo/container/tree/code.hpp>
 #include <ufo/container/tree/predicate/filter.hpp>
+#include <ufo/utility/type_traits.hpp>
 
 // STL
-#include <algorithm>
-#include <cstddef>
+#include <type_traits>
+#include <utility>
 
 namespace ufo::pred
 {
-template <std::size_t Dim, bool Negated = false>
-struct ChildOf {
-	TreeCode<Dim> code;
+template <Filterable PredLeft, Filterable PredRight>
+struct Xor {
+	Xor(PredLeft const& left, PredRight const& right) noexcept : left(left), right(right) {}
 
-	constexpr ChildOf(TreeCode<Dim> const& code) noexcept : code(code) {}
+	PredLeft  left;
+	PredRight right;
 };
 
-// Deduction guide
-template <std::size_t Dim>
-ChildOf(TreeCode<Dim>) -> ChildOf<Dim>;
-
-template <std::size_t Dim, bool Negated>
-[[nodiscard]] constexpr ChildOf<Dim, !Negated> operator!(
-    ChildOf<Dim, Negated> const& p) noexcept
+template <Filterable PredLeft, Filterable PredRight>
+[[nodiscard]] constexpr Xor<std::remove_cvref_t<PredLeft>, std::remove_cvref_t<PredRight>>
+operator^(PredLeft&& left, PredRight&& right) noexcept
 {
-	return ChildOf<Dim, !Negated>{p.code};
+	return Xor(std::forward<PredLeft>(left), std::forward<PredRight>(right));
 }
 
-template <std::size_t Dim, bool Negated>
-struct Filter<ChildOf<Dim, Negated>> {
-	using Pred = ChildOf<Dim, Negated>;
+template <Filterable PredLeft, Filterable PredRight>
+struct Filter<Xor<PredLeft, PredRight>> {
+	using Pred = Xor<PredLeft, PredRight>;
 
 	template <class Tree>
-	static constexpr void init(Pred&, Tree const&) noexcept
+	static constexpr void init(Pred& p, Tree const& t) noexcept
 	{
+		Filter<PredLeft>::init(p.left, t);
+		Filter<PredRight>::init(p.right, t);
 	}
 
 	template <class Value>
-	[[nodiscard]] static constexpr bool returnableValue(Pred const&, Value const&) noexcept
+	[[nodiscard]] static constexpr bool returnableValue(Pred const&  p,
+	                                                    Value const& v) noexcept
 	{
-		return true;
+		return Filter<PredLeft>::returnableValue(p.left, v) !=
+		       Filter<PredRight>::returnableValue(p.right, v);
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const& t,
 	                                               typename Tree::Node const& n) noexcept
 	{
-		if constexpr (Negated) {
-			return !(p.code.depth() > t.depth(n) &&
-			         TreeCode<Dim>::equalAtDepth(p.code, t.code(n), p.code.depth()));
-		} else {
-			return p.code.depth() > t.depth(n) &&
-			       TreeCode<Dim>::equalAtDepth(p.code, t.code(n), p.code.depth());
-		}
+		return Filter<PredLeft>::returnable(p.left, t, n) !=
+		       Filter<PredRight>::returnable(p.right, t, n);
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool traversable(Pred const& p, Tree const& t,
 	                                                typename Tree::Node const& n) noexcept
 	{
-		if constexpr (Negated) {
-			return returnable(p, t, n);
-		} else {
-			return TreeCode<Dim>::equalAtDepth(p.code, t.code(n),
-			                                   std::max(p.code.depth(), t.depth(n)));
-		}
+		// Note: This is not the same as the returnable check! If both predicates
+		// are true, we can still traverse both subtrees. If both are false, we
+		// can't traverse either subtree. If one is true and one is false, we can
+		// traverse the subtree corresponding to the true predicate.
+		return Filter<PredLeft>::traversable(p.left, t, n) ||
+		       Filter<PredRight>::traversable(p.right, t, n);
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool returnableRay(Pred const& p, Tree const& t,
 	                                                  typename Tree::Node const& n,
-	                                                  typename Tree::Ray const&) noexcept
+	                                                  typename Tree::Ray const&  r) noexcept
 	{
-		return returnable(p, t, n);
+		return Filter<PredLeft>::returnableRay(p.left, t, n, r) !=
+		       Filter<PredRight>::returnableRay(p.right, t, n, r);
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool traversableRay(Pred const& p, Tree const& t,
 	                                                   typename Tree::Node const& n,
-	                                                   typename Tree::Ray const&) noexcept
+	                                                   typename Tree::Ray const& r) noexcept
 	{
-		return traversable(p, t, n);
+		// Note: This is not the same as the returnable check! If both predicates
+		// are true, we can still traverse both subtrees. If both are false, we
+		// can't traverse either subtree. If one is true and one is false, we can
+		// traverse the subtree corresponding to the true predicate.
+		return Filter<PredLeft>::traversableRay(p.left, t, n, r) ||
+		       Filter<PredRight>::traversableRay(p.right, t, n, r);
 	}
 };
+
+namespace detail
+{
+template <Filterable T, Filterable L, Filterable R>
+struct contains_pred<T, Xor<L, R>>
+    : std::disjunction<contains_pred<T, L>, contains_pred<T, R>> {
+};
+
+template <Filterable T, Filterable L, Filterable R>
+struct contains_always_pred<T, Xor<L, R>> : std::false_type {
+};
+}  // namespace detail
 }  // namespace ufo::pred
 
-#endif  // UFO_CONTAINER_TREE_PREDICATE_CHILD_OF_HPP
+#endif  // UFO_CONTAINER_TREE_PREDICATE_XOR_HPP

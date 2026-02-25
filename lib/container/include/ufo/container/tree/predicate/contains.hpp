@@ -39,40 +39,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_CONTAINER_TREE_PREDICATE_CHILD_OF_HPP
-#define UFO_CONTAINER_TREE_PREDICATE_CHILD_OF_HPP
+#ifndef UFO_CONTAINER_TREE_PREDICATE_CONTAINS_HPP
+#define UFO_CONTAINER_TREE_PREDICATE_CONTAINS_HPP
 
 // UFO
-#include <ufo/container/tree/code.hpp>
 #include <ufo/container/tree/predicate/filter.hpp>
+#include <ufo/container/tree/predicate/spatial.hpp>
+#include <ufo/geometry/contains.hpp>
 
 // STL
-#include <algorithm>
-#include <cstddef>
+#include <type_traits>
 
 namespace ufo::pred
 {
-template <std::size_t Dim, bool Negated = false>
-struct ChildOf {
-	TreeCode<Dim> code;
-
-	constexpr ChildOf(TreeCode<Dim> const& code) noexcept : code(code) {}
+template <class Geometry, bool Negated = false>
+struct Contains {
+	Geometry geometry;
 };
 
-// Deduction guide
-template <std::size_t Dim>
-ChildOf(TreeCode<Dim>) -> ChildOf<Dim>;
-
-template <std::size_t Dim, bool Negated>
-[[nodiscard]] constexpr ChildOf<Dim, !Negated> operator!(
-    ChildOf<Dim, Negated> const& p) noexcept
+template <class Geometry, bool Negated>
+[[nodiscard]] constexpr Contains<Geometry, !Negated> operator!(
+    Contains<Geometry, Negated> const& p) noexcept
 {
-	return ChildOf<Dim, !Negated>{p.code};
+	return Contains<Geometry, !Negated>{p.geometry};
 }
 
-template <std::size_t Dim, bool Negated>
-struct Filter<ChildOf<Dim, Negated>> {
-	using Pred = ChildOf<Dim, Negated>;
+template <class Geometry, bool Negated>
+struct Filter<Contains<Geometry, Negated>> {
+	using Pred = Contains<Geometry, Negated>;
 
 	template <class Tree>
 	static constexpr void init(Pred&, Tree const&) noexcept
@@ -80,9 +74,22 @@ struct Filter<ChildOf<Dim, Negated>> {
 	}
 
 	template <class Value>
-	[[nodiscard]] static constexpr bool returnableValue(Pred const&, Value const&) noexcept
+	[[nodiscard]] static constexpr bool returnableValue(Pred const&  p,
+	                                                    Value const& v) noexcept
 	{
-		return true;
+		if constexpr (Negated) {
+			if constexpr (is_pair_v<std::remove_cvref_t<Value>>) {
+				return !contains(v.first, p.geometry);
+			} else {
+				return !contains(v, p.geometry);
+			}
+		} else {
+			if constexpr (is_pair_v<std::remove_cvref_t<Value>>) {
+				return contains(v.first, p.geometry);
+			} else {
+				return contains(v, p.geometry);
+			}
+		}
 	}
 
 	template <class Tree>
@@ -90,11 +97,9 @@ struct Filter<ChildOf<Dim, Negated>> {
 	                                               typename Tree::Node const& n) noexcept
 	{
 		if constexpr (Negated) {
-			return !(p.code.depth() > t.depth(n) &&
-			         TreeCode<Dim>::equalAtDepth(p.code, t.code(n), p.code.depth()));
+			return !contains(t.bounds(n), p.geometry);
 		} else {
-			return p.code.depth() > t.depth(n) &&
-			       TreeCode<Dim>::equalAtDepth(p.code, t.code(n), p.code.depth());
+			return contains(t.bounds(n), p.geometry);
 		}
 	}
 
@@ -103,10 +108,9 @@ struct Filter<ChildOf<Dim, Negated>> {
 	                                                typename Tree::Node const& n) noexcept
 	{
 		if constexpr (Negated) {
-			return returnable(p, t, n);
+			return true;
 		} else {
-			return TreeCode<Dim>::equalAtDepth(p.code, t.code(n),
-			                                   std::max(p.code.depth(), t.depth(n)));
+			return contains(t.bounds(n), p.geometry);
 		}
 	}
 
@@ -126,6 +130,13 @@ struct Filter<ChildOf<Dim, Negated>> {
 		return traversable(p, t, n);
 	}
 };
+
+namespace detail
+{
+template <class Geometry, bool Negated>
+struct is_spatial_pred<Contains<Geometry, Negated>> : std::true_type {
+};
+}  // namespace detail
 }  // namespace ufo::pred
 
-#endif  // UFO_CONTAINER_TREE_PREDICATE_CHILD_OF_HPP
+#endif  // UFO_CONTAINER_TREE_PREDICATE_CONTAINS_HPP

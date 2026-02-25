@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -44,105 +44,100 @@
 
 // UFO
 #include <ufo/container/tree/predicate/filter.hpp>
-#include <ufo/container/tree/predicate/predicate_compare.hpp>
+#include <ufo/container/tree/predicate/predicate_interval.hpp>
 
 namespace ufo::pred
 {
-template <std::size_t Axis, PredicateCompare PC = PredicateCompare::EQUAL>
+namespace detail
+{
+template <std::size_t Axis>
 struct Coord {
-	float coord;
-
-	constexpr Coord(float coord = 0.0f) noexcept : coord(coord) {}
+	using value_type = float;
 };
+}  // namespace detail
 
-template <PredicateCompare PC = PredicateCompare::EQUAL>
-struct X : Coord<0, PC> {
-	constexpr X(float x = 0.0f) : Coord<0, PC>(x) {}
-};
+template <std::size_t Axis, bool Negated = false>
+using Coord = PredicateInterval<detail::Coord<Axis>, Negated>;
 
-template <PredicateCompare PC = PredicateCompare::EQUAL>
-struct Y : Coord<1, PC> {
-	constexpr Y(float y = 0.0f) : Coord<1, PC>(y) {}
-};
+template <bool Negated = false>
+using X = Coord<0, Negated>;
 
-template <PredicateCompare PC = PredicateCompare::EQUAL>
-struct Z : Coord<2, PC> {
-	constexpr Z(float z = 0.0f) : Coord<2, PC>(z) {}
-};
+template <bool Negated = false>
+using Y = Coord<1, Negated>;
 
-template <PredicateCompare PC = PredicateCompare::EQUAL>
-struct W : Coord<3, PC> {
-	constexpr W(float w = 0.0f) : Coord<3, PC>(w) {}
-};
+template <bool Negated = false>
+using Z = Coord<2, Negated>;
 
-template <std::size_t Axis, PredicateCompare PC>
-struct Filter<Coord<Axis, PC>> : public FilterBase<Coord<Axis, PC>> {
-	using Pred = Coord<Axis, PC>;
+template <bool Negated = false>
+using W = Coord<3, Negated>;
+
+static constexpr inline X<false> const x;
+static constexpr inline Y<false> const y;
+static constexpr inline Z<false> const z;
+static constexpr inline W<false> const w;
+
+template <std::size_t Axis, bool Negated>
+struct Filter<Coord<Axis, Negated>> {
+	using Pred = Coord<Axis, Negated>;
 
 	template <class Tree>
-	static constexpr void init(Pred&, Tree const&)
+	static constexpr void init(Pred&, Tree const&) noexcept
 	{
+	}
+
+	template <class Value>
+	[[nodiscard]] static constexpr bool returnableValue(Pred const&, Value const&) noexcept
+	{
+		return true;
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const& t,
-	                                               typename Tree::Node const& n)
+	                                               typename Tree::Node const& n) noexcept
 	{
 		auto c  = t.centerAxis(n, Axis);
 		auto hl = t.halfLength(n)[Axis];
 
-		if constexpr (PredicateCompare::EQUAL == PC) {
-			return c - hl <= p.coord && c + hl >= p.coord;
-		} else if constexpr (PredicateCompare::NOT_EQUAL == PC) {
-			return c - hl > p.coord || c + hl < p.coord;
-		} else if constexpr (PredicateCompare::LESS_EQUAL == PC) {
-			return c - hl <= p.coord;
-		} else if constexpr (PredicateCompare::GREATER_EQUAL == PC) {
-			return c + hl >= p.coord;
-		} else if constexpr (PredicateCompare::LESS == PC) {
-			return c + hl < p.coord;
-		} else if constexpr (PredicateCompare::GREATER == PC) {
-			return c - hl > p.coord;
+		if constexpr (Negated) {
+			// Check if the interval is outside the node
+			return p.min > c + hl || p.max < c - hl;
+		} else {
+			// Check if the node overlaps with the interval
+			return p.min <= c + hl && p.max >= c - hl;
 		}
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool traversable(Pred const& p, Tree const& t,
-	                                                typename Tree::Node const& n)
+	                                                typename Tree::Node const& n) noexcept
 	{
 		auto c  = t.centerAxis(n, Axis);
 		auto hl = t.halfLength(n)[Axis];
 
-		if constexpr (PredicateCompare::EQUAL == PC) {
-			return c - hl <= p.coord && c + hl >= p.coord;
-		} else if constexpr (PredicateCompare::NOT_EQUAL == PC) {
-			return true;
-		} else if constexpr (PredicateCompare::LESS_EQUAL == PC) {
-			return c - hl <= p.coord;
-		} else if constexpr (PredicateCompare::GREATER_EQUAL == PC) {
-			return c + hl >= p.coord;
-		} else if constexpr (PredicateCompare::LESS == PC) {
-			return c - hl + t.length(0)[Axis] < p.coord;
-		} else if constexpr (PredicateCompare::GREATER == PC) {
-			return c + hl - t.length(0)[Axis] > p.coord;
+		if constexpr (Negated) {
+			// Check if the whole node is contained in the negated interval
+			return !(p.min <= c - hl && p.max >= c + hl);
+		} else {
+			// Check if the node overlaps with the interval
+			return p.min <= c + hl && p.max >= c - hl;
 		}
 	}
-};
 
-template <PredicateCompare PC>
-struct Filter<X<PC>> : Filter<Coord<0, PC>> {
-};
+	template <class Tree>
+	[[nodiscard]] static constexpr bool returnableRay(Pred const& p, Tree const& t,
+	                                                  typename Tree::Node const& n,
+	                                                  typename Tree::Ray const&) noexcept
+	{
+		return returnable(p, t, n);
+	}
 
-template <PredicateCompare PC>
-struct Filter<Y<PC>> : Filter<Coord<1, PC>> {
-};
-
-template <PredicateCompare PC>
-struct Filter<Z<PC>> : Filter<Coord<2, PC>> {
-};
-
-template <PredicateCompare PC>
-struct Filter<W<PC>> : Filter<Coord<3, PC>> {
+	template <class Tree>
+	[[nodiscard]] static constexpr bool traversableRay(Pred const& p, Tree const& t,
+	                                                   typename Tree::Node const& n,
+	                                                   typename Tree::Ray const&) noexcept
+	{
+		return traversable(p, t, n);
+	}
 };
 }  // namespace ufo::pred
 
