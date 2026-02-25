@@ -31,10 +31,30 @@ Please describe the tests that you ran to verify your changes. Provide instructi
 - [ ] Test B
 
 **Test Configuration**:
-* Firmware version:
-* Hardware:
-* Toolchain:
-* SDK:
+<!--
+Please run `pixi run system_info` or `ufo --version` to get the system information. Copy the output here. It should look something like:
+```text
+UFO v1.0.0
+
+================================= SYSTEM INFO ==================================
+OS:                Ubuntu 24.04.4 LTS (Kernel: 6.17.0-14-generic)
+CPU:               AMD Ryzen 5 3600X 6-Core Processor (6C/12T) @ x86_64
+SIMD Extensions:   SSE2
+RAM:               31.3 GB Total (21.9 GB)
+
+GPU [Vulkan]:      NVIDIA GeForce GTX 1660 SUPER (Discrete GPU) [Driver:
+                   590.48.01]
+GPU [Vulkan]:      llvmpipe (LLVM 20.1.2, 256 bits) (CPU) [Driver: Mesa
+                   25.2.8-0ubuntu0.24.04.1 (LLVM 20.1.2)]
+GPU [OpenGL]:      NVIDIA GeForce GTX 1660 SUPER/PCIe/SSE2 [Driver: 3.3.0 NVIDIA
+                   590.48.01]
+
+Environment:       64-bit | Little Endian
+Compiler:          GCC 14.2.0 | C++23 (202302)
+Build:             Release [Feb 24 2026 23:25:10]
+================================================================================
+```
+-->
 
 # Checklist
 
@@ -46,3 +66,4 @@ Please describe the tests that you ran to verify your changes. Provide instructi
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
 - [ ] Any dependent changes have been merged and published in downstream modules
+- [ ] I have added newly created `.cpp` and `.hpp` files to the `target_sources` in the `CMakeLists.txt` files
