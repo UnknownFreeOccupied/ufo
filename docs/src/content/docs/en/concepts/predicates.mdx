@@ -341,16 +341,19 @@ These predicates are only avilable if the map has time, i.e., `TimeMap` is used.
 ## Examples
 
 ```cpp
-Map<OccupancyMap, ColorMap, SemanticMap, DynamicsMap> map;
+ufo::Map<ufo::OccupancyMap, ufo::DynamicsMap, ufo::SemanticMap> map;
 
 // Fill in map with data
 
-auto pred = pred::childless && pred::occupied && pred::dynamic && pred::Label("car");
+namespace up = ufo::pred;
+
+auto pred = up::childless && up::occupied && up::dynamic && up::Semantic("car", 0.7, 1.0);
+
 for (auto node : pred) {
   // Node is a node that satisfies the predicate, so it is:
   // - Childless
   // - Occupied
   // - Dynamic
-  // - Has label "car"
+  // - Has label "car" with confidence in [0.7, 1.0]
 }
 ```
