@@ -24,6 +24,7 @@ export default defineConfig({
 				sv: 'UFO',
 			},
 			favicon: '/favicon.svg',
+			customCss: ['./src/styles/custom.css'],
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/UnknownFreeOccupied/ufo' }],
 			sidebar: [
 				{

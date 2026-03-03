@@ -4,3 +4,7 @@
 	border-right: 2px solid var(--sl-color-hairline);
 	/* var(--sl-color-hairline) uses Starlight's built-in theme colors so it looks native in both dark and light modes! */
 }
+
+.katex-html svg {
+	height: inherit;
+}
