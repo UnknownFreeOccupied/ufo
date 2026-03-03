@@ -11,11 +11,9 @@ Predicates are functions that return a boolean value. They are used to filter no
 
 ---
 
-## Core Predicates
+## Tree Concepts
 
-### Tree Concepts
-
-#### Structure
+### Structure
 
 The following predicates evaluate the *structure* of a node.
 
@@ -59,7 +57,7 @@ Offset: 0}
   class L3,L2,L1,L0 textLabel;
 ```
 
-#### State
+### State
 
 The following predicates evaluate the *current state* of a node.
 
@@ -70,7 +68,7 @@ The following predicates evaluate the *current state* of a node.
 | `HasChildren` | True if the `node` has children.           |
 | `Modified`    | True if the `node` is in a modified state. |
 
-#### Relationships
+### Relationships
 
 These predicates evaluate a node based on its position relative to a target node (`T`).
 
@@ -84,7 +82,7 @@ These predicates evaluate a node based on its position relative to a target node
 
 ## Spatial & Coordinates
 
-### Spatial Relationships
+### Spatial
 
 These predicates evaluate the physical intersection between a node and a given geometry.
 
@@ -106,9 +104,9 @@ These predicates evaluate the physical intersection between a node and a given g
 
 ---
 
-### Combinding Predicates
+## Combinding Predicates
 
-#### Logical
+### Logical
 The following predicates are used to combine, negate, or compare other predicates. 
 
 | Predicate | Arguments | Description |
@@ -130,7 +128,7 @@ The following predicates are used to combine, negate, or compare other predicate
 
 </div>
 
-##### C++ Operator Overloads
+#### C++ Operator Overloads
 In C++, you can use standard operators to make complex queries much more readable:
 
 | C++ Operator | Predicate | Equivalent Logic |
@@ -185,7 +183,7 @@ auto pred = 3 < depth < 5;
 auto pred = 3 < depth && depth < 5;
 ```
 
-#### Boolean
+### Boolean
 These are the simplest predicates, used primarily for testing or forcing specific evaluation states.
 
 | Predicate | Arguments | Description |
