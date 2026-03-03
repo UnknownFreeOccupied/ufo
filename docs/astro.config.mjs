@@ -85,6 +85,8 @@ export default defineConfig({
 					},
 					items: [
 						// Each item here is one entry in the navigation menu.
+						'guides/create_map_type',
+						'guides/create_predicate',
 						'guides/host_website',
 					],
 				},
