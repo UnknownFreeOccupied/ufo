@@ -117,9 +117,9 @@ The following predicates are used to combine, negate, or compare other predicate
 | --- | --- | --- |
 | `And` | $P_1, \dots, P_n$ | True if all predicates are true ($P_1 \land P_2 \land \dots \land P_n$). |
 | `Or` | $P_1, \dots, P_n$ | True if at least one predicate is true ($P_1 \lor P_2 \lor \dots \lor P_n$). |
-| `IfThen` | $P, Q$ | True if the first argument is false or the second argument is true ($P \rightarrow Q$). |
-| `Iff` | $P, Q$ | True if both arguments are true or both are false ($P \leftrightarrow Q$). |
-| `Xor` | $P, Q$ | True if exactly one predicate is true ($P \oplus Q$). |
+| `IfThen` | $P, Q$ | True if $P$ is false or $Q$ is true ($P \rightarrow Q$). |
+| `Iff` | $P, Q$ | True if both arguments are either true or false ($P \leftrightarrow Q$). |
+| `Xor` | $P, Q$ | True if exactly one argument is true ($P \oplus Q$). |
 
 <div class="truth-table">
 
@@ -202,7 +202,7 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 
 | Predicate | Arguments | Description |
 | --- | --- | --- |
-| `Satisfies` | `RetFun`, `IntFun` | True if the `node` satisfies `RetFun` and the node's ancestors satisfy `IntFun`. |
+| `Satisfies` | `RetFun`, `IntFun` | `node` satisfies `RetFun` and the node's ancestors satisfy `IntFun`. |
 
 ---
 
@@ -214,68 +214,68 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 
 | Predicate | Arguments | Description |
 | --- | --- | --- |
-| `Alpha` | `min`, `max` | True if the `node`'s alpha is within the range `[min, max]`. |
-| `Hue` | `min`, `max` | True if the `node`'s hue is within the range `[min, max]`. |
-| `Saturation` | `min`, `max` | True if the `node`'s saturation is within the range `[min, max]`. |
-| `Lightness` | `min`, `max` | True if the `node`'s lightness is within the range `[min, max]`. |
-| `HasColor` | | True if the `node` has any color. |
+| `Alpha` | `min`, `max` | `node`'s alpha is within the range `[min, max]`. |
+| `Hue` | `min`, `max` | `node`'s hue is within the range `[min, max]`. |
+| `Saturation` | `min`, `max` | `node`'s saturation is within the range `[min, max]`. |
+| `Lightness` | `min`, `max` | `node`'s lightness is within the range `[min, max]`. |
+| `HasColor` | | `node` has any color. |
 
 ### Confidence
 
 | Predicate | Arguments | Description |
 | --- | --- | --- |
-| `Confidence` | `min`, `max` | True if the `node`'s confidence is within the range `[min, max]`. |
+| `Confidence` | `min`, `max` | `node`'s confidence is within the range `[min, max]`. |
 
 ### Cost
 
 | Predicate | Arguments | Description |
 | --- | --- | --- |
-| `Cost` | `min`, `max` | True if the `node`'s cost is within the range `[min, max]`. |
+| `Cost` | `min`, `max` | `node`'s cost is within the range `[min, max]`. |
 
 ### Count
 
 | Predicate | Arguments | Description |
 | --- | --- | --- |
-| `Count` | `min`, `max` | True if the `node`'s count is within the range `[min, max]`. |
+| `Count` | `min`, `max` | `node`'s count is within the range `[min, max]`. |
 
 ### Distance
 
 | Predicate | Arguments | Description |
 | --- | --- | --- |
-| `Distance` | `min`, `max` | True if the `node`'s distance is within the range `[min, max]`. |
+| `Distance` | `min`, `max` | `node`'s distance is within the range `[min, max]`. |
 
 ### Intensity
 
 | Predicate | Arguments | Description |
 | --- | --- | --- |
-| `Intensity` | `min`, `max` | True if the `node`'s intensity is within the range `[min, max]`. |
+| `Intensity` | `min`, `max` | `node`'s intensity is within the range `[min, max]`. |
 
 ### Label
 
 | Predicate | Arguments | Description |
 | --- | --- | --- |
-| `Label` | `label` | True if the `node` has the given `label`. |
+| `Label` | `label` | `node` has the given `label`. |
 
 ### Occupancy
 
 | Predicate | Arguments | Description |
 | --- | --- | --- |
-| `Free` | | True if the `node` is free. |
-| `Occupied` | | True if the `node` is occupied. |
-| `Unknown` | | True if the `node` is unknown. |
-| `Occupancy` | `min`, `max` | True if the `node`'s occupancy is within the range `[min, max]`. |
-| `OccupancyStates` | `states` | True if the `node`'s occupancy is one of the given `states`. |
-| `ContainsFree` | | True if the `node` contains free space (i.e., either it is free or has free children). |
-| `ContainsOccupied` | | True if the `node` contains occupied space (i.e., either it is occupied or has occupied children). |
-| `ContainsUnknown` | | True if the `node` contains unknown space (i.e., either it is unknown or has unknown children). |
+| `Free` | | `node` is free. |
+| `Occupied` | | `node` is occupied. |
+| `Unknown` | | `node` is unknown. |
+| `Occupancy` | `min`, `max` | `node`'s occupancy is within the range `[min, max]`. |
+| `OccupancyStates` | `states` | `node`'s occupancy is one of the given `states`. |
+| `ContainsFree` | | `node` contains free space (i.e., either it is free or has free children). |
+| `ContainsOccupied` | | `node` contains occupied space (i.e., either it is occupied or has occupied children). |
+| `ContainsUnknown` | | `node` contains unknown space (i.e., either it is unknown or has unknown children). |
 
 ### Reflection
 
 | Predicate | Arguments | Description |
 | --- | --- | --- |
-| `Hits` | `min`, `max` | True if the `node` has been hit within the range `[min, max]`. |
-| `Misses` | `min`, `max` | True if the `node` has been missed within the range `[min, max]`. |
-| `Reflectiveness` | `min`, `max` | True if the `node`'s reflectiveness is within the range `[min, max]`. |
+| `Hits` | `min`, `max` | `node` has been hit within the range `[min, max]`. |
+| `Misses` | `min`, `max` | `node` has been missed within the range `[min, max]`. |
+| `Reflectiveness` | `min`, `max` | `node`'s reflectiveness is within the range `[min, max]`. |
 
 ### Semantic
 
@@ -285,12 +285,12 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 
 | Predicate | Arguments | Description |
 | --- | --- | --- |
-| `Time` | `min`, `max` | True if the `node`'s timestamp is within the range `[min, max]`. |
+| `Time` | `min`, `max` | `node`'s timestamp is within the range `[min, max]`. |
 
 
 ### Void Region
 
 | Predicate | Description |
 | --- | --- |
-| `VoidRegion` | True if the `node` is a void region. |
-| `ContainsVoidRegion` | True if the `node` contains a void region (i.e., either it is a void region or has void children). |
+| `VoidRegion` | `node` is a void region. |
+| `ContainsVoidRegion` | `node` contains a void region (i.e., either it is a void region or has void children). |
