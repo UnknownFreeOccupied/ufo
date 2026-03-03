@@ -212,22 +212,20 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 
 ## Map-specific Predicates
 
-*(Documentation for map-specific filters will go here).*
-
 ### Color
 
+> **Note:** Color properties are evaluated using the [**Oklch** color space](https://bottosson.github.io/posts/oklab/).
 
-| Predicate     | Arguments    | Description                      |
-| ------------- | ------------ | -------------------------------- |
-| `Alpha`       | `min`, `max` | Alpha is in `[min, max]`.        |
-| `Hue`         | `min`, `max` | Hue is in `[min, max]`.          |
-| `Saturation`  | `min`, `max` | Saturation is in `[min, max]`.   |
-| `Lightness`   | `min`, `max` | Lightness is in `[min, max]`.    |
-| `HasColor`    |              | Has color.                       |
-| `ColorWeight` | `min`, `max` | Color weight is in `[min, max]`. |
+| Predicate     | Arguments    | Description                                          |
+| ------------- | ------------ | ---------------------------------------------------- |
+| `HasColor`    |              | Has color.                                           |
+| `Lightness`   | `min`, `max` | Lightness is in `[min, max]`. Valid range: `[0, 1]`. |
+| `Chroma`      | `min`, `max` | Chroma is in `[min, max]`. Valid range: `[0, 0.4]`.  |
+| `Hue`         | `min`, `max` | Hue is in `[min, max]`. Valid range: `[0, 360]`.     |
+| `Alpha`       | `min`, `max` | Alpha is in `[min, max]`. Valid range: `[0, 1]`.     |
+| `ColorWeight` | `min`, `max` | Color weight is in `[min, max]`.                     |
 
 ### Confidence
-
 
 | Predicate    | Arguments    | Description                    |
 | ------------ | ------------ | ------------------------------ |
@@ -235,7 +233,6 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 
 
 ### Cost
-
 
 | Predicate | Arguments    | Description              |
 | --------- | ------------ | ------------------------ |
@@ -253,6 +250,15 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 | ---------- | ------------ | ---------------------------- |
 | `Distance` | `min`, `max` | Distance is in `[min, max]`. |
 
+### Dynamics
+
+| Predicate    | Arguments | Description                     |
+| ------------ | --------- | ------------------------------- |
+| `Dynamic`    |           | Is dynamic.                     |
+| `Static`     |           | Is static.                      |
+| `HasDynamic` |           | Itself or any child is dynamic. |
+| `HasStatic`  |           | Itself or any child is static.  |
+
 ### Intensity
 
 | Predicate   | Arguments    | Description                   |
@@ -267,41 +273,34 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 
 ### Occupancy
 
-| Predicate         | Arguments    | Description                                 |
-| ----------------- | ------------ | ------------------------------------------- |
-| `Free`            |              | Is free.                                    |
-| `Occupied`        |              | Is occupied.                                |
-| `Unknown`         |              | Is unknown.                                 |
-| `Occupancy`       | `min`, `max` | Occupancy is within the range `[min, max]`. |
-| `OccupancyStates` | `states`     | Occupancy is one of the given `states`.     |
-| `HasFree`         |              | Itself or any child is free.                |
-| `HasOccupied`     |              | Itself or any child is occupied.            |
-| `HasUnknown`      |              | Itself or any child is unknown.             |
+| Predicate         | Arguments    | Description                                          |
+| ----------------- | ------------ | ---------------------------------------------------- |
+| `Free`            |              | Is free.                                             |
+| `Occupied`        |              | Is occupied.                                         |
+| `Unknown`         |              | Is unknown.                                          |
+| `Occupancy`       | `min`, `max` | Occupancy is in `[min, max]`. Valid range: `[0, 1]`. |
+| `OccupancyStates` | `states`     | Occupancy is one of the given `states`.              |
+| `HasFree`         |              | Itself or any child is free.                         |
+| `HasOccupied`     |              | Itself or any child is occupied.                     |
+| `HasUnknown`      |              | Itself or any child is unknown.                      |
 
 ### Reflection
 
-| Predicate        | Arguments    | Description                                      |
-| ---------------- | ------------ | ------------------------------------------------ |
-| `Hits`           | `min`, `max` | Hits is within the range `[min, max]`.           |
-| `Misses`         | `min`, `max` | Misses is within the range `[min, max]`.         |
-| `Reflectiveness` | `min`, `max` | Reflectiveness is within the range `[min, max]`. |
+| Predicate        | Arguments    | Description                                               |
+| ---------------- | ------------ | --------------------------------------------------------- |
+| `Hits`           | `min`, `max` | Hits is in `[min, max]`.                                  |
+| `Misses`         | `min`, `max` | Misses is in `[min, max]`.                                |
+| `Reflectiveness` | `min`, `max` | Reflectiveness is in `[min, max]`. Valid range: `[0, 1]`. |
 
 ### Surfel
 
-| Predicate  | Arguments    | Description                                     |
-| ---------- | ------------ | ----------------------------------------------- |
-| `Radius`   | `min`, `max` | Surfel radius is within the range `[min, max]`. |
-| `IsPlanar` |              | Surfel is planar.                               |
+| Predicate        | Arguments    | Description                                     |
+| ---------------- | ------------ | ----------------------------------------------- |
+| `SurfelRadius`   | `min`, `max` | Surfel radius is in `[min, max]`. |
+| `IsPlanar`       |              | Surfel is planar.                               |
 
 ### Time
 
 | Predicate | Arguments    | Description                                 |
 | --------- | ------------ | ------------------------------------------- |
-| `Time`    | `min`, `max` | Timestamp is within the range `[min, max]`. |
-
-### Void
-
-| Predicate | Arguments | Description                  |
-| --------- | --------- | ---------------------------- |
-| `Void`    |           | Is void.                     |
-| `HasVoid` |           | Itself or any child is void. |
+| `Time`    | `min`, `max` | Timestamp is in `[min, max]`. |
