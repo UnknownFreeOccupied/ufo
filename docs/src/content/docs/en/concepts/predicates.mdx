@@ -17,12 +17,12 @@ Predicates are functions that return a boolean value. They are used to filter no
 
 The following predicates evaluate the *structure* of a node.
 
-| Predicate | Arguments    | Description                                                                    |
-| --------- | ------------ | ------------------------------------------------------------------------------ |
-| `Inner`   |              | `node` is an inner node (i.e., can have children, `height > 0`).               |
-| `Leaf`    |              | `node` is a leaf node (i.e., cannot have children, `height == 0`).             |
-| `Height`  | `min`, `max` | `node`'s height is in `[min..max]`.                                            |
-| `Offset`  | `min`, `max` | `node`'s offset is in `[min..max]`.                                            |
+| Predicate | Arguments    | Description                                                 |
+| --------- | ------------ | ----------------------------------------------------------- |
+| `Inner`   |              | Is an inner node (i.e., can have children, `height > 0`).   |
+| `Leaf`    |              | Is a leaf node (i.e., cannot have children, `height == 0`). |
+| `Height`  | `min`, `max` | Height is in `[min..max]`.                                  |
+| `Offset`  | `min`, `max` | Offset is in `[min..max]`.                                  |
 
 Below you can find a binary tree diagram to illustrate when the different predicates return true. 
 
@@ -61,22 +61,22 @@ Offset: 0}
 
 The following predicates evaluate the *current state* of a node.
 
-| Predicate     | Description                    |
-| ------------- | ------------------------------ |
-| `HasChildren` | `node` has children.           |
-| `Childless`   | `node` is childless.           |
-| `Exists`      | `node` exists.                 |
-| `Modified`    | `node` is in a modified state. |
+| Predicate     | Description             |
+| ------------- | ----------------------- |
+| `HasChildren` | Has children.           |
+| `Childless`   | Is childless.           |
+| `Exists`      | Exists.                 |
+| `Modified`    | Is in a modified state. |
 
 ### Relationships
 
 These predicates evaluate a node based on its position relative to a target node (`T`).
 
-| Predicate      | Arguments | Description                                                                |
-| -------------- | --------- | -------------------------------------------------------------------------- |
-| `AncestorOf`   | `query`   | `node` is an ancestor of the given `query` node.                           |
-| `SiblingOf`    | `query`   | `node` shares the same parent as the given `query` node.                   |
-| `DescendantOf` | `query`   | `node` is a descendant of the given `query` node.                          |
+| Predicate      | Arguments | Description                                       |
+| -------------- | --------- | ------------------------------------------------- |
+| `AncestorOf`   | `query`   | Is an ancestor of the given `query` node.         |
+| `SiblingOf`    | `query`   | Shares the same parent as the given `query` node. |
+| `DescendantOf` | `query`   | Is a descendant of the given `query` node.        |
 
 ---
 
@@ -99,12 +99,12 @@ These predicates evaluate the physical intersection between a node and a given g
 
 ### Coordinates
 
-| Predicate | Arguments | Description |
-| --- | --- | --- |
-| `X` | `min`, `max` | `node` intersects along the x-axis with the range `[min, max]`. |
-| `Y` | `min`, `max` | `node` intersects along the y-axis with the range `[min, max]`. |
-| `Z` | `min`, `max` | `node` intersects along the z-axis with the range `[min, max]`. |
-| `W` | `min`, `max` | `node` intersects along the w-axis with the range `[min, max]`. |
+| Predicate | Arguments    | Description                                              |
+| --------- | ------------ | -------------------------------------------------------- |
+| `X`       | `min`, `max` | Intersects along the x-axis with the range `[min, max]`. |
+| `Y`       | `min`, `max` | Intersects along the y-axis with the range `[min, max]`. |
+| `Z`       | `min`, `max` | Intersects along the z-axis with the range `[min, max]`. |
+| `W`       | `min`, `max` | Intersects along the w-axis with the range `[min, max]`. |
 
 ---
 
@@ -206,7 +206,7 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 
 | Predicate | Arguments | Description |
 | --- | --- | --- |
-| `Satisfies` | `RetFun`, `IntFun` | `node` satisfies `RetFun` and the node's ancestors satisfy `IntFun`. |
+| `Satisfies` | `RetFun`, `IntFun` | Satisfies `RetFun` and all ancestors satisfy `IntFun`. |
 
 ---
 
@@ -216,90 +216,92 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 
 ### Color
 
-| Predicate     | Arguments    | Description                                             |
-| ------------- | ------------ | ------------------------------------------------------- |
-| `Alpha`       | `min`, `max` | `node`'s alpha is within the range `[min, max]`.        |
-| `Hue`         | `min`, `max` | `node`'s hue is within the range `[min, max]`.          |
-| `Saturation`  | `min`, `max` | `node`'s saturation is within the range `[min, max]`.   |
-| `Lightness`   | `min`, `max` | `node`'s lightness is within the range `[min, max]`.    |
-| `HasColor`    |              | `node` has any color.                                   |
-| `ColorWeight` | `min`, `max` | `node`'s color weight is within the range `[min, max]`. |
+
+| Predicate     | Arguments    | Description                      |
+| ------------- | ------------ | -------------------------------- |
+| `Alpha`       | `min`, `max` | Alpha is in `[min, max]`.        |
+| `Hue`         | `min`, `max` | Hue is in `[min, max]`.          |
+| `Saturation`  | `min`, `max` | Saturation is in `[min, max]`.   |
+| `Lightness`   | `min`, `max` | Lightness is in `[min, max]`.    |
+| `HasColor`    |              | Has color.                       |
+| `ColorWeight` | `min`, `max` | Color weight is in `[min, max]`. |
 
 ### Confidence
 
-| Predicate     | Arguments    | Description                                             |
-| ------------- | ------------ | ------------------------------------------------------- |
-| `Confidence`  | `min`, `max` | `node`'s confidence is within the range `[min, max]`.    |
+
+| Predicate    | Arguments    | Description                    |
+| ------------ | ------------ | ------------------------------ |
+| `Confidence` | `min`, `max` | Confidence is in `[min, max]`. |
+
 
 ### Cost
 
-| Predicate     | Arguments    | Description                                             |
-| ------------- | ------------ | ------------------------------------------------------- |
-| `Cost`        | `min`, `max` | `node`'s cost is within the range `[min, max]`.          |
+
+| Predicate | Arguments    | Description              |
+| --------- | ------------ | ------------------------ |
+| `Cost`    | `min`, `max` | Cost is in `[min, max]`. |
 
 ### Count
 
-| Predicate     | Arguments    | Description                                             |
-| ------------- | ------------ | ------------------------------------------------------- |
-| `Count`       | `min`, `max` | `node`'s count is within the range `[min, max]`.         |
+| Predicate | Arguments    | Description               |
+| --------- | ------------ | ------------------------- |
+| `Count`   | `min`, `max` | Count is in `[min, max]`. |
 
 ### Distance
 
-| Predicate     | Arguments    | Description                                             |
-| ------------- | ------------ | ------------------------------------------------------- |
-| `Distance`    | `min`, `max` | `node`'s distance is within the range `[min, max]`.      |
+| Predicate  | Arguments    | Description                  |
+| ---------- | ------------ | ---------------------------- |
+| `Distance` | `min`, `max` | Distance is in `[min, max]`. |
 
 ### Intensity
 
-| Predicate     | Arguments    | Description                                             |
-| ------------- | ------------ | ------------------------------------------------------- |
-| `Intensity`   | `min`, `max` | `node`'s intensity is within the range `[min, max]`.    |
+| Predicate   | Arguments    | Description                   |
+| ----------- | ------------ | ----------------------------- |
+| `Intensity` | `min`, `max` | Intensity is in `[min, max]`. |
 
 ### Label
 
-| Predicate     | Arguments    | Description                                             |
-| ------------- | ------------ | ------------------------------------------------------- |
-| `Label`       | `label`      | `node` has the given `label`.                           |
+| Predicate | Arguments | Description            |
+| --------- | --------- | ---------------------- |
+| `Label`   | `label`   | Has the given `label`. |
 
 ### Occupancy
 
-| Predicate          | Arguments    | Description                                             |
-| ------------------ | ------------ | ------------------------------------------------------- |
-| `Free`             |              | `node` is free.                                         |
-| `Occupied`         |              | `node` is occupied.                                     |
-| `Unknown`          |              | `node` is unknown.                                      |
-| `Occupancy`        | `min`, `max` | `node`'s occupancy is within the range `[min, max]`.    |
-| `OccupancyStates`  | `states`     | `node`'s occupancy is one of the given `states`.         |
-| `ContainsFree`     |              | `node` contains free space (i.e., either it is free or has free children). |
-| `ContainsOccupied` |              | `node` contains occupied space (i.e., either it is occupied or has occupied children). |
-| `ContainsUnknown`  |              | `node` contains unknown space (i.e., either it is unknown or has unknown children). |
+| Predicate         | Arguments    | Description                                 |
+| ----------------- | ------------ | ------------------------------------------- |
+| `Free`            |              | Is free.                                    |
+| `Occupied`        |              | Is occupied.                                |
+| `Unknown`         |              | Is unknown.                                 |
+| `Occupancy`       | `min`, `max` | Occupancy is within the range `[min, max]`. |
+| `OccupancyStates` | `states`     | Occupancy is one of the given `states`.     |
+| `HasFree`         |              | Itself or any child is free.                |
+| `HasOccupied`     |              | Itself or any child is occupied.            |
+| `HasUnknown`      |              | Itself or any child is unknown.             |
 
 ### Reflection
 
-| Predicate          | Arguments    | Description                                             |
-| ------------------ | ------------ | ------------------------------------------------------- |
-| `Hits`             | `min`, `max` | `node` has been hit within the range `[min, max]`.      |
-| `Misses`           | `min`, `max` | `node` has been missed within the range `[min, max]`.   |
-| `Reflectiveness`   | `min`, `max` | `node`'s reflectiveness is within the range `[min, max]`. |
-
-### Semantic
+| Predicate        | Arguments    | Description                                      |
+| ---------------- | ------------ | ------------------------------------------------ |
+| `Hits`           | `min`, `max` | Hits is within the range `[min, max]`.           |
+| `Misses`         | `min`, `max` | Misses is within the range `[min, max]`.         |
+| `Reflectiveness` | `min`, `max` | Reflectiveness is within the range `[min, max]`. |
 
 ### Surfel
 
-| Predicate  | Arguments    | Description                                                    |
-| ---------- | ------------ | -------------------------------------------------------------- |
-| `Radius`   | `min`, `max` | `node`'s surfel radius is within the range `[min, max]`.       |
-| `IsPlanar` |              | `node`'s surfel represents a flat, planar surface.             |
+| Predicate  | Arguments    | Description                                     |
+| ---------- | ------------ | ----------------------------------------------- |
+| `Radius`   | `min`, `max` | Surfel radius is within the range `[min, max]`. |
+| `IsPlanar` |              | Surfel is planar.                               |
 
 ### Time
 
-| Predicate          | Arguments    | Description                                          |
-| ------------------ | ------------ | ---------------------------------------------------- |
-| `Time`             | `min`, `max` | `node`'s timestamp is within the range `[min, max]`. |
+| Predicate | Arguments    | Description                                 |
+| --------- | ------------ | ------------------------------------------- |
+| `Time`    | `min`, `max` | Timestamp is within the range `[min, max]`. |
 
-### Void Region
+### Void
 
-| Predicate            | Description                                          |
-| -------------------- | ---------------------------------------------------- |
-| `VoidRegion`         | `node` is a void region.                             |
-| `ContainsVoidRegion` | `node` contains a void region (i.e., either itself or any of its children is a void region). |
+| Predicate | Arguments | Description                  |
+| --------- | --------- | ---------------------------- |
+| `Void`    |           | Is void.                     |
+| `HasVoid` |           | Itself or any child is void. |
