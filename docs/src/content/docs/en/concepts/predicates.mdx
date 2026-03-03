@@ -336,3 +336,21 @@ These predicates are only avilable if the map has time, i.e., `TimeMap` is used.
 | Predicate | Arguments    | Description                   |
 | --------- | ------------ | ----------------------------- |
 | `Time`    | `min`, `max` | Timestamp is in `[min, max]`. |
+
+
+## Examples
+
+```cpp
+Map<OccupancyMap, ColorMap, SemanticMap, DynamicsMap> map;
+
+// Fill in map with data
+
+auto pred = pred::childless && pred::occupied && pred::dynamic && pred::Label("car");
+for (auto node : pred) {
+  // Node is a node that satisfies the predicate, so it is:
+  // - Childless
+  // - Occupied
+  // - Dynamic
+  // - Has label "car"
+}
+```
