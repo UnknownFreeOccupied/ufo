@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import mermaid from 'astro-mermaid';
+import { starlightKatex } from 'starlight-katex';
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 
@@ -9,13 +10,6 @@ import rehypeKatex from "rehype-katex";
 export default defineConfig({
 	site: 'https://unknownfreeoccupied.github.io',
 	base: '/ufo',
-
-	// Configure `remark-math` and `rehype-katex` plugins:
-	markdown: {
-		remarkPlugins: [remarkMath],
-		rehypePlugins: [rehypeKatex],
-	},
-
 	integrations: [
 		mermaid(), // MUST come before Starlight
 		starlight({
@@ -23,6 +17,16 @@ export default defineConfig({
 				en: 'UFO',
 				sv: 'UFO',
 			},
+			plugins: [starlightKatex()],
+			head: [
+				{
+					tag: 'link', // Force the CSS to load to prevent double-rendering
+					attrs: {
+						rel: 'stylesheet',
+						href: 'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css',
+					},
+				},
+			],
 			favicon: '/favicon.svg',
 			customCss: ['./src/styles/custom.css'],
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/UnknownFreeOccupied/ufo' }],
