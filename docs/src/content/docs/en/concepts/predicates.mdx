@@ -74,75 +74,11 @@ The following predicates evaluate the *current state* of a node.
 
 These predicates evaluate a node based on its position relative to a target node (`T`).
 
-```mermaid
-flowchart TD
-    classDef current fill:#3b82f6,color:#fff,stroke:none;
-    classDef target fill:#ef4444,color:#fff,stroke:none;
-
-    subgraph Ancestor["AncestorOf(T)"]
-        direction TD
-        N1["[N] Current Node"] --> A1(("○"))
-        N1 --> B1(("○"))
-        A1 --> T1["[T] Given Node"]
-    end
-
-    subgraph Sibling["SiblingOf(T)"]
-        direction TD
-        P2(("○")) --> N2["[N] Current Node"]
-        P2 --> T2["[T] Given Node"]
-    end
-
-    subgraph Descendant["DescendantOf(T)"]
-        direction TD
-        T3["[T] Given Node"] --> A3(("○"))
-        T3 --> B3(("○"))
-        A3 --> N3["[N] Current Node"]
-    end
-
-    class N1,N2,N3 current;
-    class T1,T2,T3 target;
-
-```
-
 | Predicate      | Arguments | Description                                                                |
 | -------------- | --------- | -------------------------------------------------------------------------- |
 | `AncestorOf`   | `query`   | True if the `node` is an ancestor of the given `query` node.               |
 | `SiblingOf`    | `query`   | True if the `node` shares the exact same parent as the given `query` node. |
 | `DescendantOf` | `query`   | True if the `node` is a descendant of the given `query` node.              |
-
----
-
-*Click on the nodes in the diagram below to jump to their exact definitions.*
-
-```mermaid
----
-config:
-  layout: dagre
-  look: handDrawn
----
-flowchart TB
-  %% Vertical column for labels
-  L3["Height 3"] ~~~ L2["Height 2"]
-  L2 ~~~ L1["Height 1"]
-  L1 ~~~ L0["Height 0"]
-
-  %% Tree Structure
-  A{Root<br/>Inner} --> B{HasChildren}
-  A --> C{HasChildren}
-  B --> D{HasChildren}
-  B --> E[Childless]
-  D --> F((Leaf))
-  D --> G((Leaf))
-  C --> H{HasChildren}
-  C --> I[Childless]
-  H --> J((Leaf))
-  H --> K((Leaf))
-
-  %% Strip background/borders from labels
-  classDef textLabel fill:none,stroke:none,font-weight:bold,font-size:16px;
-  class L3,L2,L1,L0 textLabel;
-
-```
 
 ---
 
