@@ -5,7 +5,7 @@ import starlight from '@astrojs/starlight';
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://unknownfreeoccupied.github.io',
-  base: '/ufo',
+	base: '/ufo',
 	integrations: [
 		starlight({
 			title: {
@@ -15,7 +15,7 @@ export default defineConfig({
 			favicon: '/favicon.svg',
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/UnknownFreeOccupied/ufo' }],
 			sidebar: [
-				{ 
+				{
 					label: 'Start Here',
 					translations: {
 						'sv-SE': 'Börja här',
@@ -34,6 +34,7 @@ export default defineConfig({
 					items: [
 						// Each item here is one entry in the navigation menu.
 						'concepts/core_concepts',
+						'concepts/predicates',
 					],
 				},
 				{
@@ -85,19 +86,19 @@ export default defineConfig({
 				},
 			],
 			// Set English as the default language for this site.
-      defaultLocale: 'en',
-      locales: {
-        // English docs in `src/content/docs/en/`
-        en: {
-          label: 'English',
+			defaultLocale: 'en',
+			locales: {
+				// English docs in `src/content/docs/en/`
+				en: {
+					label: 'English',
 					lang: 'en',
-        },
-        // Swedish docs in `src/content/docs/sv/`
-        sv: {
-          label: 'Svenska',
+				},
+				// Swedish docs in `src/content/docs/sv/`
+				sv: {
+					label: 'Svenska',
 					lang: 'sv-SE',
-        },
-      },
+				},
+			},
 		}),
 	],
 });
