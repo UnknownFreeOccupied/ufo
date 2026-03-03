@@ -1,12 +1,23 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import mermaid from 'astro-mermaid';
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://unknownfreeoccupied.github.io',
 	base: '/ufo',
+
+	// Configure `remark-math` and `rehype-katex` plugins:
+	markdown: {
+		remarkPlugins: [remarkMath],
+		rehypePlugins: [rehypeKatex],
+	},
+
 	integrations: [
+		mermaid(), // MUST come before Starlight
 		starlight({
 			title: {
 				en: 'UFO',
