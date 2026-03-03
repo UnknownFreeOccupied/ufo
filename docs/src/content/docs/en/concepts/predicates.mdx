@@ -3,9 +3,7 @@ title: Predicates
 description: Tree predicates.
 ---
 
-# Predicates
-
-Predicates are functions that return a boolean value. They are used to filter nodes, simplifying code and making it much more readable. Because they are efficient, they can be easily combined to create complex structural queries.
+Predicates are functions that return a boolean value. They are used to filter nodes, simplifying code, and making it more readable. The predicates allows the developer to extract the desired information, in an efficient manner, without having deep knowledge of the underlying tree structure. They reduce the risk of bugs creeping in, as correct tree traversal code can be tricky to write. They can be combined to create complex structural queries. They are also efficient, even beating manual traversal code written by the author.
 
 > **Mental Model:** Always think of predicates from the *current evaluated node's* perspective (e.g., *"Is this node a descendant of X?"*, *"Does this node have children?"*).
 
