@@ -19,9 +19,9 @@ The following predicates evaluate the *structure* of a node.
 
 | Predicate | Arguments    | Description                                                                    |
 | --------- | ------------ | ------------------------------------------------------------------------------ |
-| `Height`  | `min`, `max` | `node`'s height is in `[min..max]`.                                            |
 | `Inner`   |              | `node` is an inner node (i.e., can have children, `height > 0`).               |
 | `Leaf`    |              | `node` is a leaf node (i.e., cannot have children, `height == 0`).             |
+| `Height`  | `min`, `max` | `node`'s height is in `[min..max]`.                                            |
 | `Offset`  | `min`, `max` | `node`'s offset is in `[min..max]`.                                            |
 
 Below you can find a binary tree diagram to illustrate when the different predicates return true. 
@@ -63,9 +63,9 @@ The following predicates evaluate the *current state* of a node.
 
 | Predicate     | Description                    |
 | ------------- | ------------------------------ |
+| `HasChildren` | `node` has children.           |
 | `Childless`   | `node` is childless.           |
 | `Exists`      | `node` exists.                 |
-| `HasChildren` | `node` has children.           |
 | `Modified`    | `node` is in a modified state. |
 
 ### Relationships
@@ -108,15 +108,15 @@ These predicates evaluate the physical intersection between a node and a given g
 
 ---
 
-## Combinding Predicates
+## Combining Predicates
 
 ### Logical
 The following predicates are used to combine, negate, or compare other predicates. 
 
 | Predicate | Arguments | Description |
 | --- | --- | --- |
-| `And` | $P_1, \dots, P_n$ | True if all predicates are true ($P_1 \land P_2 \land \dots \land P_n$). |
-| `Or` | $P_1, \dots, P_n$ | True if at least one predicate is true ($P_1 \lor P_2 \lor \dots \lor P_n$). |
+| `And` | $P_1, \dots, P_n$ | True if all predicates are true ($P_1 \land \dots \land P_n$). |
+| `Or` | $P_1, \dots, P_n$ | True if at least one predicate is true ($P_1 \lor \dots \lor P_n$). |
 | `IfThen` | $P, Q$ | True if $P$ is false or $Q$ is true ($P \rightarrow Q$). |
 | `Iff` | $P, Q$ | True if both arguments are either true or false ($P \leftrightarrow Q$). |
 | `Xor` | $P, Q$ | True if exactly one argument is true ($P \oplus Q$). |
@@ -169,13 +169,17 @@ auto pred = 3 > depth || depth > 5;
 auto pred = !(3 < depth < 5);
 ```
 
-Note that:
+> **⚠️ Note on C++ Range Syntax**
+> In standard C++, `3 < depth < 5` evaluates incorrectly as `(3 < depth) < 5`. However, our library overrides these operators to build a safe expression chain, meaning you can write mathematical ranges exactly as they appear above!
 
 ```cpp
 auto pred = 3 > depth > 5;
 
 // Is equivalent to:
-auto pred = depth > 5; // or 3 > depth, depending on the order of evaluation
+auto pred = (3 > depth) > 5;
+
+// Which results in:
+auto pred = depth > 5; // Since there is only one predicate at play here
 ```
 
 While:
@@ -282,12 +286,16 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 
 ### Surfel
 
+| Predicate  | Arguments    | Description                                                    |
+| ---------- | ------------ | -------------------------------------------------------------- |
+| `Radius`   | `min`, `max` | `node`'s surfel radius is within the range `[min, max]`.       |
+| `IsPlanar` |              | `node`'s surfel represents a flat, planar surface.             |
+
 ### Time
 
 | Predicate          | Arguments    | Description                                          |
 | ------------------ | ------------ | ---------------------------------------------------- |
 | `Time`             | `min`, `max` | `node`'s timestamp is within the range `[min, max]`. |
-
 
 ### Void Region
 
