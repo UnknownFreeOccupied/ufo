@@ -214,6 +214,8 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 
 ### Color
 
+These predicates are only available if the map has color, i.e., `ColorMap` is used.
+
 > **Note:** Color properties are evaluated using the [**Oklch** color space](https://bottosson.github.io/posts/oklab/).
 
 | Predicate     | Arguments    | Description                                          |
@@ -227,6 +229,8 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 
 ### Confidence
 
+These predicates are only available if the map has confidence, i.e., `ConfidenceMap` or `SemanticMap` is used.
+
 | Predicate    | Arguments    | Description                    |
 | ------------ | ------------ | ------------------------------ |
 | `Confidence` | `min`, `max` | Confidence is in `[min, max]`. |
@@ -234,11 +238,15 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 
 ### Cost
 
+These predicates are only available if the map has cost, i.e., `CostMap` is used.
+
 | Predicate | Arguments    | Description              |
 | --------- | ------------ | ------------------------ |
 | `Cost`    | `min`, `max` | Cost is in `[min, max]`. |
 
 ### Count
+
+These predicates are only avilable if the map has count, i.e., `CountMap` is used.
 
 | Predicate | Arguments    | Description               |
 | --------- | ------------ | ------------------------- |
@@ -246,11 +254,15 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 
 ### Distance
 
+These predicates are only avilable if the map has distance, i.e., `DistanceMap` is used.
+
 | Predicate  | Arguments    | Description                  |
 | ---------- | ------------ | ---------------------------- |
 | `Distance` | `min`, `max` | Distance is in `[min, max]`. |
 
 ### Dynamics
+
+These predicates are only avilable if the map has dynamics, i.e., `DynamicsMap` is used.
 
 | Predicate    | Arguments | Description                     |
 | ------------ | --------- | ------------------------------- |
@@ -261,17 +273,23 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 
 ### Intensity
 
+These predicates are only avilable if the map has intensity, i.e., `IntensityMap` is used.
+
 | Predicate   | Arguments    | Description                   |
 | ----------- | ------------ | ----------------------------- |
 | `Intensity` | `min`, `max` | Intensity is in `[min, max]`. |
 
 ### Label
 
+These predicates are only avilable if the map has labels, i.e., `LabelMap` or `SemanticMap` is used.
+
 | Predicate | Arguments | Description            |
 | --------- | --------- | ---------------------- |
 | `Label`   | `label`   | Has the given `label`. |
 
 ### Occupancy
+
+These predicates are only avilable if the map has occupancy, i.e., `OccupancyMap` is used.
 
 | Predicate         | Arguments    | Description                                          |
 | ----------------- | ------------ | ---------------------------------------------------- |
@@ -286,21 +304,35 @@ These are the simplest predicates, used primarily for testing or forcing specifi
 
 ### Reflection
 
+These predicates are only avilable if the map has reflection, i.e., `ReflectionMap` is used.
+
 | Predicate        | Arguments    | Description                                               |
 | ---------------- | ------------ | --------------------------------------------------------- |
 | `Hits`           | `min`, `max` | Hits is in `[min, max]`.                                  |
 | `Misses`         | `min`, `max` | Misses is in `[min, max]`.                                |
 | `Reflectiveness` | `min`, `max` | Reflectiveness is in `[min, max]`. Valid range: `[0, 1]`. |
 
+### Semantic
+
+These predicates are only avilable if the map has semantic, i.e., `SemanticMap` is used.
+
+| Predicate  | Arguments             | Description                                  |
+| ---------- | --------------------- | -------------------------------------------- |
+| `Semantic` | `label`, `min`, `max` | Has `label` with confidence in `[min, max]`. |
+
 ### Surfel
 
-| Predicate        | Arguments    | Description                                     |
-| ---------------- | ------------ | ----------------------------------------------- |
+These predicates are only avilable if the map has surfels, i.e., `SurfelMap` is used.
+
+| Predicate        | Arguments    | Description                       |
+| ---------------- | ------------ | --------------------------------- |
 | `SurfelRadius`   | `min`, `max` | Surfel radius is in `[min, max]`. |
-| `IsPlanar`       |              | Surfel is planar.                               |
+| `IsPlanar`       |              | Surfel is planar.                 |
 
 ### Time
 
-| Predicate | Arguments    | Description                                 |
-| --------- | ------------ | ------------------------------------------- |
+These predicates are only avilable if the map has time, i.e., `TimeMap` is used.
+
+| Predicate | Arguments    | Description                   |
+| --------- | ------------ | ----------------------------- |
 | `Time`    | `min`, `max` | Timestamp is in `[min, max]`. |
