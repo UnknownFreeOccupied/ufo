@@ -8,6 +8,7 @@ target_sources(Core
 			include
     FILES
 			include/ufo/core/confidence.hpp
+			include/ufo/core/core.hpp
 			include/ufo/core/intensity.hpp
 			include/ufo/core/label.hpp
 			include/ufo/core/normal.hpp

@@ -48,6 +48,11 @@
 namespace ufo
 {
 /**
+ * @ingroup core
+ * @{
+ */
+
+/**
  * @brief Represents LiDAR/sensor return intensity as a single float value.
  *
  * @details
@@ -81,8 +86,8 @@ struct Intensity {
 	/**
 	 * @brief Three-way comparison (total order on the underlying float).
 	 *
-	 * @param lhs Left operand.
-	 * @param rhs Right operand.
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
 	 * @return Comparison result.
 	 */
 	[[nodiscard]] friend constexpr auto operator<=>(Intensity lhs,
@@ -91,8 +96,8 @@ struct Intensity {
 	/**
 	 * @brief Equality comparison.
 	 *
-	 * @param lhs Left operand.
-	 * @param rhs Right operand.
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
 	 * @return True if both intensity values are equal.
 	 */
 	[[nodiscard]] friend constexpr bool operator==(Intensity lhs,
@@ -100,10 +105,15 @@ struct Intensity {
 };
 
 /**
- * @brief Writes the raw intensity scalar to @p out.
+ * @}
+ */
+
+/**
+ * @ingroup core
+ * @brief Writes the raw intensity scalar to `out`.
  *
- * @param out Output stream.
- * @param i Intensity to print.
+ * @param [in,out] out Output stream.
+ * @param [in] i Intensity to print.
  * @return Reference to the output stream.
  */
 inline std::ostream& operator<<(std::ostream& out, Intensity i)
@@ -112,14 +122,6 @@ inline std::ostream& operator<<(std::ostream& out, Intensity i)
 }
 }  // namespace ufo
 
-/**
- * @brief `std::format` / `std::formatter` specialization for `ufo::Intensity`.
- *
- * Delegates to the `float` formatter, so all standard float format specifiers (e.g.,
- * `{:.2f}`) are supported.
- *
- * @tparam T Scalar type.
- */
 template <>
 struct std::formatter<ufo::Intensity> : std::formatter<ufo::Intensity::value_type> {
 	auto format(ufo::Intensity i, std::format_context& ctx) const

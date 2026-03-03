@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -58,8 +58,7 @@ class Renderable
 	virtual void release() = 0;
 
 	virtual void update(WGPUDevice device, WGPUCommandEncoder encoder,
-	                    WGPUTextureView render_texture, WGPUTextureView depth_texture,
-	                    Camera const& camera) = 0;
+	                    WGPURenderPassEncoder render_pass, Camera const& camera) = 0;
 
 	virtual void onGui() = 0;
 

@@ -32,12 +32,13 @@ class RenderableTrianglelist
 		// TODO: Implement
 	}
 
+	template <typename Camera>
 	void update(WGPUDevice device, WGPUCommandEncoder encoder,
 	            WGPUTextureView render_texture, WGPUTextureView depth_texture,
 	            Camera const& camera)
 	{
 		// Camera
-		uniform_.projection = camera.projectionPerspective();
+		uniform_.projection = camera.projection();
 		uniform_.view       = ufo::Mat4x4f(camera.pose);
 		uniform_.color      = color_;
 		wgpuQueueWriteBuffer(compute::queue(device), uniform_buffer_, 0, &uniform_,

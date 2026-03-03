@@ -48,6 +48,11 @@
 namespace ufo
 {
 /**
+ * @ingroup core
+ * @{
+ */
+
+/**
  * @brief Represents a generic scalar weight as a single float value.
  *
  * @details
@@ -82,8 +87,8 @@ struct Weight {
 	/**
 	 * @brief Three-way comparison (total order on the underlying float).
 	 *
-	 * @param lhs Left operand.
-	 * @param rhs Right operand.
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
 	 * @return Comparison result.
 	 */
 	[[nodiscard]] friend constexpr auto operator<=>(Weight lhs,
@@ -92,8 +97,8 @@ struct Weight {
 	/**
 	 * @brief Equality comparison.
 	 *
-	 * @param lhs Left operand.
-	 * @param rhs Right operand.
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
 	 * @return True if both weight values are equal.
 	 */
 	[[nodiscard]] friend constexpr bool operator==(Weight lhs,
@@ -101,23 +106,20 @@ struct Weight {
 };
 
 /**
- * @brief Writes the raw scalar weight to @p out.
+ * @}
+ */
+
+/**
+ * @ingroup core
+ * @brief Writes the raw scalar weight to `out`.
  *
- * @param out Output stream.
- * @param v Weight to print.
+ * @param [out] out Output stream.
+ * @param [in] v Weight to print.
  * @return Reference to the output stream.
  */
 inline std::ostream& operator<<(std::ostream& out, Weight v) { return out << v.weight; }
 }  // namespace ufo
 
-/**
- * @brief `std::format` / `std::formatter` specialization for `ufo::Weight`.
- *
- * Delegates to the `float` formatter, so all standard float format specifiers (e.g.,
- * `{:.4f}`) are supported.
- *
- * @tparam T Scalar type.
- */
 template <>
 struct std::formatter<ufo::Weight> : std::formatter<ufo::Weight::value_type> {
 	auto format(ufo::Weight v, std::format_context& ctx) const

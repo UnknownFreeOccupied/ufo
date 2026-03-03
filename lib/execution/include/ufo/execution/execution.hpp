@@ -68,7 +68,9 @@
 #include <omp.h>
 #endif
 
-namespace ufo::execution
+namespace ufo
+{
+namespace execution
 {
 namespace detail
 {
@@ -216,9 +218,6 @@ constexpr inline bool is_execution_policy_v =
     is_execution_policy<std::remove_cvref_t<T>>::value;
 
 template <class T>
-concept ExecutionPolicy = is_execution_policy_v<T>;
-
-template <class T>
 constexpr inline bool is_seq_v =
     detail::ExecutionMode::NONE !=
     (detail::ExecutionMode::SEQ & std::remove_cvref_t<T>::policy);
@@ -261,6 +260,9 @@ constexpr inline bool is_omp_v =
 //
 // Concepts
 //
+
+template <class T>
+concept ExecutionPolicy = is_execution_policy_v<T>;
 
 template <class T>
 concept Sequenced = ExecutionPolicy<T> && is_seq_v<T>;
@@ -326,6 +328,10 @@ template <ExecutionPolicy T>
 	std::unreachable();
 #endif
 }
-}  // namespace ufo::execution
+}  // namespace execution
+
+template <class T>
+concept ExecutionPolicy = execution::ExecutionPolicy<T>;
+}  // namespace ufo
 
 #endif  // UFO_EXECUTION_EXECUTION_HPP

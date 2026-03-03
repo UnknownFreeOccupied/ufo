@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -95,21 +95,16 @@ struct TreeCoord : public Vec<Dim, T> {
 	{
 	}
 
- private:
-	// NOTE: This is a helper for MSVC
-
-	template <std::size_t D, typename... Args>
-	static constexpr bool is_valid_coord_v =
-	    (D == sizeof...(Args) && (std::is_scalar_v<Args> && ...));
-
- public:
-	template <class... Args, std::enable_if_t<is_valid_coord_v<Dim, Args...>, bool> = true>
+	template <class... Args,
+	          std::enable_if_t<Dim == sizeof...(Args) && (std::is_scalar_v<Args> && ...),
+	                           bool> = true>
 	constexpr TreeCoord(Args&&... args) noexcept : Point(std::forward<Args>(args)...)
 	{
 	}
 
-	template <class... Args,
-	          std::enable_if_t<is_valid_coord_v<Dim + 1, Args...>, bool> = true>
+	template <class... Args, std::enable_if_t<Dim + 1 == sizeof...(Args) &&
+	                                              (std::is_scalar_v<Args> && ...),
+	                                          bool> = true>
 	constexpr TreeCoord(Args&&... args) noexcept
 	    : TreeCoord(std::integral_constant<std::size_t, Dim>{}, std::forward<Args>(args)...)
 	{

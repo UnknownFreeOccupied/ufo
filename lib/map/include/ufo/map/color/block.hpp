@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -38,49 +38,29 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifndef UFO_MAP_COLOR_BLOCK_HPP
 #define UFO_MAP_COLOR_BLOCK_HPP
 
 // UFO
-#include <ufo/utility/create_array.hpp>
-#include <ufo/vision/color.hpp>
+#include <ufo/map/color/detail/inner_block.hpp>
+#include <ufo/map/color/detail/leaf_block.hpp>
 
 // STL
-#include <array>
-#include <cassert>
 #include <cstddef>
 
 namespace ufo
 {
-template <std::size_t BF>
+template <class Color>
 struct ColorBlock {
-	std::array<Color, BF> data;
+	using color_type = Color;
 
-	constexpr ColorBlock() = default;
+	template <std::size_t Dim, std::size_t BF>
+	using LeafBlock = detail::ColorLeafBlock<Dim, BF, Color>;
 
-	constexpr ColorBlock(Color const& parent) : data(createArray<BF>(parent)) {}
-
-	[[nodiscard]] constexpr Color& operator[](std::size_t pos)
-	{
-		assert(BF > pos);
-		return data[pos];
-	}
-
-	[[nodiscard]] constexpr Color const& operator[](std::size_t pos) const
-	{
-		assert(BF > pos);
-		return data[pos];
-	}
-
-	friend constexpr bool operator==(ColorBlock const& lhs, ColorBlock const& rhs)
-	{
-		return lhs.data == rhs.data;
-	}
-
-	friend constexpr bool operator!=(ColorBlock const& lhs, ColorBlock const& rhs)
-	{
-		return !(lhs == rhs);
-	};
+	template <std::size_t Dim, std::size_t BF>
+	using InnerBlock = detail::ColorInnerBlock<Dim, BF, Color>;
 };
 }  // namespace ufo
+
 #endif  // UFO_MAP_COLOR_BLOCK_HPP

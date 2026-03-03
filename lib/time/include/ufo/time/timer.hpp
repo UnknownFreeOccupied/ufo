@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -63,7 +63,7 @@ class Timer
 
 	void stop();
 
-	/*!
+	/**
 	 * @brief
 	 *
 	 * @note This will stop `rhs` (if it is running or paused) to add another sample.
@@ -73,7 +73,7 @@ class Timer
 	 */
 	Timer& operator+=(Timer rhs);
 
-	/*!
+	/**
 	 * @brief
 	 *
 	 * @note This will stop both `lhs` and `rhs` (if running or paused) to add another
@@ -84,7 +84,7 @@ class Timer
 	 */
 	friend Timer operator+(Timer lhs, Timer rhs);
 
-	/*!
+	/**
 	 * @brief
 	 *
 	 * @note This will stop the `rhs` timer (if it is running or paused) to add another
@@ -95,7 +95,7 @@ class Timer
 	 */
 	Timer& operator-=(Timer rhs);
 
-	/*!
+	/**
 	 * @brief
 	 *
 	 * @note This will stop both `lhs` and `rhs` (if running or paused) to add another

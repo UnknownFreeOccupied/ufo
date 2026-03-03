@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -38,99 +38,29 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifndef UFO_MAP_OCCUPANCY_BLOCK_HPP
 #define UFO_MAP_OCCUPANCY_BLOCK_HPP
 
 // UFO
-#include <ufo/math/math.hpp>
-#include <ufo/utility/create_array.hpp>
+#include <ufo/map/occupancy/detail/inner_block.hpp>
+#include <ufo/map/occupancy/detail/leaf_block.hpp>
 
 // STL
-#include <array>
-#include <cassert>
 #include <cstddef>
 
 namespace ufo
 {
-struct OccupancyElement {
-	using logit_t = float;
-
-	logit_t logit{};
-	bool    contains_unknown{};
-	bool    contains_free{};
-	bool    contains_occupied{};
-
-	constexpr OccupancyElement() noexcept = default;
-
-	constexpr OccupancyElement(logit_t logit, bool contains_unknown, bool contains_free,
-	                           bool contains_occupied) noexcept
-	    : logit(logit)
-	    , contains_unknown(contains_unknown)
-	    , contains_free(contains_free)
-	    , contains_occupied(contains_occupied)
-	{
-	}
-
-	friend constexpr bool operator==(OccupancyElement const& lhs,
-	                                 OccupancyElement const& rhs)
-	{
-		return lhs.logit == rhs.logit && lhs.contains_unknown == rhs.contains_unknown &&
-		       lhs.contains_free == rhs.contains_free &&
-		       lhs.contains_occupied == rhs.contains_occupied;
-	}
-
-	friend constexpr bool operator!=(OccupancyElement const& lhs,
-	                                 OccupancyElement const& rhs)
-	{
-		return !(lhs == rhs);
-	};
-};
-
-template <std::size_t BF>
+template <class T>
 struct OccupancyBlock {
-	using logit_t = OccupancyElement::logit_t;
+	using occupancy_type = T;
 
-	std::array<OccupancyElement, BF> data;
+	template <std::size_t Dim, std::size_t BF>
+	using LeafBlock = detail::OccupancyLeafBlock<Dim, BF, T>;
 
-	constexpr OccupancyBlock() = default;
-
-	constexpr OccupancyBlock(OccupancyElement const& parent) : data(createArray<BF>(parent))
-	{
-	}
-
-	[[nodiscard]] constexpr OccupancyElement& operator[](std::size_t pos)
-	{
-		assert(BF > pos);
-		return data[pos];
-	}
-
-	[[nodiscard]] constexpr OccupancyElement const& operator[](std::size_t pos) const
-	{
-		assert(BF > pos);
-		return data[pos];
-	}
-
-	auto begin() { return data.begin(); }
-
-	auto begin() const { return data.begin(); }
-
-	auto cbegin() const { return begin(); }
-
-	auto end() { return data.end(); }
-
-	auto end() const { return data.end(); }
-
-	auto cend() const { return end(); }
-
-	friend constexpr bool operator==(OccupancyBlock const& lhs, OccupancyBlock const& rhs)
-	{
-		return lhs.data == rhs.data;
-	}
-
-	friend constexpr bool operator!=(OccupancyBlock const& lhs, OccupancyBlock const& rhs)
-	{
-		return !(lhs == rhs);
-	};
+	template <std::size_t Dim, std::size_t BF>
+	using InnerBlock = detail::OccupancyInnerBlock<Dim, BF, T>;
 };
 }  // namespace ufo
+
 #endif  // UFO_MAP_OCCUPANCY_BLOCK_HPP

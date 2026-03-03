@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -39,8 +39,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_VIZ_GLFW_SURFACE_HPP
-#define UFO_VIZ_GLFW_SURFACE_HPP
+#ifndef UFO_VIZ_GLFW_SURFACE_H
+#define UFO_VIZ_GLFW_SURFACE_H
 
 // WebGPU
 #include <webgpu/webgpu.h>
@@ -58,4 +58,4 @@ extern "C" {
 }
 #endif
 
-#endif  // UFO_VIZ_GLFW_SURFACE_HPP
+#endif  // UFO_VIZ_GLFW_SURFACE_H

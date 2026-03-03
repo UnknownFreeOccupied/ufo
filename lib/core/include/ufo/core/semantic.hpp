@@ -53,6 +53,11 @@
 namespace ufo
 {
 /**
+ * @ingroup core
+ * @{
+ */
+
+/**
  * @brief Represents a semantic annotation as a pair of class label and confidence score.
  *
  * @details
@@ -81,8 +86,8 @@ struct Semantic {
 	/**
 	 * @brief Three-way comparison (lexicographic on label then value).
 	 *
-	 * @param lhs Left operand.
-	 * @param rhs Right operand.
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
 	 * @return Comparison result.
 	 */
 	[[nodiscard]] friend constexpr auto operator<=>(Semantic lhs,
@@ -91,8 +96,8 @@ struct Semantic {
 	/**
 	 * @brief Equality comparison.
 	 *
-	 * @param lhs Left operand.
-	 * @param rhs Right operand.
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
 	 * @return True if both label and confidence are equal.
 	 */
 	[[nodiscard]] friend constexpr bool operator==(Semantic lhs,
@@ -100,9 +105,14 @@ struct Semantic {
 };
 
 /**
- * @brief Writes the semantic as "label: confidence" to @p out.
+ * @}
+ */
+
+/**
+ * @ingroup core
+ * @brief Writes the semantic as "label: confidence" to `out`.
  *
- * @param [out] out Output stream.
+ * @param [in,out] out Output stream.
  * @param [in] s Semantic to print.
  * @return Reference to the output stream.
  */
@@ -112,14 +122,6 @@ inline std::ostream& operator<<(std::ostream& out, Semantic s)
 }
 }  // namespace ufo
 
-/**
- * @brief `std::format` / `std::formatter` specialization for `ufo::Semantic`.
- *
- * Formats as "label: confidence" using the default formatters for `Label` and
- * `Confidence`.
- *
- * @tparam T Scalar type.
- */
 template <>
 struct std::formatter<ufo::Semantic> {
 	constexpr auto parse(std::format_parse_context& ctx) const { return ctx.begin(); }

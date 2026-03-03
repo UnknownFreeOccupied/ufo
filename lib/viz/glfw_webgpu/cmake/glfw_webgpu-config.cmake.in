@@ -1,0 +1,6 @@
+@PACKAGE_INIT@
+
+# FIXME: This is a bit hacky
+include("${CMAKE_CURRENT_LIST_DIR}/Compute-config.cmake")
+
+include("${CMAKE_CURRENT_LIST_DIR}/glfw_webgpu-targets.cmake")

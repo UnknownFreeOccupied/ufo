@@ -1,0 +1,358 @@
+---
+title: Predicates
+description: Tree predicates.
+---
+
+# Predicates
+
+Predicates are functions that return a boolean value. They are used to filter nodes, simplifying code and making it much more readable. Because they are efficient, they can be easily combined to create complex structural queries.
+
+> **Mental Model:** Always think of predicates from the *current node's* perspective (e.g., *"Is this node a descendant of X?"*, *"Does this node have children?"*).
+
+---
+
+## Core Predicates
+
+### Tree Concepts
+
+#### Structure
+
+The following predicates evaluate the *structure* of a node.
+
+| Predicate | Arguments    | Description                                                                    |
+| --------- | ------------ | ------------------------------------------------------------------------------ |
+| `Height`  | `min`, `max` | True if the `node` is at a height of `[min..max]`.                             |
+| `Inner`   |              | True if the `node` is an inner node (i.e., can have children, `height > 0`).   |
+| `Leaf`    |              | True if the `node` is a leaf node (i.e., cannot have children, `height == 0`). |
+| `Offset`  | `min`, `max` | True if the `node`'s offset is in `[min..max]`.                                |
+
+Below you can find a binary tree diagram to illustrate when the different predicates return true. 
+
+```mermaid
+---
+config:
+  layout: dagre
+  look: handDrawn
+---
+flowchart TB
+  %% Vertical column for labels
+  L3["Height 3 (Inner)"] ~~~ L2["Height 2 (Inner)"]
+  L2 ~~~ L1["Height 1 (Inner)"]
+  L1 ~~~ L0["Height 0 (Leaf)"]
+
+  %% Tree Structure
+  A{{"`Root
+Offset: 0`"}} --> B{
+Offset: 0}
+  A --> C{Offset: 1}
+  B --> D{Offset: 0}
+  B --> E[Offset: 1]
+  D --> F((Offset: 0))
+  D --> G((Offset: 1))
+  C --> H{Offset: 0}
+  C --> I[Offset: 1]
+  H --> J((Offset: 0))
+  H --> K((Offset: 1))
+
+  %% Strip background/borders from labels
+  classDef textLabel fill:none,stroke:none,font-weight:bold,font-size:16px;
+  class L3,L2,L1,L0 textLabel;
+```
+
+#### State
+
+The following predicates evaluate the *current state* of a node.
+
+| Predicate     | Description                                |
+| ------------- | ------------------------------------------ |
+| `Childless`   | True if the `node` is childless.           |
+| `Exists`      | True if the `node` exists.                 |
+| `HasChildren` | True if the `node` has children.           |
+| `Modified`    | True if the `node` is in a modified state. |
+
+#### Relationships
+
+These predicates evaluate a node based on its position relative to a target node (`T`).
+
+```mermaid
+flowchart TD
+    classDef current fill:#3b82f6,color:#fff,stroke:none;
+    classDef target fill:#ef4444,color:#fff,stroke:none;
+
+    subgraph Ancestor["AncestorOf(T)"]
+        direction TD
+        N1["[N] Current Node"] --> A1(("○"))
+        N1 --> B1(("○"))
+        A1 --> T1["[T] Given Node"]
+    end
+
+    subgraph Sibling["SiblingOf(T)"]
+        direction TD
+        P2(("○")) --> N2["[N] Current Node"]
+        P2 --> T2["[T] Given Node"]
+    end
+
+    subgraph Descendant["DescendantOf(T)"]
+        direction TD
+        T3["[T] Given Node"] --> A3(("○"))
+        T3 --> B3(("○"))
+        A3 --> N3["[N] Current Node"]
+    end
+
+    class N1,N2,N3 current;
+    class T1,T2,T3 target;
+
+```
+
+| Predicate      | Arguments | Description                                                                |
+| -------------- | --------- | -------------------------------------------------------------------------- |
+| `AncestorOf`   | `query`   | True if the `node` is an ancestor of the given `query` node.               |
+| `SiblingOf`    | `query`   | True if the `node` shares the exact same parent as the given `query` node. |
+| `DescendantOf` | `query`   | True if the `node` is a descendant of the given `query` node.              |
+
+---
+
+*Click on the nodes in the diagram below to jump to their exact definitions.*
+
+```mermaid
+---
+config:
+  layout: dagre
+  look: handDrawn
+---
+flowchart TB
+  %% Vertical column for labels
+  L3["Height 3"] ~~~ L2["Height 2"]
+  L2 ~~~ L1["Height 1"]
+  L1 ~~~ L0["Height 0"]
+
+  %% Tree Structure
+  A{Root<br/>Inner} --> B{HasChildren}
+  A --> C{HasChildren}
+  B --> D{HasChildren}
+  B --> E[Childless]
+  D --> F((Leaf))
+  D --> G((Leaf))
+  C --> H{HasChildren}
+  C --> I[Childless]
+  H --> J((Leaf))
+  H --> K((Leaf))
+
+  %% Strip background/borders from labels
+  classDef textLabel fill:none,stroke:none,font-weight:bold,font-size:16px;
+  class L3,L2,L1,L0 textLabel;
+
+```
+
+---
+
+## Spatial & Coordinates
+
+### Spatial Relationships
+
+These predicates evaluate the physical intersection between a node and a given geometry.
+
+| Predicate | Diagram | Arguments | Description |
+| --- | --- | --- | --- |
+| `Contains` | <svg width="80" height="50" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="25" r="22" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2"/><circle cx="40" cy="25" r="10" fill="#ef4444" fill-opacity="0.2" stroke="#ef4444" stroke-width="2"/><text x="40" y="28" font-size="10" text-anchor="middle" fill="currentColor">G</text><text x="40" y="12" font-size="10" text-anchor="middle" fill="#3b82f6">N</text></svg> | `Geometry` | True if the `node` completely contains the given `geometry`. |
+| `Disjoint` | <svg width="80" height="50" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="25" r="15" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2"/><circle cx="58" cy="25" r="15" fill="#ef4444" fill-opacity="0.2" stroke="#ef4444" stroke-width="2"/><text x="22" y="28" font-size="10" text-anchor="middle" fill="#3b82f6">N</text><text x="58" y="28" font-size="10" text-anchor="middle" fill="#ef4444">G</text></svg> | `Geometry` | True if the `node` is entirely disjoint from the given `geometry`. |
+| `Intersects` | <svg width="80" height="50" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="25" r="18" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2"/><circle cx="50" cy="25" r="18" fill="#ef4444" fill-opacity="0.2" stroke="#ef4444" stroke-width="2"/><text x="23" y="28" font-size="10" text-anchor="middle" fill="#3b82f6">N</text><text x="57" y="28" font-size="10" text-anchor="middle" fill="#ef4444">G</text></svg> | `Geometry` | True if the `node` intersects with the given `geometry`. |
+| `Inside` | <svg width="80" height="50" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="25" r="22" fill="#ef4444" fill-opacity="0.2" stroke="#ef4444" stroke-width="2"/><circle cx="40" cy="25" r="10" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2"/><text x="40" y="28" font-size="10" text-anchor="middle" fill="currentColor">N</text><text x="40" y="12" font-size="10" text-anchor="middle" fill="#ef4444">G</text></svg> | `Geometry` | True if the `node` is entirely inside the given `geometry`. |
+
+### Coordinates
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `X` | `min`, `max` | True if the `node` intersects along the x-axis with the range `[min, max]`. |
+| `Y` | `min`, `max` | True if the `node` intersects along the y-axis with the range `[min, max]`. |
+| `Z` | `min`, `max` | True if the `node` intersects along the z-axis with the range `[min, max]`. |
+| `W` | `min`, `max` | True if the `node` intersects along the w-axis with the range `[min, max]`. |
+
+---
+
+### Combinding Predicates
+
+#### Logical
+The following predicates are used to combine, negate, or compare other predicates. 
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `And` | $P_1, \dots, P_n$ | True if all predicates are true ($P_1 \land P_2 \land \dots \land P_n$). |
+| `Or` | $P_1, \dots, P_n$ | True if at least one predicate is true ($P_1 \lor P_2 \lor \dots \lor P_n$). |
+| `IfThen` | $P, Q$ | True if the first argument is false or the second argument is true ($P \rightarrow Q$). |
+| `Iff` | $P, Q$ | True if both arguments are true or both are false ($P \leftrightarrow Q$). |
+| `Xor` | $P, Q$ | True if exactly one predicate is true ($P \oplus Q$). |
+
+<div class="truth-table">
+
+| P | Q | And<br/>$P \land Q$ | Or<br/>$P \lor Q$ | IfThen<br/>$P \rightarrow Q$ | Iff<br/>$P \leftrightarrow Q$ | Xor<br/>$P \oplus Q$ |
+| :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| T | T | T | T | T | T | F |
+| T | F | F | T | F | F | T |
+| F | T | F | T | T | F | T |
+| F | F | F | F | T | T | F |
+
+</div>
+
+##### C++ Operator Overloads
+In C++, you can use standard operators to make complex queries much more readable:
+
+| C++ Operator | Predicate | Equivalent Logic |
+| :---: | --- | --- |
+| `&&` | `And` | |
+| `\|\|` | `Or` | |
+| `!` | Negate | |
+| `>>` | `IfThen` | |
+| `^` | `Xor` | |
+| *(None)* | `Iff` | `!(P ^ Q)` |
+
+**Example: Combining Predicates**
+Using the operators, this verbose functional code:
+```cpp
+auto pred = Or(And(a, Xor(b, c), d), e, Iff(f, IfThen(g, h)))
+
+```
+
+Can be written cleanly as:
+
+```cpp
+auto pred = (a && (b ^ c) && d) || e || !(f ^ (g >> h));
+
+```
+
+**Example: Negating Predicates**
+For predicates that check for ranges, it can be more efficient to negate the predicate instead of splitting it into two predicates. Below, the first predicate will be two separate checks per node, while the second predicate will be a single check per node.
+
+```cpp
+// Instead of this:
+auto pred = 3 > depth || depth > 5;
+
+// You can write this:
+auto pred = !(3 < depth < 5);
+```
+
+Note that:
+
+```cpp
+auto pred = 3 > depth > 5;
+
+// Is equivalent to:
+auto pred = depth > 5; // or 3 > depth, depending on the order of evaluation
+```
+
+While:
+
+```cpp
+auto pred = 3 < depth < 5;
+
+// Is equivalent to:
+auto pred = 3 < depth && depth < 5;
+```
+
+#### Boolean
+These are the simplest predicates, used primarily for testing or forcing specific evaluation states.
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `True` | | Always true. |
+| `False` | | Never true. |
+| `Bool` | `B` | True if the provided boolean `B` is true. |
+
+---
+
+## Customizable Filters
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `Satisfies` | `RetFun`, `IntFun` | True if the `node` satisfies `RetFun` and the node's ancestors satisfy `IntFun`. |
+
+---
+
+## Map-specific Predicates
+
+*(Documentation for map-specific filters will go here).*
+
+### Color
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `Alpha` | `min`, `max` | True if the `node`'s alpha is within the range `[min, max]`. |
+| `Hue` | `min`, `max` | True if the `node`'s hue is within the range `[min, max]`. |
+| `Saturation` | `min`, `max` | True if the `node`'s saturation is within the range `[min, max]`. |
+| `Lightness` | `min`, `max` | True if the `node`'s lightness is within the range `[min, max]`. |
+| `HasColor` | | True if the `node` has any color. |
+
+### Confidence
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `Confidence` | `min`, `max` | True if the `node`'s confidence is within the range `[min, max]`. |
+
+### Cost
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `Cost` | `min`, `max` | True if the `node`'s cost is within the range `[min, max]`. |
+
+### Count
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `Count` | `min`, `max` | True if the `node`'s count is within the range `[min, max]`. |
+
+### Distance
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `Distance` | `min`, `max` | True if the `node`'s distance is within the range `[min, max]`. |
+
+### Intensity
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `Intensity` | `min`, `max` | True if the `node`'s intensity is within the range `[min, max]`. |
+
+### Label
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `Label` | `label` | True if the `node` has the given `label`. |
+
+### Occupancy
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `Free` | | True if the `node` is free. |
+| `Occupied` | | True if the `node` is occupied. |
+| `Unknown` | | True if the `node` is unknown. |
+| `Occupancy` | `min`, `max` | True if the `node`'s occupancy is within the range `[min, max]`. |
+| `OccupancyStates` | `states` | True if the `node`'s occupancy is one of the given `states`. |
+| `ContainsFree` | | True if the `node` contains free space (i.e., either it is free or has free children). |
+| `ContainsOccupied` | | True if the `node` contains occupied space (i.e., either it is occupied or has occupied children). |
+| `ContainsUnknown` | | True if the `node` contains unknown space (i.e., either it is unknown or has unknown children). |
+
+### Reflection
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `Hits` | `min`, `max` | True if the `node` has been hit within the range `[min, max]`. |
+| `Misses` | `min`, `max` | True if the `node` has been missed within the range `[min, max]`. |
+| `Reflectiveness` | `min`, `max` | True if the `node`'s reflectiveness is within the range `[min, max]`. |
+
+### Semantic
+
+### Surfel
+
+### Time
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `Time` | `min`, `max` | True if the `node`'s timestamp is within the range `[min, max]`. |
+
+
+### Void Region
+
+| Predicate | Description |
+| --- | --- |
+| `VoidRegion` | True if the `node` is a void region. |
+| `ContainsVoidRegion` | True if the `node` contains a void region (i.e., either it is a void region or has void children). |

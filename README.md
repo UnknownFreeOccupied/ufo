@@ -2,7 +2,7 @@
 
 An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown.
 
-[![License](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](https://raw.githubusercontent.com/UnknownFreeOccupied/ufo/0b998a3bbadd0a59eb25c0be5b9af0e56a5755a2/LICENSE)
 [![Standard](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://en.cppreference.com/w/cpp/23)
 
 UFO is a high-performance, modular 3D mapping framework designed for modern robotics and computer vision. It provides a robust probabilistic representation of space that explicitly handles free, occupied, and unknown regions, making it ideal for path planning and exploration in complex environments.
@@ -67,4 +67,4 @@ The output will be available in `build/docs/html/index.html`.
 
 ## License
 
-UFO is released under the [BSD 3-Clause License](LICENSE).
+UFO is released under the [BSD 3-Clause License](https://raw.githubusercontent.com/UnknownFreeOccupied/ufo/0b998a3bbadd0a59eb25c0be5b9af0e56a5755a2/LICENSE).

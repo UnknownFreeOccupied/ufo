@@ -57,6 +57,11 @@
 namespace ufo
 {
 /**
+ * @ingroup core
+ * @{
+ */
+
+/**
  * @brief Represents an incremental surface element (surfel) that tracks the sufficient
  * statistics of a 3D point set for online surface estimation.
  *
@@ -103,12 +108,13 @@ class Surfel
 	/**
 	 * @brief Constructs a surfel directly from its raw sufficient statistics.
 	 *
-	 * Intended for deserialization or copying internal state.
+	 * @param [in] sum         Sum of all point positions.
+	 * @param [in] sum_squares Upper triangle of the scatter matrix (Sxx, Sxy, Sxz, Syy,
+	 * Syz, Szz).
+	 * @param [in] num_points  Number of points represented by this surfel.
 	 *
-	 * @param sum         Sum of all point positions.
-	 * @param sum_squares Upper triangle of the scatter matrix (Sxx, Sxy, Sxz, Syy, Syz,
-	 *                    Szz).
-	 * @param num_points  Number of points represented by this surfel.
+	 * @details
+	 * Intended for deserialization or copying internal state.
 	 */
 	constexpr Surfel(Vec<3, float> sum, std::array<float, 6> sum_squares,
 	                 std::uint32_t num_points)
@@ -118,8 +124,8 @@ class Surfel
 
 	/**
 	 * @brief Constructs a surfel from a single position and optional scatter matrix.
-	 * @param position The point position.
-	 * @param scatter Optional scatter matrix.
+	 * @param [in] position The point position.
+	 * @param [in] scatter Optional scatter matrix.
 	 */
 	constexpr Surfel(Vec<3, float> position, Mat<3, 3, float> scatter = {})
 	    : sum_squares_{scatter[0][0], scatter[0][1], scatter[0][2],
@@ -133,31 +139,41 @@ class Surfel
 	 * @brief Constructs a surfel by adding all points in `[first, last)`.
 	 *
 	 * @tparam InputIt `std::input_iterator` whose value type is convertible to `Vec3d`.
+	 * @param [in] first The beginning of the input range.
+	 * @param [in] last The end of the input range.
 	 */
 	template <std::input_iterator InputIt>
+	  requires std::constructible_from<Vec<3, float>, std::iter_value_t<InputIt>>
 	constexpr Surfel(InputIt first, InputIt last)
 	{
 		add(first, last);
 	}
 
 	/**
-	 * @brief Constructs a surfel by adding all points in @p points.
+	 * @brief Constructs a surfel by adding all points in `points`.
 	 *
-	 * @tparam Range `std::ranges::input_range` whose elements are convertible to `Vec3d`.
+	 * @tparam Points `std::ranges::input_range` whose elements are convertible to `Vec3d`.
+	 * @param [in] points The range of points to add.
 	 */
-	template <std::ranges::input_range Range>
-	  requires(!std::same_as<std::remove_cvref_t<Range>, Surfel>)
-	constexpr Surfel(Range const& points) : Surfel(std::cbegin(points), std::cend(points))
+	template <std::ranges::input_range Points>
+	  requires std::constructible_from<Vec<3, float>, std::ranges::range_value_t<Points>>
+	constexpr Surfel(Points const& points) : Surfel(std::cbegin(points), std::cend(points))
 	{
 	}
 
-	//! @brief Constructs a surfel from a brace-enclosed list of `Vec3f` points.
-	constexpr Surfel(std::initializer_list<Vec3f> points)
+	/**
+	 * @brief Constructs a surfel from a brace-enclosed list of `Vec3f` points.
+	 * @param [in] points The list of points to add.
+	 */
+	constexpr Surfel(std::initializer_list<Vec<3, float>> points)
 	    : Surfel(begin(points), end(points))
 	{
 	}
 
-	//! @brief Equality comparison on all three stored statistics.
+	/**
+	 * @brief Equality comparison on all three stored statistics.
+	 * @return True if all statistics are equal, false otherwise.
+	 */
 	[[nodiscard]] constexpr bool operator==(Surfel const&) const noexcept = default;
 
 	//
@@ -174,27 +190,51 @@ class Surfel
 	// Add
 	//
 
-	//! @brief Merges @p rhs into this surfel and returns `*this`.
+	/**
+	 * @brief Merges another surfel into this one using a numerically stable
+	 * parallel update rule.
+	 *
+	 * @param [in] rhs The surfel to merge in.
+	 * @return Reference to `*this` after merging.
+	 */
 	constexpr Surfel& operator+=(Surfel const& rhs) noexcept
 	{
 		add(rhs);
 		return *this;
 	}
 
-	//! @brief Adds point @p rhs to this surfel and returns `*this`.
+	/**
+	 * @brief Adds a single 3D point to this surfel using an online (Welford-like) update
+	 * rule.
+	 *
+	 * @param [in] rhs The point to add.
+	 * @return Reference to `*this` after adding the point.
+	 */
 	constexpr Surfel& operator+=(Vec<3, float> rhs) noexcept
 	{
 		add(rhs);
 		return *this;
 	}
 
-	//! @brief Returns a new surfel that is the merge of @p lhs and @p rhs.
+	/**
+	 * @brief Returns a new surfel that is the merge of `lhs` and `rhs`.
+	 *
+	 * @param [in] lhs The left-hand side surfel.
+	 * @param [in] rhs The right-hand side surfel.
+	 * @return Surfel The merged surfel.
+	 */
 	[[nodiscard]] friend Surfel operator+(Surfel lhs, Surfel const& rhs) noexcept
 	{
 		return lhs += rhs;
 	}
 
-	//! @brief Returns a new surfel that is @p lhs with point @p rhs added.
+	/**
+	 * @brief Returns a new surfel that is the result of adding point `rhs` to `lhs`.
+	 *
+	 * @param [in] lhs The left-hand side surfel.
+	 * @param [in] rhs The point to add.
+	 * @return Surfel The resulting surfel.
+	 */
 	[[nodiscard]] friend Surfel operator+(Surfel lhs, Vec<3, float> rhs) noexcept
 	{
 		return lhs += rhs;
@@ -204,15 +244,16 @@ class Surfel
 	 * @brief Merges another surfel into this one using a numerically stable
 	 * parallel update rule.
 	 *
+	 * @param surfel The surfel to merge in.
+	 *
+	 * @details
 	 * If this surfel is empty the other surfel's statistics are copied directly.
 	 * Otherwise the scatter matrix is updated with the cross-term correction:
-	 * @code
+	 * @code{.cpp}
 	 *   S += S_other + (n * n_other / (n + n_other)) * outer(mu - mu_other)
 	 * @endcode
-	 * where @p mu and @p mu_other are the current means. This is the parallel
+	 * where `mu` and `mu_other` are the current means. This is the parallel
 	 * variant of Welford's algorithm.
-	 *
-	 * @param surfel The surfel to merge in.
 	 */
 	constexpr void add(Surfel const& surfel) noexcept
 	{
@@ -226,13 +267,14 @@ class Surfel
 	/**
 	 * @brief Adds a single 3D point using an online (Welford-like) update rule.
 	 *
+	 * @param point The point to incorporate.
+	 *
+	 * @details
 	 * If this surfel is empty the point initializes the sum and the scatter
 	 * matrix remains zero. Otherwise the scatter matrix is updated with:
-	 * @code
+	 * @code{.cpp}
 	 *   S += (n / (n + 1)) * outer(sum/n - point)
 	 * @endcode
-	 *
-	 * @param point The point to incorporate.
 	 */
 	constexpr void add(Vec<3, float> point) noexcept
 	{
@@ -242,12 +284,16 @@ class Surfel
 	/**
 	 * @brief Adds all points in `[first, last)` using a batch algorithm.
 	 *
+	 * @tparam InputIt `std::input_iterator` whose value type is convertible to `Vec3d`.
+	 * @param [in] first The beginning of the input range.
+	 * @param [in] last The end of the input range.
+	 *
+	 * @details
 	 * Accumulates raw second moments in a single pass, then applies a
 	 * centering correction before merging with the parallel update rule.
-	 *
-	 * @tparam InputIt `std::input_iterator` whose value type is convertible to `Vec3d`.
 	 */
 	template <std::input_iterator InputIt>
+	  requires std::constructible_from<Vec<3, float>, std::iter_value_t<InputIt>>
 	constexpr void add(InputIt first, InputIt last)
 	{
 		if (first == last) {
@@ -258,18 +304,23 @@ class Surfel
 	}
 
 	/**
-	 * @brief Adds all points in @p points using the batch algorithm.
+	 * @brief Adds all points in `points` using the batch algorithm.
 	 *
-	 * @tparam Range `std::ranges::input_range` whose elements are convertible to `Vec3d`.
+	 * @tparam Points `std::ranges::input_range` whose elements are convertible to `Vec3d`.
+	 * @param [in] points The input range of points.
 	 */
-	template <std::ranges::input_range Range>
-	  requires(!std::same_as<std::remove_cvref_t<Range>, Surfel>)
-	constexpr void add(Range const& points)
+	template <std::ranges::input_range Points>
+	  requires std::constructible_from<Vec<3, float>, std::ranges::range_value_t<Points>>
+	constexpr void add(Points const& points)
 	{
 		add(begin(points), end(points));
 	}
 
-	//! @brief Adds points from a brace-enclosed initializer list.
+	/**
+	 * @brief Adds points from a brace-enclosed initializer list.
+	 *
+	 * @param [in] points The initializer list of points to add.
+	 */
 	constexpr void add(std::initializer_list<Vec<3, float>> points) noexcept
 	{
 		add(begin(points), end(points));
@@ -279,27 +330,50 @@ class Surfel
 	// Remove
 	//
 
-	//! @brief Removes @p rhs's contribution from this surfel and returns `*this`.
+	/**
+	 * @brief Removes another surfel's contribution from this one using a numerically stable
+	 * parallel update rule.
+	 *
+	 * @param [in] rhs The surfel to remove.
+	 * @return Reference to `*this` after removal.
+	 */
 	constexpr Surfel& operator-=(Surfel const& rhs) noexcept
 	{
 		remove(rhs);
 		return *this;
 	}
 
-	//! @brief Removes point @p rhs from this surfel and returns `*this`.
+	/**
+	 * @brief Removes a single 3D point from this surfel and returns `*this`.
+	 *
+	 * @param [in] rhs The point to remove.
+	 * @return Reference to `*this` after removal.
+	 */
 	constexpr Surfel& operator-=(Vec<3, float> rhs) noexcept
 	{
 		remove(rhs);
 		return *this;
 	}
 
-	//! @brief Returns a new surfel with @p rhs's contribution removed from @p lhs.
+	/**
+	 * @brief Returns a new surfel that is the result of removing `rhs` from `lhs`.
+	 *
+	 * @param [in] lhs The left-hand side surfel.
+	 * @param [in] rhs The surfel to remove.
+	 * @return A new surfel with `rhs` removed from `lhs`.
+	 */
 	[[nodiscard]] friend Surfel operator-(Surfel lhs, Surfel const& rhs) noexcept
 	{
 		return lhs -= rhs;
 	}
 
-	//! @brief Returns a new surfel with point @p rhs removed from @p lhs.
+	/**
+	 * @brief Returns a new surfel that is the result of removing point `rhs` from `lhs`.
+	 *
+	 * @param [in] lhs The left-hand side surfel.
+	 * @param [in] rhs The point to remove.
+	 * @return A new surfel with point `rhs` removed from `lhs`.
+	 */
 	[[nodiscard]] friend Surfel operator-(Surfel lhs, Vec<3, float> rhs) noexcept
 	{
 		return lhs -= rhs;
@@ -308,15 +382,16 @@ class Surfel
 	/**
 	 * @brief Removes a previously-added surfel's contribution from this one.
 	 *
-	 * If @p surfel contains at least as many points as this surfel, the surfel is
+	 * @param [in] surfel The surfel to subtract.
+	 *
+	 * @details
+	 * If `surfel` contains at least as many points as this surfel, the surfel is
 	 * cleared entirely. Otherwise the scatter matrix is updated by reversing the
 	 * parallel merge formula:
-	 * @code
+	 * @code{.cpp}
 	 *   S -= S_other + (n_other * n_result / (n_other + n_result)) * outer(mu_result -
 	 * mu_other)
 	 * @endcode
-	 *
-	 * @param surfel The surfel to subtract.
 	 */
 	constexpr void remove(Surfel const& surfel) noexcept
 	{
@@ -326,13 +401,14 @@ class Surfel
 	/**
 	 * @brief Removes a single previously-added 3D point.
 	 *
+	 * @param [in] point The point to remove.
+	 *
+	 * @details
 	 * Clears the surfel if it is empty or contains exactly one point. Otherwise
 	 * reverses the online update rule used in `add(Vec3f)`:
-	 * @code
+	 * @code{.cpp}
 	 *   S -= (n / (n - 1)) * outer(sum/n - point)
 	 * @endcode
-	 *
-	 * @param point The point to remove.
 	 */
 	constexpr void remove(Vec<3, float> point) noexcept
 	{
@@ -342,11 +418,15 @@ class Surfel
 	/**
 	 * @brief Removes all points in `[first, last)` using a batch algorithm.
 	 *
-	 * Computes the batch's scatter statistics then reverses the parallel merge.
-	 *
 	 * @tparam InputIt `std::input_iterator` whose value type is convertible to `Vec3d`.
+	 * @param [in] first The beginning of the input range.
+	 * @param [in] last The end of the input range.
+	 *
+	 * @details
+	 * Computes the batch's scatter statistics then reverses the parallel merge.
 	 */
 	template <std::input_iterator InputIt>
+	  requires std::constructible_from<Vec<3, float>, std::iter_value_t<InputIt>>
 	constexpr void remove(InputIt first, InputIt last)
 	{
 		if (first == last) {
@@ -357,18 +437,23 @@ class Surfel
 	}
 
 	/**
-	 * @brief Removes all points in @p points using the batch algorithm.
+	 * @brief Removes all points in `points` using the batch algorithm.
 	 *
-	 * @tparam Range `std::ranges::input_range` whose elements are convertible to `Vec3d`.
+	 * @tparam Points `std::ranges::input_range` whose elements are convertible to `Vec3d`.
+	 * @param [in] points The input range of points.
 	 */
-	template <std::ranges::input_range Range>
-	  requires(!std::same_as<std::remove_cvref_t<Range>, Surfel>)
-	constexpr void remove(Range const& points)
+	template <std::ranges::input_range Points>
+	  requires std::constructible_from<Vec<3, float>, std::ranges::range_value_t<Points>>
+	constexpr void remove(Points const& points)
 	{
 		remove(begin(points), end(points));
 	}
 
-	//! @brief Removes points from a brace-enclosed initializer list.
+	/**
+	 * @brief Removes all points in a brace-enclosed initializer list.
+	 *
+	 * @param [in] points The input range of points.
+	 */
 	constexpr void remove(std::initializer_list<Vec<3, float>> points) noexcept
 	{
 		remove(begin(points), end(points));
@@ -378,7 +463,13 @@ class Surfel
 	// Clear
 	//
 
-	//! @brief Resets the surfel to an empty state (no points, zero statistics).
+	/**
+	 * @brief Clears the surfel to an empty state (no points, zero statistics).
+	 *
+	 * @details
+	 * After calling this method, `empty()` will return true and all statistics will be
+	 * reset to zero.
+	 */
 	constexpr void clear() noexcept
 	{
 		sum_squares_ = {};
@@ -393,7 +484,9 @@ class Surfel
 	/**
 	 * @brief Returns the centroid (mean position) of all accumulated points.
 	 *
-	 * @pre `!empty()` — behavior is undefined if the surfel contains no points.
+	 * @return The mean position of the points in the surfel.
+	 *
+	 * @pre `!empty()` - behavior is undefined if the surfel contains no points.
 	 */
 	[[nodiscard]] constexpr Vec<3, double> mean() const noexcept
 	{
@@ -407,6 +500,9 @@ class Surfel
 	/**
 	 * @brief Returns the 3×3 sample covariance matrix.
 	 *
+	 * @return The sample covariance matrix of the accumulated points.
+	 *
+	 * @details
 	 * Computed as `sum_squares_ / (n − 1)` where `n = numPoints()`. The matrix is
 	 * symmetric; both upper and lower triangles are filled.
 	 *
@@ -429,6 +525,8 @@ class Surfel
 	 * @brief Returns the surface normal as the eigenvector of the covariance
 	 * matrix corresponding to the smallest eigenvalue.
 	 *
+	 * @return Unit vector normal to the local surface.
+	 *
 	 * @pre `numPoints() >= 2`.
 	 */
 	[[nodiscard]] constexpr Vec3d normal() const noexcept
@@ -443,6 +541,10 @@ class Surfel
 	/**
 	 * @brief Returns a planarity measure in [0, 1].
 	 *
+	 * @return Planarity measure in [0, 1], where 1 indicates a perfectly planar arrangement
+	 * and 0 indicates an isotropic distribution.
+	 *
+	 * @details
 	 * Computed as `2 * (e1 - e0) / (e0 + e1 + e2)` where `e0 <= e1 <= e2` are
 	 * the sorted eigenvalues of the covariance matrix. A value of 1 indicates a
 	 * perfectly planar arrangement; 0 indicates an isotropic distribution.
@@ -459,7 +561,11 @@ class Surfel
 	// Get num points
 	//
 
-	//! @brief Returns the number of 3D points currently represented by this surfel.
+	/**
+	 * @brief Returns the number of points currently represented by this surfel.
+	 *
+	 * @return The number of points in the surfel.
+	 */
 	[[nodiscard]] constexpr std::uint32_t numPoints() const noexcept { return num_points_; }
 
 	//
@@ -469,7 +575,11 @@ class Surfel
 	/**
 	 * @brief Returns the raw sum of all point positions.
 	 *
-	 * Divide by `numPoints()` to obtain the mean, or use `mean()` directly.
+	 * @return The sum of all point positions.
+	 *
+	 * @details
+	 * This is the unnormalized sum of all point positions. The mean can be obtained by
+	 * dividing this sum by `numPoints()`, or by calling the `mean()` method directly.
 	 */
 	[[nodiscard]] constexpr Vec<3, float> sum() const noexcept { return sum_; }
 
@@ -481,6 +591,9 @@ class Surfel
 	 * @brief Returns the raw scatter matrix upper triangle (Sxx, Sxy, Sxz, Syy,
 	 * Syz, Szz).
 	 *
+	 * @return The upper triangle of the scatter matrix.
+	 *
+	 * @details
 	 * Dividing by `(numPoints() − 1)` yields the sample covariance upper triangle.
 	 */
 	[[nodiscard]] constexpr std::array<float, 6> sumSquares() const noexcept
@@ -493,7 +606,13 @@ class Surfel
 	// Helpers
 	//
 
-	//! @brief Converts a `float[6]` scatter array to `double[6]`.
+	/**
+	 * @brief Converts an array of six `float`s to `double`s for intermediate calculations.
+	 *
+	 * @param [in] arr The input array of six `float`s representing the upper triangle of
+	 * the scatter matrix.
+	 * @return An array of six `double`s converted from the input `float`s.
+	 */
 	[[nodiscard]] static constexpr std::array<double, 6> toDouble(
 	    std::array<float, 6> const& arr) noexcept
 	{
@@ -503,7 +622,12 @@ class Surfel
 		return result;
 	}
 
-	//! @brief Stores a `double[6]` scatter array back as `float[6]`.
+	/**
+	 * @brief Converts an array of six `double`s to `float`s for storage.
+	 *
+	 * @param [in] src The input array of six `double`s.
+	 * @param [out] dst The output array of six `float`s.
+	 */
 	static constexpr void toFloat(std::array<double, 6> const& src,
 	                              std::array<float, 6>&        dst) noexcept
 	{
@@ -511,7 +635,13 @@ class Surfel
 		                       [](double v) { return static_cast<float>(v); });
 	}
 
-	//! @brief Applies `ss += scale * outer(v, v)` to the upper triangle of @p ss.
+	/**
+	 * @brief Helper to add the outer product correction term in the parallel update.
+	 *
+	 * @param [in,out] ss The scatter matrix upper triangle to update.
+	 * @param [in] v The vector used in the outer product correction.
+	 * @param [in] scale The scaling factor for the correction term.
+	 */
 	static constexpr void addOuter(std::array<double, 6>& ss, Vec<3, double> const& v,
 	                               double scale) noexcept
 	{
@@ -526,10 +656,21 @@ class Surfel
 	/**
 	 * @brief Computes scatter statistics `(ss, sum, n)` for a batch of points.
 	 *
+	 * @tparam InputIt `std::input_iterator` whose value type is convertible to `Vec3d`.
+	 * @param [in] first The beginning of the input range.
+	 * @param [in] last The end of the input range.
+	 * @return A tuple containing:
+	 * - `ss`: An array of six `double`s representing the upper triangle of the scatter
+	 * matrix.
+	 * - `sum`: The sum of all point positions as a `Vec<3, double>`.
+	 * - `n`: The number of points in the batch as a `std::uint32_t`.
+	 *
+	 * @details
 	 * Accumulates raw second moments in a single pass, then subtracts the
 	 * centering correction `s[i]*s[j]/n` to produce the scatter matrix.
 	 */
 	template <std::input_iterator InputIt>
+	  requires std::constructible_from<Vec<3, double>, std::iter_value_t<InputIt>>
 	[[nodiscard]] static constexpr std::tuple<std::array<double, 6>, Vec<3, double>,
 	                                          std::uint32_t>
 	batchScatter(InputIt first, InputIt last) noexcept
@@ -565,6 +706,13 @@ class Surfel
 	// Private add/remove
 	//
 
+	/**
+	 * @brief Helper to add a batch of points represented by their scatter statistics.
+	 *
+	 * @param [in] ss The scatter matrix upper triangle of the batch to add.
+	 * @param [in] sum The sum of all point positions in the batch.
+	 * @param [in] num_points The number of points in the batch.
+	 */
 	constexpr void add(std::array<double, 6> ss, Vec<3, double> const& sum,
 	                   std::uint32_t num_points)
 	{
@@ -588,6 +736,13 @@ class Surfel
 		num_points_ += num_points;
 	}
 
+	/**
+	 * @brief Helper to remove a batch of points represented by their scatter statistics.
+	 *
+	 * @param [in] ss The scatter matrix upper triangle of the batch to remove.
+	 * @param [in] sum The sum of all point positions in the batch.
+	 * @param [in] num_points The number of points in the batch.
+	 */
 	constexpr void remove(std::array<double, 6> ss, Vec<3, double> const& sum,
 	                      std::uint32_t num_points)
 	{
@@ -613,24 +768,35 @@ class Surfel
 	// Data members
 	//
 
-	//! Upper triangle of the scatter matrix (Sxx, Sxy, Sxz, Syy, Syz, Szz).
+	/**
+	 * @brief Upper triangle of the scatter matrix S, stored as six `float`s in the order
+	 * (Sxx, Sxy, Sxz, Syy, Syz, Szz). S accumulates the sum of squared deviations from the
+	 * running mean; the sample covariance is S / (n − 1).
+	 */
 	std::array<float, 6> sum_squares_{};
-	//! Sum of all accumulated point positions.
+
+	/**
+	 * @brief The sum of all point positions (a `Vec<3, float>`). This is the unnormalized
+	 * sum; the mean can be obtained by dividing this sum by `numPoints()`, or by calling
+	 * the `mean()` method directly.
+	 */
 	Vec<3, float> sum_{};
-	//! Number of points accumulated so far.
+
+	/**
+	 * @brief The number of contributing points. This is used to compute the mean and
+	 * covariance from the raw sums. If this is zero, the surfel is considered empty and all
+	 * statistics are zero. If this is one, the mean is equal to the single point and the
+	 * covariance is undefined (but treated as zero). For two or more points, the mean and
+	 * covariance are computed from the sums as described in the method documentation.
+	 */
 	std::uint32_t num_points_{};
 };
-}  // namespace ufo
 
 /**
- * @brief `std::format` / `std::formatter` specialization for `ufo::Surfel`.
- *
- * Empty surfel: `"Surfel{empty}"`.
- * Non-empty:    `"Surfel{n=N, mean=(x, y, z)}"`.
- * No format specifier is accepted; the format string must be empty (`{}`).
- *
- * @tparam T Scalar type.
+ * @}
  */
+}  // namespace ufo
+
 template <>
 struct std::formatter<ufo::Surfel> {
 	constexpr auto parse(std::format_parse_context& ctx) const { return ctx.begin(); }
@@ -649,12 +815,14 @@ struct std::formatter<ufo::Surfel> {
 namespace ufo
 {
 /**
- * @brief Writes a human-readable summary of the surfel to @p out.
+ * @ingroup core
+ * @brief Writes a human-readable summary of the surfel to `out`.
  *
- * @param out Output stream.
- * @param s Surfel to print.
+ * @param [out] out Output stream.
+ * @param [in] s Surfel to print.
  * @return Reference to the output stream.
  *
+ * @details
  * Empty surfel: `"Surfel{empty}"`.
  * Non-empty:    `"Surfel{n=N, mean=(x, y, z)}"`.
  */

@@ -47,6 +47,10 @@
 
 namespace ufo
 {
+/**
+ * @ingroup core
+ * @{
+ */
 
 /**
  * @brief Represents a confidence score as a single float value.
@@ -72,17 +76,18 @@ struct Confidence {
 
 	/**
 	 * @brief Implicitly converts to the underlying scalar type.
-	 *
-	 * Allows `Confidence` to be used wherever a `float` is expected.
 	 * @return The confidence score as a float.
+	 *
+	 * @details
+	 * Allows `Confidence` to be used wherever a `float` is expected.
 	 */
 	[[nodiscard]] constexpr operator value_type() const noexcept { return confidence; }
 
 	/**
 	 * @brief Three-way comparison (total order on the underlying float).
 	 *
-	 * @param lhs Left operand.
-	 * @param rhs Right operand.
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
 	 * @return Comparison result.
 	 */
 	[[nodiscard]] friend constexpr auto operator<=>(Confidence lhs,
@@ -91,8 +96,8 @@ struct Confidence {
 	/**
 	 * @brief Equality comparison.
 	 *
-	 * @param lhs Left operand.
-	 * @param rhs Right operand.
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
 	 * @return True if both confidence scores are equal.
 	 */
 	[[nodiscard]] friend constexpr bool operator==(Confidence lhs,
@@ -100,10 +105,15 @@ struct Confidence {
 };
 
 /**
- * @brief Writes the confidence score to @p out.
+ * @}
+ */
+
+/**
+ * @ingroup core
+ * @brief Writes the confidence score to `out`.
  *
- * @param out Output stream.
- * @param c Confidence to print.
+ * @param [in,out] out Output stream.
+ * @param [in] c Confidence to print.
  * @return Reference to the output stream.
  */
 inline std::ostream& operator<<(std::ostream& out, Confidence c)
@@ -112,14 +122,6 @@ inline std::ostream& operator<<(std::ostream& out, Confidence c)
 }
 }  // namespace ufo
 
-/**
- * @brief `std::format` / `std::formatter` specialization for `ufo::Confidence`.
- *
- * Delegates to the `float` formatter, so all standard float format specifiers (e.g.,
- * `{:.4f}`) are supported.
- *
- * @tparam T Scalar type.
- */
 template <>
 struct std::formatter<ufo::Confidence> : std::formatter<ufo::Confidence::value_type> {
 	auto format(ufo::Confidence v, std::format_context& ctx) const

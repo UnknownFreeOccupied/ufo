@@ -50,11 +50,17 @@
 namespace ufo
 {
 /**
+ * @ingroup core
+ * @{
+ */
+
+/**
  * @brief Represents a closed interval [lower, upper] of a scalar type.
  *
- * Provides interval operations, ordering, and containment checks.
- *
  * @tparam T Scalar type (e.g., int, float, double).
+ *
+ * @details
+ * Provides interval operations, ordering, and containment checks.
  */
 template <typename T>
 struct Range {
@@ -76,6 +82,7 @@ struct Range {
 	/**
 	 * @brief Comparator for interval ordering in associative containers.
 	 *
+	 * @details
 	 * Implements interval ordering: [a, b] < [c, d] iff b < c.
 	 * Supports transparent (heterogeneous) lookup.
 	 */
@@ -120,7 +127,7 @@ struct Range {
 	/**
 	 * @brief Checks if a value is contained within the interval.
 	 *
-	 * @param value Value to check.
+	 * @param [in] value Value to check.
 	 * @return True if value is in [lower, upper].
 	 */
 	[[nodiscard]] constexpr bool contains(value_type value) const noexcept
@@ -131,7 +138,7 @@ struct Range {
 	/**
 	 * @brief Checks if another range is fully contained within this interval.
 	 *
-	 * @param other Range to check.
+	 * @param [in] other Range to check.
 	 * @return True if other is in [lower, upper].
 	 */
 	[[nodiscard]] constexpr bool contains(Range const& other) const noexcept
@@ -142,7 +149,7 @@ struct Range {
 	/**
 	 * @brief Checks if this interval overlaps with another range.
 	 *
-	 * @param other Range to check.
+	 * @param [in] other Range to check.
 	 * @return True if the intervals overlap (i.e., they share any common values).
 	 */
 	[[nodiscard]] constexpr bool overlaps(Range const& other) const noexcept
@@ -153,18 +160,18 @@ struct Range {
 	/**
 	 * @brief Equality comparison.
 	 *
-	 * @param lhs Left operand.
-	 * @param rhs Right operand.
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
 	 * @return True if both bounds are equal.
 	 */
 	[[nodiscard]] friend constexpr bool operator==(Range const& lhs,
 	                                               Range const& rhs) noexcept = default;
 
 	/**
-	 * @brief Interval ordering: [a, b] < [c, d] iff b < c.
+	 * @brief Interval ordering: `[a, b] < [c, d]` iff `b < c`.
 	 *
-	 * @param lhs Left operand.
-	 * @param rhs Right operand.
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
 	 * @return True if this interval is entirely before rhs.
 	 */
 	[[nodiscard]] friend constexpr bool operator<(Range const& lhs,
@@ -174,10 +181,10 @@ struct Range {
 	}
 
 	/**
-	 * @brief Interval ordering: [a, b] <= [c, d] iff b <= c.
+	 * @brief Interval ordering: `[a, b] <= [c, d]` iff `b <= c`.
 	 *
-	 * @param lhs Left operand.
-	 * @param rhs Right operand.
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
 	 * @return True if this interval is before or touching rhs.
 	 */
 	[[nodiscard]] friend constexpr bool operator<=(Range const& lhs,
@@ -187,10 +194,10 @@ struct Range {
 	}
 
 	/**
-	 * @brief Interval ordering: [a, b] > [c, d] iff a > d.
+	 * @brief Interval ordering: `[a, b] > [c, d]` iff `a > d`.
 	 *
-	 * @param lhs Left operand.
-	 * @param rhs Right operand.
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
 	 * @return True if this interval is entirely after rhs.
 	 */
 	[[nodiscard]] friend constexpr bool operator>(Range const& lhs,
@@ -200,10 +207,10 @@ struct Range {
 	}
 
 	/**
-	 * @brief Interval ordering: [a, b] >= [c, d] iff a >= d.
+	 * @brief Interval ordering: `[a, b] >= [c, d]` iff `a >= d`.
 	 *
-	 * @param lhs Left operand.
-	 * @param rhs Right operand.
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
 	 * @return True if this interval is after or touching rhs.
 	 */
 	[[nodiscard]] friend constexpr bool operator>=(Range const& lhs,
@@ -213,10 +220,10 @@ struct Range {
 	}
 
 	/**
-	 * @brief Equality comparison with scalar: [a, b] == t iff a == t && b == t.
+	 * @brief Equality comparison with scalar: `[a, b] == t` iff `a == t && b == t`.
 	 *
-	 * @param lhs Range operand.
-	 * @param rhs Scalar operand.
+	 * @param [in] lhs Range operand.
+	 * @param [in] rhs Scalar operand.
 	 * @return True if both bounds equal rhs.
 	 */
 	[[nodiscard]] friend constexpr bool operator==(Range const& lhs,
@@ -226,10 +233,10 @@ struct Range {
 	}
 
 	/**
-	 * @brief Range-scalar ordering: [a, b] < t iff b < t.
+	 * @brief Range-scalar ordering: `[a, b] < t` iff `b < t`.
 	 *
-	 * @param lhs Range operand.
-	 * @param rhs Scalar operand.
+	 * @param [in] lhs Range operand.
+	 * @param [in] rhs Scalar operand.
 	 * @return True if upper < rhs.
 	 */
 	[[nodiscard]] friend constexpr bool operator<(Range const& lhs, value_type rhs) noexcept
@@ -238,10 +245,10 @@ struct Range {
 	}
 
 	/**
-	 * @brief Range-scalar ordering: [a, b] <= t iff b <= t.
+	 * @brief Range-scalar ordering: `[a, b] <= t` iff `b <= t`.
 	 *
-	 * @param lhs Range operand.
-	 * @param rhs Scalar operand.
+	 * @param [in] lhs Range operand.
+	 * @param [in] rhs Scalar operand.
 	 * @return True if upper <= rhs.
 	 */
 	[[nodiscard]] friend constexpr bool operator<=(Range const& lhs,
@@ -251,10 +258,10 @@ struct Range {
 	}
 
 	/**
-	 * @brief Range-scalar ordering: [a, b] > t iff a > t.
+	 * @brief Range-scalar ordering: `[a, b] > t` iff `a > t`.
 	 *
-	 * @param lhs Range operand.
-	 * @param rhs Scalar operand.
+	 * @param [in] lhs Range operand.
+	 * @param [in] rhs Scalar operand.
 	 * @return True if lower > rhs.
 	 */
 	[[nodiscard]] friend constexpr bool operator>(Range const& lhs, value_type rhs) noexcept
@@ -263,10 +270,10 @@ struct Range {
 	}
 
 	/**
-	 * @brief Range-scalar ordering: [a, b] >= t iff a >= rhs.
+	 * @brief Range-scalar ordering: `[a, b] >= t` iff `a >= t`.
 	 *
-	 * @param lhs Range operand.
-	 * @param rhs Scalar operand.
+	 * @param [in] lhs Range operand.
+	 * @param [in] rhs Scalar operand.
 	 * @return True if lower >= rhs.
 	 */
 	[[nodiscard]] friend constexpr bool operator>=(Range const& lhs,
@@ -276,10 +283,10 @@ struct Range {
 	}
 
 	/**
-	 * @brief Equality comparison with scalar: t == [a, b] iff t == a && t == b.
+	 * @brief Equality comparison with scalar: `t == [a, b]` iff `t == a && t == b`.
 	 *
-	 * @param lhs Scalar operand.
-	 * @param rhs Range operand.
+	 * @param [in] lhs Scalar operand.
+	 * @param [in] rhs Range operand.
 	 * @return True if both bounds equal lhs.
 	 */
 	[[nodiscard]] friend constexpr bool operator==(value_type   lhs,
@@ -289,10 +296,10 @@ struct Range {
 	}
 
 	/**
-	 * @brief Scalar-range ordering: t < [a, b] iff t < a.
+	 * @brief Scalar-range ordering: `t < [a, b]` iff `t < a`.
 	 *
-	 * @param lhs Scalar operand.
-	 * @param rhs Range operand.
+	 * @param [in] lhs Scalar operand.
+	 * @param [in] rhs Range operand.
 	 * @return True if lhs < rhs.lower.
 	 */
 	[[nodiscard]] friend constexpr bool operator<(value_type lhs, Range const& rhs) noexcept
@@ -301,10 +308,10 @@ struct Range {
 	}
 
 	/**
-	 * @brief Scalar-range ordering: t <= [a, b] iff t <= a.
+	 * @brief Scalar-range ordering: `t <= [a, b]` iff `t <= a`.
 	 *
-	 * @param lhs Scalar operand.
-	 * @param rhs Range operand.
+	 * @param [in] lhs Scalar operand.
+	 * @param [in] rhs Range operand.
 	 * @return True if lhs <= rhs.lower.
 	 */
 	[[nodiscard]] friend constexpr bool operator<=(value_type   lhs,
@@ -314,10 +321,10 @@ struct Range {
 	}
 
 	/**
-	 * @brief Scalar-range ordering: t > [a, b] iff t > b.
+	 * @brief Scalar-range ordering: `t > [a, b]` iff `t > b`.
 	 *
-	 * @param lhs Scalar operand.
-	 * @param rhs Range operand.
+	 * @param [in] lhs Scalar operand.
+	 * @param [in] rhs Range operand.
 	 * @return True if lhs > rhs.upper.
 	 */
 	[[nodiscard]] friend constexpr bool operator>(value_type lhs, Range const& rhs) noexcept
@@ -326,10 +333,10 @@ struct Range {
 	}
 
 	/**
-	 * @brief Scalar-range ordering: t >= [a, b] iff t >= b.
+	 * @brief Scalar-range ordering: `t >= [a, b]` iff `t >= b`.
 	 *
-	 * @param lhs Scalar operand.
-	 * @param rhs Range operand.
+	 * @param [in] lhs Scalar operand.
+	 * @param [in] rhs Range operand.
 	 * @return True if lhs >= rhs.upper.
 	 */
 	[[nodiscard]] friend constexpr bool operator>=(value_type   lhs,
@@ -338,19 +345,12 @@ struct Range {
 		return rhs <= lhs;
 	}
 };
-}  // namespace ufo
 
 /**
- * @brief `std::format` / `std::formatter` specialization for `ufo::Range<T>`.
- *
- * - Single value (`lower == upper`): `[v]`
- * - Floating-point range:            `[lo,hi]`
- * - Integral range:                  `[lo..hi]`
- *
- * Arithmetic types smaller than `int` (e.g. `char`) are promoted before
- * formatting so they print as numbers rather than characters.
- * No format specifier is accepted; the format string must be empty (`{}`).
+ * @}
  */
+}  // namespace ufo
+
 template <class T>
 struct std::formatter<ufo::Range<T>> {
 	constexpr auto parse(std::format_parse_context& ctx) const { return ctx.begin(); }
@@ -370,21 +370,23 @@ struct std::formatter<ufo::Range<T>> {
 namespace ufo
 {
 /**
- * @brief Writes the range to @p out in human-readable format.
+ * @ingroup core
+ * @brief Writes the range to `p` out in human-readable format.
  *
+ * @tparam T Scalar type.
+ * @param [in,out] out Output stream.
+ * @param [in] r Range to print.
+ * @return Reference to the output stream.
+ *
+ * @details
  * Degenerate: [a, a] -> "[a]"
  * Range:      [a, b] -> "[a..b]"
  * Float:      [a, b] -> "[a,b]"
- *
- * @tparam T Scalar type.
- * @param out Output stream.
- * @param r Range to print.
- * @return Reference to the output stream.
  */
 template <class T>
-std::ostream& operator<<(std::ostream& os, Range<T> const& r)
+std::ostream& operator<<(std::ostream& out, Range<T> const& r)
 {
-	return os << std::format("{}", r);
+	return out << std::format("{}", r);
 }
 }  // namespace ufo
 

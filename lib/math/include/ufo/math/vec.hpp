@@ -58,6 +58,11 @@
 #include <type_traits>
 #include <utility>
 
+/**
+ * @ingroup math
+ * @{
+ */
+
 namespace ufo
 {
 
@@ -514,20 +519,6 @@ using Vec1d = Vec<1, double>;
 using Vec2d = Vec<2, double>;
 using Vec3d = Vec<3, double>;
 using Vec4d = Vec<4, double>;
-
-/**************************************************************************************
-|                                                                                     |
-|                                      Concepts                                       |
-|                                                                                     |
-**************************************************************************************/
-
-/**
- * @brief Concept satisfied by any specialization of `Vec<Dim, U>`.
- * @tparam T Type to check.
- */
-template <class T>
-concept VecType =
-    requires(T const& t) { []<std::size_t Dim, class U>(Vec<Dim, U> const&) {}(t); };
 
 /**************************************************************************************
 |                                                                                     |
@@ -1061,8 +1052,10 @@ template <class T, std::size_t Dim, class U>
  * @tparam U Source element type.
  * @param [in] v The source vector.
  * @return A new vector of type `To`, copying the overlapping dimensions.
+ *
+ * @todo Ensure To is Vec
  */
-template <VecType To, std::size_t Dim, class U>
+template <class To, std::size_t Dim, class U>
 [[nodiscard]] constexpr To convert(Vec<Dim, U> const& v) noexcept
 {
 	using T = typename To::value_type;
@@ -1837,5 +1830,9 @@ struct std::formatter<ufo::Vec<Dim, T>> {
 		return out;
 	}
 };
+
+/**
+ * @}
+ */
 
 #endif  // UFO_MATH_VEC_HPP

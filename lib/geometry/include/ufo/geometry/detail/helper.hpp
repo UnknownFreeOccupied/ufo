@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -39,17 +39,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_GEOMETRY_HELPER_HPP
-#define UFO_GEOMETRY_HELPER_HPP
+#ifndef UFO_GEOMETRY_DETAIL_HELPER_HPP
+#define UFO_GEOMETRY_DETAIL_HELPER_HPP
 
 // UFO
 #include <ufo/geometry/aabb.hpp>
-#include <ufo/geometry/fun.hpp>
+#include <ufo/geometry/capsule.hpp>
+#include <ufo/geometry/cylinder.hpp>
+#include <ufo/geometry/ellipsoid.hpp>
+#include <ufo/geometry/frustum.hpp>
+#include <ufo/geometry/line.hpp>
 #include <ufo/geometry/line_segment.hpp>
 #include <ufo/geometry/obb.hpp>
 #include <ufo/geometry/plane.hpp>
 #include <ufo/geometry/ray.hpp>
 #include <ufo/geometry/sphere.hpp>
+#include <ufo/geometry/triangle.hpp>
 
 // STL
 #include <algorithm>
@@ -128,7 +133,8 @@ template <std::size_t Dim, class T>
 //
 
 template <class T>
-[[nodiscard]] constexpr T classify(AABB<3, T> const& aabb, Plane<T> const& plane) noexcept
+[[nodiscard]] constexpr T classify(AABB<3, T> const&  aabb,
+                                   Plane<3, T> const& plane) noexcept
 {
 	auto hl = aabb.halfLength();
 	auto c  = aabb.center();
@@ -466,4 +472,4 @@ inline Vec4f segmentBoxQuery(Vec3f s, Vec3f e, Vec3f b)
 
 }  // namespace ufo::detail
 
-#endif  // UFO_GEOMETRY_HELPER_HPP
+#endif  // UFO_GEOMETRY_DETAIL_HELPER_HPP

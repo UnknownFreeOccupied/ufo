@@ -12,6 +12,10 @@
 
 using namespace ufo;
 
+struct Data {
+	int value;
+};
+
 template <class Policy>
 void test_for_each(Policy&& policy)
 {
@@ -27,6 +31,20 @@ void test_for_each(Policy&& policy)
 	for (auto r : results) {
 		CHECK(r == 1);
 	}
+
+	std::fill(results.begin(), results.end(), 0);
+	ufo::for_each(std::forward<Policy>(policy), v, [&results](int i) { results[i] = 2; });
+
+	for (auto r : results) {
+		CHECK(r == 2);
+	}
+
+	// Range result check
+	auto f_fe = [](int) {};
+	auto res  = ufo::for_each(v, f_fe);
+	static_assert(
+	    std::is_same_v<decltype(res), std::ranges::for_each_result<
+	                                      std::vector<int>::iterator, decltype(f_fe)>>);
 }
 
 template <class Policy>
@@ -38,12 +56,30 @@ void test_transform_unary(Policy&& policy)
 
 	std::vector<int> results(size);
 
-	ufo::transform(std::forward<Policy>(policy), v.begin(), v.end(), results.begin(),
-	               [](int i) { return i * 2; });
+	auto it = ufo::transform(std::forward<Policy>(policy), v.begin(), v.end(),
+	                         results.begin(), [](int i) { return i * 2; });
+	CHECK(it == results.end());
 
 	for (std::size_t i = 0; i < size; ++i) {
 		CHECK(results[i] == static_cast<int>(i * 2));
 	}
+
+	std::fill(results.begin(), results.end(), 0);
+	it = ufo::transform(std::forward<Policy>(policy), v, results.begin(),
+	                    [](int i) { return i * 3; });
+	CHECK(it == results.end());
+
+	for (std::size_t i = 0; i < size; ++i) {
+		CHECK(results[i] == static_cast<int>(i * 3));
+	}
+
+	// Range result check
+	auto f   = [](int i) { return i; };
+	auto res = ufo::transform(v, results.begin(), f);
+	static_assert(
+	    std::is_same_v<decltype(res),
+	                   std::ranges::unary_transform_result<std::vector<int>::iterator,
+	                                                       std::vector<int>::iterator>>);
 }
 
 template <class Policy>
@@ -57,11 +93,70 @@ void test_transform_binary(Policy&& policy)
 
 	std::vector<int> results(size);
 
-	ufo::transform(std::forward<Policy>(policy), v1.begin(), v1.end(), v2.begin(),
-	               results.begin(), [](int a, int b) { return a + b; });
+	auto it = ufo::transform(std::forward<Policy>(policy), v1.begin(), v1.end(), v2.begin(),
+	                         results.begin(), [](int a, int b) { return a + b; });
+	CHECK(it == results.end());
 
 	for (std::size_t i = 0; i < size; ++i) {
 		CHECK(results[i] == static_cast<int>(i + (size + i)));
+	}
+
+	std::fill(results.begin(), results.end(), 0);
+	it = ufo::transform(std::forward<Policy>(policy), v1, v2.begin(), results.begin(),
+	                    [](int a, int b) { return a - b; });
+	CHECK(it == results.end());
+
+	for (std::size_t i = 0; i < size; ++i) {
+		CHECK(results[i] == static_cast<int>(i - (size + i)));
+	}
+
+	// Range result check
+	auto f_tr2 = [](int a, int b) { return a + b; };
+	auto res   = ufo::transform(v1, v2.begin(), results.begin(), f_tr2);
+	static_assert(
+	    std::is_same_v<decltype(res),
+	                   std::ranges::binary_transform_result<std::vector<int>::iterator,
+	                                                        std::vector<int>::iterator,
+	                                                        std::vector<int>::iterator>>);
+}
+
+TEST_CASE("Algorithm - Projections and Invoke")
+{
+	std::size_t const size = 10;
+	std::vector<Data> v(size);
+	for (std::size_t i = 0; i < size; ++i) v[i].value = i;
+
+	SECTION("Sequential - for_each")
+	{
+		int sum = 0;
+		ufo::for_each(v, [&](int val) { sum += val; }, &Data::value);
+		CHECK(sum == 45);
+	}
+
+	SECTION("Sequential - transform")
+	{
+		std::vector<int> results(size);
+		auto             res =
+		    ufo::transform(v, results.begin(), [](int val) { return val * 2; }, &Data::value);
+		CHECK(res.out == results.end());
+		for (std::size_t i = 0; i < size; ++i) CHECK(results[i] == static_cast<int>(i * 2));
+	}
+
+	SECTION("Parallel - for_each")
+	{
+		std::atomic<int> sum = 0;
+		ufo::for_each(execution::par, v, [&](int val) { sum += val; }, &Data::value);
+		CHECK(sum == 45);
+	}
+
+	SECTION("Parallel - transform")
+	{
+		std::vector<int> results(size);
+		auto             res = ufo::transform(
+        execution::par, v, results.begin(), [](int val) { return val * 2; },
+        &Data::value);
+		CHECK(res == results.end());
+		for (std::size_t i = 0; i < size; ++i) CHECK(results[i] == static_cast<int>(i * 2));
 	}
 }
 

@@ -5,8 +5,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 // STL
-#include <random>
-// #include <thread>
+#include <thread>
 
 TEST_CASE("Timing")
 {
@@ -24,10 +23,6 @@ TEST_CASE("Timing")
 	double a_max{};
 	double b_max{};
 
-	std::random_device               rd;
-	std::mt19937                     gen(rd());
-	std::uniform_real_distribution<> dis(0.0, 100.0);
-
 	std::size_t iter = 100000;
 	for (std::size_t i{}; iter != i; ++i) {
 		t.start("First");
@@ -37,7 +32,7 @@ TEST_CASE("Timing")
 		t.start("B");
 		// t.start("1");
 		// t.stop();
-		a += dis(gen);
+		a += random();
 		t.stop();
 		t.stop();
 
@@ -56,7 +51,7 @@ TEST_CASE("Timing")
 		auto a_stop      = std::chrono::high_resolution_clock::now();
 
 		auto b_start = std::chrono::high_resolution_clock::now();
-		a += dis(gen);
+		a += random();
 		auto b_stop     = std::chrono::high_resolution_clock::now();
 		auto first_stop = std::chrono::high_resolution_clock::now();
 

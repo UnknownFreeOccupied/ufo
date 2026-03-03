@@ -1,0 +1,134 @@
+title = "UFOManipulation Config"
+
+[dataset]
+use_dataset = true
+dataset_path = "/home/dduberg/Downloads/manipulation/src/ufo/lib/map/apps/manipulation/Scene_table_object"
+start_idx = 0
+end_idx = 1000000
+
+[cameras]
+width = 640
+height = 400
+fps = 15
+
+# [cameras.first]
+# serial_number = "AY8V74300Y4"
+# # x, y, z, qw, qx, qy, qz
+# pose = [0, 0, 0, 1, 0, 0, 0]
+# width = 640
+# height = 400
+# fps = 15
+
+# [cameras.second]
+# serial_number = ""
+# # x, y, z, qw, qx, qy, qz
+# pose = [0, 0, 0, 1, 0, 0, 0]
+# width = 640
+# height = 400
+# fps = 15
+
+# [cameras.third]
+# serial_number = ""
+# # x, y, z, qw, qx, qy, qz
+# pose = [0, 0, 0, 1, 0, 0, 0]
+# width = 640
+# height = 400
+# fps = 15
+
+# [cameras.fourth]
+# serial_number = ""
+# # x, y, z, qw, qx, qy, qz
+# pose = [0, 0, 0, 1, 0, 0, 0]
+# width = 640
+# height = 400
+# fps = 15
+
+[map]
+# Resolution of the map in meters
+resolution = 0.005
+
+[integrator]
+# In degrees
+angular_resolution = 1.0
+# Distance in meters
+min_distance = 0.0
+# Distance in meters
+max_distance = 10.0
+# In degrees
+sensor_angular_resolution = 0.0
+# In meters
+translation_error = 0.0
+# In degrees
+orientation_error = 0.0
+# Probability [0, 1], should be over 0.5 to increase occupancy
+occupancy_hit = 0.9
+# Probability [0, 1], should be below 0.5 to decrease occupancy
+occupancy_miss = 0.45
+
+[renderer]
+named_pipe = false
+output_dir = "/home/dduberg/Downloads/manipulation/src/ufo/lib/map/apps/manipulation/renders"
+# Pixels
+width = 160 # 1024
+# Pixels
+height = 160 # 1024
+# Meters
+elevation = 5.0
+# World coordinates (meters)
+# top_left = [-1.551736831665039, -1.8933748006820679]
+top_left = [-2.5, 2.5]
+# World coordinates (meters)
+# top_right = [-1.5295567512512207, 2.2491567134857178]
+top_right = [2.5, 2.5]
+# World coordinates (meters)
+# bottom_right = [1.3992540836334229, 2.3145055770874023]
+bottom_right = [2.5, -2.5]
+# World coordinates (meters)
+# bottom_left = [1.8644652366638184, -1.8594151735305786]
+bottom_left = [-2.5, -2.5]
+# Distance in meters
+near_clip = 0.01
+# Distance in meters
+far_clip = 4.8
+# Red, Green, Blue components in range [0..255]
+# background_color = [0, 32, 255]
+background_color = [117, 117, 117]
+
+
+# [renderer]
+# # Either "CPU" or "GPU"
+# type = "CPU"
+# named_pipe = true
+# output_dir = "/home/dduberg/Downloads/manipulation/src/ufo/lib/map/apps/manipulation/renders"
+# # x, y, z, qw, qx, qy, qz
+# pose = [0, 0, 0, 1, 0, 0, 0]
+# # Pixels
+# width = 160
+# # Pixels
+# height = 160
+# # Distance in meters
+# near_clip = 0.01
+# # Distance in meters
+# far_clip = 5.0
+# # Red, Green, Blue components in range [0..255]
+# background_color = [0, 32, 255]
+# # "perspective" or "orthographic"
+# render_type = "orthographic"
+
+# [renderer.orthographic]
+# # Camera frustum left plane
+# left = -2.0
+# # Camera frustum right plane
+# right = 2.0
+# # Camera frustum top plane
+# top = 2.0
+# # Camera frustum bottom plane
+# bottom = -2.0
+# # Camera frustum near plane
+# near = 0.01
+# # Camera frustum far plane
+# far = 5.0
+
+# [renderer.perspective]
+# focal_lengths = [0, 0]
+# principal_point = [0, 0]

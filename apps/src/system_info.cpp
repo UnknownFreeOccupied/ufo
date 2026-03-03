@@ -46,6 +46,7 @@
 #include <bit>
 #include <format>
 #include <fstream>
+#include <iostream>
 #include <set>
 #include <string>
 #include <string_view>
@@ -58,10 +59,12 @@
 #pragma comment(lib, "advapi32.lib")
 #elif defined(__APPLE__)
 #include <mach/mach.h>
+#include <sys/ioctl.h>
 #include <sys/sysctl.h>
 #include <sys/utsname.h>
 #include <unistd.h>
 #else
+#include <sys/ioctl.h>
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
 #include <unistd.h>
@@ -302,7 +305,7 @@ namespace
 #endif
 }
 
-[[nodiscard]] std::string availableRam()
+[[nodiscard]] double availableRam()
 {
 	std::size_t bytes = 0;
 #if defined(_WIN32)
@@ -336,7 +339,7 @@ namespace
 		}
 	}
 #endif
-	return std::format("{:.1f} GB", static_cast<double>(bytes) / (1024 * 1024 * 1024));
+	return static_cast<double>(bytes) / (1024 * 1024 * 1024);
 }
 
 [[nodiscard]] consteval std::string_view buildType()
@@ -425,52 +428,211 @@ namespace
 #endif
 }
 
+size_t getTerminalWidth()
+{
+#ifdef _WIN32
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)) {
+		return static_cast<size_t>(csbi.srWindow.Right - csbi.srWindow.Left + 1);
+	}
+#else
+	struct winsize w;
+	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0) {
+		return static_cast<size_t>(w.ws_col);
+	}
+#endif
+	return 80;  // Fallback
+}
+
+std::string wrapAndIndent(std::string const& text, size_t indentWidth, size_t maxWidth)
+{
+	if (text.empty()) return "";
+	std::string result;
+	size_t      availableWidth = (maxWidth > indentWidth) ? maxWidth - indentWidth : 20;
+	std::string indent(indentWidth, ' ');
+	size_t      start = 0;
+
+	while (start < text.length()) {
+		if (start > 0) result += "\n" + indent;
+
+		if (text.length() - start <= availableWidth) {
+			result += text.substr(start);
+			break;
+		}
+
+		size_t end = start + availableWidth;
+		// Search ONLY for spaces to keep version numbers (dots) together
+		size_t break_pos = text.find_last_of(' ', end);
+
+		if (break_pos != std::string::npos && break_pos > start) {
+			result += text.substr(start, break_pos - start);
+			start = break_pos + 1;  // Skip the space
+		} else {
+			// If a single word is longer than the line, force break it
+			result += text.substr(start, availableWidth);
+			start += availableWidth;
+		}
+	}
+	return result;
+}
+
 }  // namespace
 
 std::string ufo::systemInfo()
 {
-	auto const gpus = compute::gpusInfo();
+	size_t const MAX_WIDTH   = std::clamp<size_t>(getTerminalWidth(), 60, 100);
+	size_t const LABEL_WIDTH = 19;
 
+	// ANSI Palette
+	std::string const RESET  = "\033[0m";
+	std::string const BOLD   = "\033[1m";
+	std::string const CYAN   = "\033[36m";
+	std::string const BLUE   = "\033[34m";
+	std::string const PURPLE = "\033[35m";
+	std::string const YELLOW = "\033[33m";
+	std::string const RED    = "\033[31m";
+	std::string const GREEN  = "\033[32m";
+
+	// 1. Dynamic Borders
+	std::string title_text = " SYSTEM INFO ";
+	size_t      side_len =
+      (MAX_WIDTH > title_text.length()) ? (MAX_WIDTH - title_text.length()) / 2 : 0;
+	std::string header =
+	    std::format("{}{:=<{}}{}{:=<{}}{}", BOLD + BLUE, "", side_len, title_text, "",
+	                MAX_WIDTH - side_len - title_text.length(), RESET);
+
+	// 2. RAM Status Check (assuming physicalRam() returns GB)
+	// You might need to parse availableRam() if it's a string, or use a numeric version
+	// For this example, I'm assuming a numeric 'avail_gb' exists
+	double      total_gb         = physicalRam();
+	double      avail_gb         = availableRam();
+	double      ratio            = avail_gb / total_gb;
+	std::string ram_status_color = (ratio < 0.15) ? RED : (ratio < 0.35) ? YELLOW : GREEN;
+
+	// 3. GPU Section
+	auto const  gpus = compute::gpusInfo();
 	std::string gpu_str;
-	for (std::size_t i = 0; i < gpus.size(); ++i) {
-		auto const& gpu = gpus[i];
-		if (i > 0) {
-			gpu_str += std::format("\n{:<20}", std::format("GPU {}:", i));
-		}
-
-		gpu_str += std::format("{} [{}]", gpu.name, gpu.backend);
+	for (auto const& gpu : gpus) {
+		std::string type =
+		    (gpu.type == "Unknown" || gpu.type.empty()) ? "" : std::format("({}) ", gpu.type);
+		// Note: Formatting width adjusted to 28 to account for 9 hidden ANSI chars in label
+		std::string label = std::format("{}GPU [{}]:{}", PURPLE, gpu.backend, RESET);
+		std::string content =
+		    std::format("{} {}[Driver: {}]", gpu.name, type, gpu.description);
 		gpu_str +=
-		    std::format("\n{:<20}Vendor:             {} ({})", " ", gpu.vendor, gpu.type);
-
-		if (!gpu.architecture.empty()) {
-			gpu_str += std::format("\n{:<20}Architecture:       {}", " ", gpu.architecture);
-		}
-
-		if (!gpu.description.empty()) {
-			gpu_str += std::format("\n{:<20}Driver:             {}", " ", gpu.description);
-		}
+		    std::format("{:<28}{}\n", label, wrapAndIndent(content, LABEL_WIDTH, MAX_WIDTH));
 	}
 
+	// 4. Build Status
+	std::string bType(buildType());
+	std::string bColor = (bType == "Debug") ? RED : GREEN;
+
 	return std::format(
-	    "==================== SYSTEM INFO ====================\n"
-	    "OS:                 {}\n"
-	    "Kernel:             {}\n"
-	    "CPU:                {}\n"
-	    "CPU Architecture:   {}\n"
-	    "SIMD Extensions:    {}\n"
-	    "Physical Cores:     {}\n"
-	    "Logical Cores:      {}\n"
-	    "Physical RAM:       {:.1f} GB\n"
-	    "Available RAM:      {}\n"
-	    "GPU:                {}\n"
-	    "Address Model:      {}-bit\n"
-	    "Endianness:         {}\n"
-	    "Compiler:           {}\n"
-	    "C++ Standard:       {} ({})\n"
-	    "Build Type:         {}\n"
-	    "Build Time:         {} {}\n"
-	    "=====================================================",
-	    os(), kernelVersion(), cpuModel(), cpuArch(), simdExtensions(), physicalCores(),
-	    cpuCores(), physicalRam(), availableRam(), gpu_str, addressModel(), endianness(),
-	    compiler(), cppVersion(), __cplusplus, buildType(), __DATE__, __TIME__);
+	    "{}\n"
+	    "{:<28}{}\n"                                 // OS
+	    "{:<28}{}\n"                                 // CPU
+	    "{:<28}{}\n"                                 // SIMD
+	    "{:<28}{:.1f} GB Total ({}{:.1f} GB{})\n\n"  // RAM with status color
+	    "{}\n"
+	    "{:<28}{}\n"              // Env
+	    "{:<28}{}\n"              // Compiler
+	    "{:<28}{}{} [{} {}]{}\n"  // Build
+	    "{}{}{}",
+	    header, YELLOW + "OS:" + RESET,
+	    wrapAndIndent(std::format("{} (Kernel: {})", os(), kernelVersion()), LABEL_WIDTH,
+	                  MAX_WIDTH),
+	    YELLOW + "CPU:" + RESET,
+	    cpuModel() + " (" + std::to_string(physicalCores()) + "C/" +
+	        std::to_string(cpuCores()) + "T) @ " + cpuArch(),
+	    YELLOW + "SIMD Extensions:" + RESET,
+	    wrapAndIndent(simdExtensions(), LABEL_WIDTH, MAX_WIDTH), YELLOW + "RAM:" + RESET,
+	    total_gb, ram_status_color, avail_gb, RESET, gpu_str, CYAN + "Environment:" + RESET,
+	    std::format("{}-bit | {}", addressModel(), endianness()),
+	    CYAN + "Compiler:" + RESET,
+	    std::format("{} | {} ({})", compiler(), cppVersion(), __cplusplus),
+	    CYAN + "Build:" + RESET, bColor, bType, __DATE__, __TIME__, RESET, BOLD + BLUE,
+	    std::string(MAX_WIDTH, '='), RESET);
 }
+
+// std::string ufo::systemInfo()
+// {
+// 	auto const gpus = compute::gpusInfo();
+
+// 	std::string gpu_str;
+// 	for (std::size_t i = 0; i < gpus.size(); ++i) {
+// 		auto const& gpu = gpus[i];
+
+// 		std::string type_display =
+// 		    (gpu.type == "Unknown") ? "" : std::format("({}) ", gpu.type);
+
+// 		std::string label = std::format("GPU [{}]", gpu.backend);
+
+// 		gpu_str += std::format("{:<19}{} {}[Driver: {}]\n", label + ":", gpu.name,
+// 		                       type_display, gpu.description);
+// 	}
+
+// 	return std::format(
+// 	    "==================== SYSTEM INFO ====================\n"
+// 	    "OS:                {} (Kernel: {})\n"
+// 	    "CPU:               {} ({}C/{}T) @ {}\n"
+// 	    "SIMD Extensions:   {}\n"
+// 	    "RAM:               {:.1f} GB Total ({} Available)\n"
+// 	    "\n"
+// 	    "{}"
+// 	    "\n"
+// 	    "Environment:       {}-bit | {}\n"
+// 	    "Compiler:          {} | {} ({})\n"
+// 	    "Build:             {} [{} {}]\n"
+// 	    "=====================================================",
+// 	    os(), kernelVersion(), cpuModel(), physicalCores(), cpuCores(), cpuArch(),
+// 	    simdExtensions(), physicalRam(), availableRam(), gpu_str, addressModel(),
+// 	    endianness(), compiler(), cppVersion(), __cplusplus, buildType(), __DATE__,
+// 	    __TIME__);
+// }
+
+// std::string ufo::systemInfo()
+// {
+// 	auto const gpus = compute::gpusInfo();
+
+// 	std::string gpu_str;
+// 	for (std::size_t i = 0; i < gpus.size(); ++i) {
+// 		auto const& gpu = gpus[i];
+// 		if (i > 0) {
+// 			gpu_str += std::format("\n{:<19}", std::format("GPU {}:", i));
+// 		}
+
+// 		gpu_str += std::format("{} [{}]", gpu.name, gpu.backend);
+// 		gpu_str += std::format("\n{:<23}Vendor:  {} ({})", " ", gpu.vendor, gpu.type);
+
+// 		if (!gpu.architecture.empty()) {
+// 			gpu_str += std::format("\n{:<23}Arch:    {}", " ", gpu.architecture);
+// 		}
+
+// 		if (!gpu.description.empty()) {
+// 			gpu_str += std::format("\n{:<23}Driver:  {}", " ", gpu.description);
+// 		}
+// 	}
+
+// 	return std::format(
+// 	    "==================== SYSTEM INFO ====================\n"
+// 	    "OS:                {}\n"
+// 	    "Kernel:            {}\n"
+// 	    "CPU:               {}\n"
+// 	    "CPU Architecture:  {}\n"
+// 	    "SIMD Extensions:   {}\n"
+// 	    "Physical Cores:    {}\n"
+// 	    "Logical Cores:     {}\n"
+// 	    "Physical RAM:      {:.1f} GB\n"
+// 	    "Available RAM:     {}\n"
+// 	    "GPU:               {}\n"
+// 	    "Address Model:     {}-bit\n"
+// 	    "Endianness:        {}\n"
+// 	    "Compiler:          {}\n"
+// 	    "C++ Standard:      {} ({})\n"
+// 	    "Build Type:        {}\n"
+// 	    "Build Time:        {} {}\n"
+// 	    "=====================================================",
+// 	    os(), kernelVersion(), cpuModel(), cpuArch(), simdExtensions(), physicalCores(),
+// 	    cpuCores(), physicalRam(), availableRam(), gpu_str, addressModel(), endianness(),
+// 	    compiler(), cppVersion(), __cplusplus, buildType(), __DATE__, __TIME__);
+// }

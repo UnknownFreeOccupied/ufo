@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -42,49 +42,80 @@
 #ifndef UFO_GEOMETRY_FRUSTUM_HPP
 #define UFO_GEOMETRY_FRUSTUM_HPP
 
-// UFO
-#include <ufo/geometry/line.hpp>
+#include <array>
 #include <ufo/geometry/plane.hpp>
 #include <ufo/math/vec.hpp>
 
 // STL
 #include <cmath>
+#include <concepts>
 #include <cstddef>
+#include <format>
+#include <limits>
 #include <ostream>
-#include <type_traits>
 
 namespace ufo
 {
-template <std::size_t Dim = 3, class T = float>
-struct Frustum;
-
-template <class T>
-struct Frustum<2, T> {
-	static_assert(std::is_floating_point_v<T>, "T is required to be floating point.");
-
+/**
+ * @struct Frustum
+ * @brief Frustum in Dim-dimensional space.
+ * @tparam Dim The dimensionality of the space (default: 3).
+ * @tparam T The numeric type (default: float), must be a floating-point type.
+ * @details
+ * Represents a frustum defined by 2*Dim planes.
+ */
+template <std::size_t Dim = 3, std::floating_point T = float>
+struct Frustum {
 	using value_type = T;
 
-	Line<2, T> left_side;
-	Line<2, T> right_side;
-	Line<2, T> far_side;
-	Line<2, T> near_side;
+	/**
+	 * @brief The planes defining the frustum.
+	 *
+	 * Standard order:
+	 * 0, 1: X-axis (Left, Right)
+	 * 2, 3: Y-axis (Bottom, Top) - if Dim >= 2
+	 * 4, 5: Z-axis (Near, Far)  - if Dim >= 3
+	 */
+	std::array<Plane<Dim, T>, 2 * Dim> planes;
 
+	/**
+	 * @brief Default constructor.
+	 */
 	constexpr Frustum() noexcept = default;
 
+	/**
+	 * @brief Constructs a 2D frustum from four points.
+	 *
+	 * @param [in] far_right  The far-right point.
+	 * @param [in] far_left   The far-left point.
+	 * @param [in] near_left  The near-left point.
+	 * @param [in] near_right The near-right point.
+	 */
 	constexpr Frustum(Vec<2, T> const& far_right, Vec<2, T> const& far_left,
 	                  Vec<2, T> const& near_left, Vec<2, T> const& near_right)
-	    : left_side(near_left, far_left)
-	    , right_side(far_right, near_right)
-	    , far_side(far_left, far_right)
-	    , near_side(near_right, near_left)
+	  requires(2 == Dim)
 	{
+		planes[0] = Plane<Dim, T>(near_left, far_left);    // left
+		planes[1] = Plane<Dim, T>(far_right, near_right);  // right
+		planes[2] = Plane<Dim, T>(near_right, near_left);  // bottom/near
+		planes[3] = Plane<Dim, T>(far_left, far_right);    // top/far
 	}
 
+	/**
+	 * @brief Constructs a 2D frustum from a camera-like setup.
+	 *
+	 * @param [in] pos       The position of the eye.
+	 * @param [in] target    The target point.
+	 * @param [in] fov       The field of view in radians.
+	 * @param [in] near_dist The near clip distance.
+	 * @param [in] far_dist  The far clip distance.
+	 */
 	constexpr Frustum(Vec<2, T> const& pos, Vec<2, T> const& target, T fov, T near_dist,
 	                  T far_dist)
+	  requires(2 == Dim)
 	{
 		auto      dir = normalize(target - pos);
-		Vec<2, T> right_dir(dir.y, -dir.x);
+		Vec<2, T> right_dir(dir.y(), -dir.x());
 		auto      half_fov        = fov * T(0.5);
 		auto      half_width_near = near_dist * std::tan(half_fov);
 		auto      half_width_far  = far_dist * std::tan(half_fov);
@@ -94,74 +125,57 @@ struct Frustum<2, T> {
 		Vec<2, T> near_left  = pos + dir * near_dist - half_width_near * right_dir;
 		Vec<2, T> near_right = pos + dir * near_dist + half_width_near * right_dir;
 
-		left_side  = Line<2, T>(near_left, far_left);
-		right_side = Line<2, T>(far_right, near_right);
-		far_side   = Line<2, T>(far_left, far_right);
-		near_side  = Line<2, T>(near_right, near_left);
+		planes[0] = Plane<Dim, T>(near_left, far_left);
+		planes[1] = Plane<Dim, T>(far_right, near_right);
+		planes[2] = Plane<Dim, T>(near_right, near_left);
+		planes[3] = Plane<Dim, T>(far_left, far_right);
 	}
 
-	constexpr Frustum(Frustum const&) noexcept = default;
-
-	template <class U>
-	constexpr explicit Frustum(Frustum<2, U> const& other) noexcept
-	    : left_side(other.left_side)
-	    , right_side(other.right_side)
-	    , far_side(other.far_side)
-	    , near_side(other.near_side)
-	{
-	}
-
-	[[nodiscard]] static constexpr std::size_t size() noexcept { return 2; }
-
-	[[nodiscard]] constexpr Line<2, T>& operator[](std::size_t pos) noexcept
-	{
-		return (&left_side)[pos];
-	}
-
-	[[nodiscard]] constexpr Line<2, T> const& operator[](std::size_t pos) const noexcept
-	{
-		return (&left_side)[pos];
-	}
-};
-
-//
-// Deduction guide
-//
-
-template <class T>
-struct Frustum<3, T> {
-	static_assert(std::is_floating_point_v<T>, "T is required to be floating point.");
-
-	using value_type = T;
-
-	Plane<T> top_plane;
-	Plane<T> bottom_plane;
-	Plane<T> left_plane;
-	Plane<T> right_plane;
-	Plane<T> far_plane;
-	Plane<T> near_plane;
-
-	constexpr Frustum() noexcept = default;
-
+	/**
+	 * @brief Constructs a 3D frustum from eight points.
+	 *
+	 * @param [in] far_top_right     The far-top-right point.
+	 * @param [in] far_top_left      The far-top-left point.
+	 * @param [in] far_bottom_left   The far-bottom-left point.
+	 * @param [in] far_bottom_right  The far-bottom-right point.
+	 * @param [in] near_top_right    The near-top-right point.
+	 * @param [in] near_top_left     The near-top-left point.
+	 * @param [in] near_bottom_left  The near-bottom-left point.
+	 * @param [in] near_bottom_right The near-bottom-right point.
+	 */
 	constexpr Frustum(Vec<3, T> const& far_top_right, Vec<3, T> const& far_top_left,
 	                  Vec<3, T> const& far_bottom_left, Vec<3, T> const& far_bottom_right,
 	                  Vec<3, T> const& near_top_right, Vec<3, T> const& near_top_left,
 	                  Vec<3, T> const& near_bottom_left, Vec<3, T> const& near_bottom_right)
+	  requires(3 == Dim)
 	{
-		top_plane    = Plane<T>(near_top_right, near_top_left, far_top_left);
-		bottom_plane = Plane<T>(near_bottom_left, near_bottom_right, far_bottom_right);
-		left_plane   = Plane<T>(near_top_left, near_bottom_left, far_bottom_left);
-		right_plane  = Plane<T>(near_bottom_right, near_top_right, far_bottom_right);
-		near_plane   = Plane<T>(near_top_left, near_top_right, near_bottom_right);
-		far_plane    = Plane<T>(far_top_right, far_top_left, far_bottom_left);
+		planes[0] = Plane<Dim, T>(near_top_left, near_bottom_left, far_bottom_left);  // left
+		planes[1] =
+		    Plane<Dim, T>(near_bottom_right, near_top_right, far_bottom_right);  // right
+		planes[2] =
+		    Plane<Dim, T>(near_bottom_left, near_bottom_right, far_bottom_right);  // bottom
+		planes[3] = Plane<Dim, T>(near_top_right, near_top_left, far_top_left);    // top
+		planes[4] = Plane<Dim, T>(near_top_left, near_top_right, near_bottom_right);  // near
+		planes[5] = Plane<Dim, T>(far_top_right, far_top_left, far_bottom_left);      // far
 	}
 
+	/**
+	 * @brief Constructs a 3D frustum from a camera-like setup.
+	 *
+	 * @param [in] pos            The position of the eye.
+	 * @param [in] target         The target point.
+	 * @param [in] up             The up vector.
+	 * @param [in] vertical_fov   The vertical field of view in radians.
+	 * @param [in] horizontal_fov The horizontal field of view in radians.
+	 * @param [in] near_distance  The near clip distance.
+	 * @param [in] far_distance   The far clip distance.
+	 */
 	constexpr Frustum(Vec<3, T> const& pos, Vec<3, T> const& target, Vec<3, T> const& up,
 	                  T vertical_fov, T horizontal_fov, T near_distance, T far_distance)
+	  requires(3 == Dim)
 	{
 		T ratio = horizontal_fov / vertical_fov;
 
-		// FIXME: Check if correct
 		T tang        = std::tan(vertical_fov * static_cast<T>(0.5));
 		T near_height = near_distance * tang;
 		T near_width  = near_height * ratio;
@@ -169,129 +183,180 @@ struct Frustum<3, T> {
 		T far_width   = far_height * ratio;
 
 		auto Z = normalize(pos - target);
-
 		auto X = normalize(cross(up, Z));
-
 		auto Y = cross(Z, X);
 
 		auto nc = pos - Z * near_distance;
 		auto fc = pos - Z * far_distance;
 
-		auto near_top_left     = nc + Y * near_height - X * near_width;
-		auto near_top_right    = nc + Y * near_height + X * near_width;
-		auto near_bottom_left  = nc - Y * near_height - X * near_width;
-		auto near_bottom_right = nc - Y * near_height + X * near_width;
+		auto ntl = nc + Y * near_height - X * near_width;
+		auto ntr = nc + Y * near_height + X * near_width;
+		auto nbl = nc - Y * near_height - X * near_width;
+		auto nbr = nc - Y * near_height + X * near_width;
 
-		auto far_top_left     = fc + Y * far_height - X * far_width;
-		auto far_top_right    = fc + Y * far_height + X * far_width;
-		auto far_bottom_left  = fc - Y * far_height - X * far_width;
-		auto far_bottom_right = fc - Y * far_height + X * far_width;
+		auto ftl = fc + Y * far_height - X * far_width;
+		auto ftr = fc + Y * far_height + X * far_width;
+		auto fbl = fc - Y * far_height - X * far_width;
+		auto fbr = fc - Y * far_height + X * far_width;
 
-		top_plane    = Plane<T>(near_top_right, near_top_left, far_top_left);
-		bottom_plane = Plane<T>(near_bottom_left, near_bottom_right, far_bottom_right);
-		left_plane   = Plane<T>(near_top_left, near_bottom_left, far_bottom_left);
-		right_plane  = Plane<T>(near_bottom_right, near_top_right, far_bottom_right);
-		near_plane   = Plane<T>(near_top_left, near_top_right, near_bottom_right);
-		far_plane    = Plane<T>(far_top_right, far_top_left, far_bottom_left);
+		planes[0] = Plane<Dim, T>(ntl, nbl, fbl);  // left
+		planes[1] = Plane<Dim, T>(nbr, ntr, fbr);  // right
+		planes[2] = Plane<Dim, T>(nbl, nbr, fbr);  // bottom
+		planes[3] = Plane<Dim, T>(ntr, ntl, ftl);  // top
+		planes[4] = Plane<Dim, T>(ntl, ntr, nbr);  // near
+		planes[5] = Plane<Dim, T>(ftr, ftl, fbl);  // far
 	}
 
+	/**
+	 * @brief Copy constructor.
+	 */
 	constexpr Frustum(Frustum const&) noexcept = default;
 
-	template <class U>
-	constexpr Frustum(Frustum<3, U> const& other) noexcept
-	    : top_plane(other.top_plane)
-	    , bottom_plane(other.bottom_plane)
-	    , left_plane(other.left_plane)
-	    , right_plane(other.right_plane)
-	    , far_plane(other.far_plane)
-	    , near_plane(other.near_plane)
+	/**
+	 * @brief Converting constructor from a frustum with a different scalar type.
+	 *
+	 * @tparam U     The scalar type of the other frustum.
+	 * @param [in] other The other frustum.
+	 */
+	template <std::convertible_to<T> U>
+	constexpr explicit Frustum(Frustum<Dim, U> const& other) noexcept
 	{
+		for (std::size_t i = 0; i < 2 * Dim; ++i) {
+			planes[i] = Plane<Dim, T>(other.planes[i]);
+		}
 	}
 
-	[[nodiscard]] static constexpr std::size_t size() noexcept { return 3; }
-};
+	/**
+	 * @brief Returns the dimensionality of the frustum.
+	 */
+	[[nodiscard]] static constexpr std::size_t dimension() noexcept { return Dim; }
 
-//
-// Deduction guide
-//
-
-template <class T>
-struct Frustum<4, T> {
-	static_assert(std::is_floating_point_v<T>, "T is required to be floating point.");
-
-	using value_type = T;
-
-	// TODO: Good luck have fun!
-};
-
-//
-// Deduction guide
-//
-
-/*!
- * @brief Compare two Frustums.
- *
- * @param lhs,rhs The Frustums to compare
- * @return `true` if they compare equal, `false` otherwise.
- */
-template <std::size_t Dim, class T>
-bool operator==(Frustum<Dim, T> const& lhs, Frustum<Dim, T> const& rhs)
-{
-	if constexpr (2 == Dim) {
-		return lhs.left_side == rhs.left_side && lhs.right_side == rhs.right_side &&
-		       lhs.far_side == rhs.far_side && lhs.near_side == rhs.near_side;
-	} else if constexpr (3 == Dim) {
-		return lhs.top_plane == rhs.top_plane && lhs.bottom_plane == rhs.bottom_plane &&
-		       lhs.left_plane == rhs.left_plane && lhs.right_plane == rhs.right_plane &&
-		       lhs.far_plane == rhs.far_plane && lhs.near_plane == rhs.near_plane;
-	} else if constexpr (4 == Dim) {
-		// TODO: Implement
+	/**
+	 * @brief Accesses the plane at position pos.
+	 *
+	 * @param [in] pos The position of the plane [0..2*Dim-1].
+	 * @return A (const) reference to the plane.
+	 */
+	[[nodiscard]] constexpr auto& operator[](this auto& self, std::size_t pos) noexcept
+	{
+		return self.planes[pos];
 	}
-	return false;
-}
 
-/*!
- * @brief Compare two Frustums.
- *
- * @param lhs,rhs The Frustums to compare
- * @return `true` if they do not compare equal, `false` otherwise.
+	/**
+	 * @brief Equality operator.
+	 */
+	[[nodiscard]] bool operator==(Frustum const&) const = default;
+
+	/**
+	 * @brief Returns the center of the frustum.
+	 * @return The center.
+	 */
+	[[nodiscard]] constexpr Vec<Dim, T> center() const noexcept
+	{
+		// This is just an approximation, better would be to find the vertices
+		Vec<Dim, T> c{};
+		for (auto const& p : planes) {
+			c += p.normal * p.distance;
+		}
+		return c / T(2 * Dim);
+	}
+
+	/**
+	 * @brief Returns the AABB of the frustum.
+	 * @return The AABB.
+	 */
+	[[nodiscard]] constexpr AABB<Dim, T> aabb() const noexcept
+	{
+		// TODO: Implement exactly by finding vertices.
+		// For now, return infinite AABB as a safe placeholder if we don't have vertices.
+		return AABB<Dim, T>(Vec<Dim, T>(-std::numeric_limits<T>::infinity()),
+		                    Vec<Dim, T>(std::numeric_limits<T>::infinity()));
+	}
+
+	/**
+	 * @brief Returns whether the frustum is degenerate.
+	 * @return true if degenerate, false otherwise.
+	 */
+	[[nodiscard]] constexpr bool isDegenerate() const noexcept
+	{
+		for (auto const& p : planes) {
+			if (p.isDegenerate()) {
+				return true;
+			}
+		}
+		return false;
+	}
+};
+
+/**
+ * @brief Output stream operator for Frustum.
  */
-template <std::size_t Dim, class T>
-bool operator!=(Frustum<Dim, T> const& lhs, Frustum<Dim, T> const& rhs)
-{
-	return !(lhs == rhs);
-}
-
-template <std::size_t Dim, class T>
+template <std::size_t Dim, std::floating_point T>
 std::ostream& operator<<(std::ostream& out, Frustum<Dim, T> const& frustum)
 {
 	if constexpr (2 == Dim) {
-		return out << "Left: " << frustum.left_side << ", Right: " << frustum.right_side
-		           << ", Far: " << frustum.far_side << ", Near: " << frustum.near_side;
+		return out << "Left: [" << frustum[0] << "], Right: [" << frustum[1] << "], Bottom: ["
+		           << frustum[2] << "], Top: [" << frustum[3] << "]";
 	} else if constexpr (3 == Dim) {
-		return out << "Left: " << frustum.left_plane << ", Right: " << frustum.right_plane
-		           << ", Far: " << frustum.far_plane << ", Near: " << frustum.near_plane
-		           << ", Top: " << frustum.top_plane << ", Bottom: " << frustum.bottom_plane;
-	} else if constexpr (4 == Dim) {
-		// TODO: Implement
+		return out << "Left: [" << frustum[0] << "], Right: [" << frustum[1] << "], Bottom: ["
+		           << frustum[2] << "], Top: [" << frustum[3] << "], Near: [" << frustum[4]
+		           << "], Far: [" << frustum[5] << "]";
+	} else {
+		out << "Planes: ";
+		for (std::size_t i = 0; i < 2 * Dim; ++i) {
+			out << "[" << frustum[i] << "]" << (i == 2 * Dim - 1 ? "" : ", ");
+		}
+		return out;
 	}
-	return out;
 }
 
-template <class T>
+template <std::size_t Dim, std::floating_point T>
+using FrustumX = Frustum<Dim, T>;
+
+template <std::floating_point T>
+using Frustum1 = Frustum<1, T>;
+template <std::floating_point T>
 using Frustum2 = Frustum<2, T>;
-template <class T>
+template <std::floating_point T>
 using Frustum3 = Frustum<3, T>;
-template <class T>
+template <std::floating_point T>
 using Frustum4 = Frustum<4, T>;
 
+using Frustum1f = Frustum<1, float>;
 using Frustum2f = Frustum<2, float>;
 using Frustum3f = Frustum<3, float>;
 using Frustum4f = Frustum<4, float>;
 
+using Frustum1d = Frustum<1, double>;
 using Frustum2d = Frustum<2, double>;
 using Frustum3d = Frustum<3, double>;
 using Frustum4d = Frustum<4, double>;
+
 }  // namespace ufo
+
+template <std::size_t Dim, std::floating_point T>
+  requires std::formattable<T, char>
+struct std::formatter<ufo::Frustum<Dim, T>> {
+	constexpr auto parse(std::format_parse_context& ctx) { return ctx.begin(); }
+
+	auto format(ufo::Frustum<Dim, T> const& frustum, std::format_context& ctx) const
+	{
+		if constexpr (2 == Dim) {
+			return std::format_to(ctx.out(), "Left: [{}], Right: [{}], Bottom: [{}], Top: [{}]",
+			                      frustum[0], frustum[1], frustum[2], frustum[3]);
+		} else if constexpr (3 == Dim) {
+			return std::format_to(
+			    ctx.out(),
+			    "Left: [{}], Right: [{}], Bottom: [{}], Top: [{}], Near: [{}], Far: [{}]",
+			    frustum[0], frustum[1], frustum[2], frustum[3], frustum[4], frustum[5]);
+		} else {
+			std::format_to(ctx.out(), "Planes: ");
+			for (std::size_t i = 0; i < 2 * Dim; ++i) {
+				std::format_to(ctx.out(), "[{}]{}", frustum[i], (i == 2 * Dim - 1 ? "" : ", "));
+			}
+			return ctx.out();
+		}
+	}
+};
 
 #endif  // UFO_GEOMETRY_FRUSTUM_HPP

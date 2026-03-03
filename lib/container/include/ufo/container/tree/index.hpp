@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -60,18 +60,25 @@ struct TreeIndex {
 	//  32 bits Y low levels
 	//  Dim bits for offset
 
-	using pos_t    = std::uint32_t;
-	using offset_t = std::uint32_t;
+	using pos_type    = std::uint32_t;
+	using offset_type = std::uint32_t;
 
-	static constexpr pos_t const NULL_POS       = std::numeric_limits<pos_t>::max();
-	static constexpr pos_t const PROCESSING_POS = NULL_POS - 1;
+	static constexpr pos_type const TYPE_BIT =
+	    pos_type(1) << (std::numeric_limits<pos_type>::digits - 1);
+	static constexpr pos_type const NULL_POS       = std::numeric_limits<pos_type>::max();
+	static constexpr pos_type const PROCESSING_POS = NULL_POS - 1;
+	static constexpr pos_type const INVALID_POS    = NULL_POS - 2;
+	static constexpr pos_type const MAX_VALID_POS  = INVALID_POS - 1;
 
-	pos_t    pos{NULL_POS};
-	offset_t offset{0};
+	pos_type    pos{NULL_POS};
+	offset_type offset{0};
 
 	constexpr TreeIndex() noexcept = default;
 
-	constexpr TreeIndex(pos_t pos, offset_t offset) noexcept : pos(pos), offset(offset) {}
+	constexpr TreeIndex(pos_type pos, offset_type offset) noexcept
+	    : pos(pos), offset(offset)
+	{
+	}
 
 	friend void swap(TreeIndex& lhs, TreeIndex& rhs) noexcept
 	{
@@ -86,12 +93,12 @@ struct TreeIndex {
 
 	constexpr bool operator!=(TreeIndex rhs) const { return !(operator==(rhs)); }
 
-	[[nodiscard]] constexpr TreeIndex sibling(offset_t offset) const
+	[[nodiscard]] constexpr TreeIndex sibling(offset_type offset) const
 	{
 		return {pos, offset};
 	}
 
-	[[nodiscard]] constexpr bool valid() const { return PROCESSING_POS > pos; }
+	[[nodiscard]] constexpr bool valid() const { return MAX_VALID_POS >= pos; }
 };
 
 inline std::ostream& operator<<(std::ostream& out, TreeIndex index)

@@ -1,11 +1,12 @@
 /**
+ * @defgroup math Math Module
+ * @brief All math-related classes and functions.
  * @author Daniel Duberg (danielduberg@gmail.com)
  * @see https://github.com/UnknownFreeOccupied/ufo
  * @version 1.0
  * @date 2026-02-22
  *
- * @copyright Copyright (c) 2020-2026, Daniel Duberg
- *
+ * @copyright
  * BSD 3-Clause License
  *
  * Copyright (c) 2020-2026, Daniel Duberg
@@ -52,6 +53,11 @@
 
 namespace ufo
 {
+/**
+ * @ingroup math
+ * @{
+ */
+
 /**
  * @brief Returns the sign of a value.
  * @tparam T Numeric type (e.g., int, float).
@@ -143,6 +149,10 @@ template <std::floating_point T>
 {
 	return T(1) / (T(1) + std::exp(-logit));
 }
+
+/**
+ * @}
+ */
 }  // namespace ufo
 
 #endif  // UFO_MATH_MATH_HPP

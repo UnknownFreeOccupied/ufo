@@ -49,6 +49,11 @@
 namespace ufo
 {
 /**
+ * @ingroup core
+ * @{
+ */
+
+/**
  * @brief Represents a semantic class label as a single unsigned integer value.
  *
  * @details
@@ -87,8 +92,8 @@ struct Label {
 	/**
 	 * @brief Three-way comparison (total order on the underlying integer).
 	 *
-	 * @param lhs Left operand.
-	 * @param rhs Right operand.
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
 	 * @return Comparison result.
 	 */
 	[[nodiscard]] friend constexpr auto operator<=>(Label lhs,
@@ -97,31 +102,28 @@ struct Label {
 	/**
 	 * @brief Equality comparison.
 	 *
-	 * @param lhs Left operand.
-	 * @param rhs Right operand.
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
 	 * @return True if both label values are equal.
 	 */
 	[[nodiscard]] friend constexpr bool operator==(Label lhs, Label rhs) noexcept = default;
 };
 
 /**
- * @brief Writes the raw label integer to @p out.
+ * @}
+ */
+
+/**
+ * @ingroup core
+ * @brief Writes the raw label integer to `out`.
  *
- * @param out Output stream.
- * @param l Label to print.
+ * @param [in,out] out Output stream.
+ * @param [in] l Label to print.
  * @return Reference to the output stream.
  */
 inline std::ostream& operator<<(std::ostream& out, Label l) { return out << l.label; }
 }  // namespace ufo
 
-/**
- * @brief `std::format` / `std::formatter` specialization for `ufo::Label`.
- *
- * Delegates to the `uint32_t` formatter, so all standard integer format specifiers (e.g.,
- * `{:05d}`) are supported.
- *
- * @tparam T Scalar type.
- */
 template <>
 struct std::formatter<ufo::Label> : std::formatter<ufo::Label::value_type> {
 	auto format(ufo::Label l, std::format_context& ctx) const

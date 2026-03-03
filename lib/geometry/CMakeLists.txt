@@ -1,8 +1,3 @@
-option(UFO_GEOMETRY_BUILD_TESTS    "Unit testing"           ON)
-option(UFO_GEOMETRY_BUILD_COVERAGE "Test Coverage"          ON)
-
-include(GNUInstallDirs)
-
 add_library(Geometry INTERFACE)
 add_library(UFO::Geometry ALIAS Geometry)
 
@@ -12,15 +7,21 @@ target_sources(Geometry
     BASE_DIRS
 			include
     FILES
+			include/ufo/geometry/detail/closest_point.hpp
+			include/ufo/geometry/detail/contains.hpp
+			include/ufo/geometry/detail/distance.hpp
+			include/ufo/geometry/detail/fun.hpp
 			include/ufo/geometry/detail/helper.hpp
+			include/ufo/geometry/detail/intersects.hpp
 
 			include/ufo/geometry/aabb.hpp
 			include/ufo/geometry/capsule.hpp
 			include/ufo/geometry/closest_point.hpp
 			include/ufo/geometry/contains.hpp
+			include/ufo/geometry/cylinder.hpp
 			include/ufo/geometry/disjoint.hpp
 			include/ufo/geometry/distance.hpp
-			include/ufo/geometry/dynamic_geometry.hpp
+			include/ufo/geometry/ellipsoid.hpp
 			include/ufo/geometry/frustum.hpp
 			include/ufo/geometry/fun.hpp
 			include/ufo/geometry/geometry.hpp
@@ -33,7 +34,6 @@ target_sources(Geometry
 			include/ufo/geometry/ray.hpp
 			include/ufo/geometry/sphere.hpp
 			include/ufo/geometry/triangle.hpp
-			include/ufo/geometry/type_traits.hpp
 )
 
 target_link_libraries(Geometry 
@@ -41,7 +41,7 @@ target_link_libraries(Geometry
 		UFO::Math
 )
 
-if(UFO_BUILD_TESTS AND UFO_GEOMETRY_BUILD_TESTS)
+if(UFO_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
 

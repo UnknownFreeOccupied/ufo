@@ -53,6 +53,11 @@
 #include <format>
 #include <ostream>
 
+/**
+ * @ingroup math
+ * @{
+ */
+
 namespace ufo
 {
 
@@ -499,5 +504,9 @@ struct std::formatter<ufo::Transform<Dim, T>> {
 		}
 	}
 };
+
+/**
+ * @}
+ */
 
 #endif  // UFO_MATH_TRANSFORM_HPP

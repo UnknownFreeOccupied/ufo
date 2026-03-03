@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -161,7 +161,7 @@ class TreeMapIterator
 		last_ = {};
 	}
 
-	/*!
+	/**
 	 * @brief
 	 *
 	 * @return true if a new node was found, false otherwise.

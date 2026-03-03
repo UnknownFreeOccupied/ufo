@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -43,17 +43,19 @@
 #define UFO_CONTAINER_TREE_TRACE_RESULT_HPP
 
 // UFO
-#include <ufo/container/tree/index.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/container/tree/node.hpp>
 
 namespace ufo
 {
 template <std::size_t Dim>
 struct TraceResult {
-	TreeIndex       node;
-	Vec<Dim, float> hit;
-	float           distance;
+	TreeNode<Dim> node;
+	float         distance;
 };
+
+using TraceResult2 = TraceResult<2>;
+using TraceResult3 = TraceResult<3>;
+using TraceResult4 = TraceResult<4>;
 }  // namespace ufo
 
 #endif  // UFO_CONTAINER_TREE_TRACE_RESULT_HPP

@@ -9,7 +9,8 @@ target_sources(ContainerTests
 	# range_test.cpp
 	# tree_index_test.cpp
 	# tree_node_test.cpp
-	predicate_test.cpp
+	# predicate_test.cpp
+	structure_of_arrays_test.cpp
 )
 
 set_target_properties(ContainerTests

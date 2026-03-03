@@ -19,6 +19,7 @@ INPUT                  = "@PROJECT_SOURCE_DIR@/README.md" \
 FILE_PATTERNS          = *.hpp \
                          *.cpp
 RECURSIVE              = YES
+EXCLUDE_PATTERNS       = */tests/* */test/* */detail/*
 USE_MDFILE_AS_MAINPAGE = "@PROJECT_SOURCE_DIR@/README.md"
 QUIET                  = YES
 
@@ -27,9 +28,13 @@ QUIET                  = YES
 #---------------------------------------------------------------------------
 
 EXTRACT_ALL            = NO
+EXTRACT_PRIVATE        = NO
+EXTRACT_PROTECTED      = NO
 EXTRACT_STATIC         = YES
 BUILTIN_STL_SUPPORT    = YES
 SEPARATE_MEMBER_PAGES  = NO
+GENERATE_GROUPS        = YES
+GROUP_NESTED_COMPOUNDS = YES
 
 #---------------------------------------------------------------------------
 # Source browsing
@@ -56,7 +61,9 @@ HTML_EXTRA_FILES       = "@DOXYGEN_AWESOME_DIR@/doxygen-awesome-darkmode-toggle.
                          "@DOXYGEN_AWESOME_DIR@/doxygen-awesome-fragment-copy-button.js" \
                          "@DOXYGEN_AWESOME_DIR@/doxygen-awesome-paragraph-link.js" \
                          "@DOXYGEN_AWESOME_DIR@/doxygen-awesome-interactive-toc.js" \
-                         "@DOXYGEN_AWESOME_DIR@/doxygen-awesome-tabs.js"
+                         "@DOXYGEN_AWESOME_DIR@/doxygen-awesome-tabs.js" \
+                         "../../../docs/public/favicon.svg"
+HTML_HEAD_EXTRA = <link rel="icon" type="image/svg+xml" href="../../../docs/public/favicon.svg">
 
 #---------------------------------------------------------------------------
 # LaTeX output
@@ -76,3 +83,18 @@ TEMPLATE_RELATIONS     = YES
 INCLUDE_GRAPH          = YES
 INCLUDED_BY_GRAPH      = YES
 HIDE_UNDOC_RELATIONS   = YES
+
+#---------------------------------------------------------------------------
+# General enhancements
+#---------------------------------------------------------------------------
+MARKDOWN_SUPPORT      = YES
+BRIEF_MEMBER_DESC     = YES
+SEARCHENGINE          = YES
+UML_LOOK              = YES
+GENERATE_TODOLIST     = YES
+GENERATE_FILELIST     = YES
+GENERATE_CLASSLIST    = YES
+SHOW_AUTHORS          = YES
+CALL_GRAPH            = YES
+CALLER_GRAPH          = YES
+PROJECT_LOGO          = docs/public/favicon.svg  # Uncomment and set if you have a logo

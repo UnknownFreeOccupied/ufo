@@ -2,7 +2,9 @@ add_executable(VisionTests)
 
 target_sources(VisionTests
 	PRIVATE
+		camera_test.cpp
 		color_test.cpp
+		image_test.cpp
 )
 
 set_target_properties(VisionTests
@@ -11,14 +13,9 @@ set_target_properties(VisionTests
 		SOVERSION ${PROJECT_VERSION_MAJOR}
 		CXX_STANDARD 23
 		CXX_EXTENSIONS OFF
+		CXX_SCAN_FOR_MODULES OFF
 )
 
-if (MSVC)
-	target_compile_options(VisionTests PRIVATE /W4)
-else()
-	target_compile_options(VisionTests PRIVATE -Wall -Wextra -Wpedantic)
-endif()
-
-target_link_libraries(VisionTests PRIVATE UFO::Vision Catch2::Catch2WithMain)
+target_link_libraries(VisionTests PRIVATE Catch2::Catch2WithMain UFO::Vision UFO::Warnings)
 
 catch_discover_tests(VisionTests)

@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -46,6 +46,18 @@
 
 namespace ufo
 {
+/**
+ * @brief Checks if a shape is inside another shape.
+ *
+ * @tparam A The type of the shape to check.
+ * @tparam B The type of the shape to check against.
+ * @param [in] a The shape to check.
+ * @param [in] b The shape to check against.
+ * @retval true if a is inside b.
+ * @retval false if a is not inside b.
+ *
+ * @note This function is equivalent to `contains(b, a)`.
+ */
 template <class A, class B>
 [[nodiscard]] constexpr bool inside(A const& a, B const& b)
 {

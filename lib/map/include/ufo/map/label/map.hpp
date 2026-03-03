@@ -1,7 +1,7 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
- * @author Daniel Duberg (dduberg@kth.se)
+ * @author Daniel Duberg (dduberg@kth.se), Ramona Häuselmann (ramonaha@kth.se)
  * @see https://github.com/UnknownFreeOccupied/ufomap
  * @version 1.0
  * @date 2022-05-13
@@ -39,33 +39,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_MAP_LABEL_MAP_HPP
-#define UFO_MAP_LABEL_MAP_HPP
+#ifndef UFO_MAP_LABELS_MAP_HPP
+#define UFO_MAP_LABELS_MAP_HPP
 
 // UFO
+#include <functional>
+#include <numeric>
 #include <ufo/container/tree/container.hpp>
 #include <ufo/container/tree/tree.hpp>
 #include <ufo/map/block.hpp>
-#include <ufo/map/label/block.hpp>
-#include <ufo/map/label/predicate.hpp>
+#include <ufo/map/labels/block.hpp>
+#include <ufo/map/labels/predicate.hpp>
+#include <ufo/map/labels/propagation_criteria.hpp>
 #include <ufo/map/type.hpp>
+#include <ufo/math/transform3.hpp>
+#include <ufo/utility/bit_set.hpp>
+#include <ufo/utility/io/buffer.hpp>
+#include <ufo/utility/macros.hpp>
 #include <ufo/utility/type_traits.hpp>
 
 // STL
+#include <array>
 #include <iostream>
+#include <limits>
+#include <string_view>
 #include <type_traits>
+
+#include "ufo/core/label.hpp"
 
 namespace ufo
 {
 template <class Derived, class Tree>
-class LabelMap
+class LabelsMap
 {
  private:
 	template <class Derived2, class Tree2>
-	friend class LabelMap;
+	friend class LabelsMap;
 
- public:
-	// NOTE: For some reason MSVC requires these to be public
 	static constexpr auto const BF  = Tree::branchingFactor();
 	static constexpr auto const Dim = Tree::dimensions();
 
@@ -76,7 +86,7 @@ class LabelMap
 	|                                                                                     |
 	**************************************************************************************/
 
-	static constexpr MapType const Type = MapType::LABEL;
+	static constexpr MapType const Type = MapType::LABEL_SET;
 
 	// Container
 	using Index    = typename Tree::Index;
@@ -91,8 +101,8 @@ class LabelMap
 	using length_t = typename Tree::length_t;
 	using pos_t    = typename Tree::pos_t;
 
-	// Label
-	using label_t = typename LabelBlock<BF>::label_t;
+	// Labels
+	using labels_t = typename LabelsBlock<BF>::labels_t;
 
  public:
 	/**************************************************************************************
@@ -103,15 +113,15 @@ class LabelMap
 
 	template <class NodeType,
 	          std::enable_if_t<Tree::template is_node_type_v<NodeType>, bool> = true>
-	[[nodiscard]] label_t label(NodeType node) const
+	[[nodiscard]] labels_t labels(NodeType node) const
 	{
 		Index n = derived().index(node);
-		return labelBlock(n.pos)[n.offset].label;
+		return labelsBlock(n.pos)[n.offset].labels;
 	}
 
 	/**************************************************************************************
 	|                                                                                     |
-	|                                    Modifiers                                        |
+	|                                      Modifiers                                      |
 	|                                                                                     |
 	**************************************************************************************/
 
@@ -128,12 +138,13 @@ class LabelMap
 	 */
 	template <class NodeType,
 	          std::enable_if_t<Tree::template is_node_type_v<NodeType>, bool> = true>
-	void labelSet(NodeType node, label_t value, bool propagate = true)
+	void labelsSet(NodeType node, labels_t value, bool propagate = true)
 	{
-		LabelElement elem(value);
+		LabelsElement elem(value);
 
-		auto node_f  = [this, elem](Index node) { labelBlock(node.pos)[node.offset] = elem; };
-		auto block_f = [this, elem](pos_t pos) { labelBlock(pos).fill(elem); };
+		auto node_f = [this, elem](Index node) { labelsBlock(node.pos)[node.offset] = elem; };
+
+		auto block_f = [this, elem](pos_t pos) { labelsBlock(pos).fill(elem); };
 
 		auto update_f = [this](Index node, pos_t children) {
 			onPropagateChildren(node, children);
@@ -142,16 +153,30 @@ class LabelMap
 		derived().recursParentFirst(node, node_f, block_f, update_f, propagate);
 	}
 
-	template <class NodeType, class UnaryOp,
-	          std::enable_if_t<Tree::template is_node_type_v<NodeType>, bool>        = true,
-	          std::enable_if_t<std::is_invocable_r_v<label_t, UnaryOp, Index>, bool> = true>
-	void labelUpdate(NodeType node, UnaryOp unary_op, bool propagate = true)
+	template <class NodeType,
+	          std::enable_if_t<Tree::template is_node_type_v<NodeType>, bool> = true>
+	void labelsUpdate(NodeType node, label_t value, bool propagate = true)
+	{
+		labelsUpdate(
+		    node,
+		    [this, value](Index node) {
+			    labelsBlock(node.pos)[node.offset].labels.insert(value);
+			    return labelsBlock(node.pos)[node.offset].labels;
+		    },
+		    propagate);
+	}
+
+	template <
+	    class NodeType, class UnaryOp,
+	    std::enable_if_t<Tree::template is_node_type_v<NodeType>, bool>         = true,
+	    std::enable_if_t<std::is_invocable_r_v<labels_t, UnaryOp, Index>, bool> = true>
+	void labelsUpdate(NodeType node, UnaryOp unary_op, bool propagate = true)
 	{
 		auto node_f = [this, unary_op](Index node) {
-			label_t value = unary_op(node);
+			labels_t value = unary_op(node);
 
-			auto& lb = LabelBlock(node.pos)[node.offset];
-			lb.label = value;
+			auto& lb  = labelsBlock(node.pos)[node.offset];
+			lb.labels = value;
 		};
 
 		auto block_f = [this, node_f](pos_t pos) {
@@ -164,7 +189,36 @@ class LabelMap
 			onPropagateChildren(node, children);
 		};
 
-		derived().recursParentFirst(node, node_f, block_f, update_f, propagate);
+		derived().recursLeaves(node, node_f, block_f, update_f, propagate);
+	}
+
+	//
+	// Propagation criteria
+	//
+
+	[[nodiscard]] constexpr LabelsPropagationCriteria labelsPropagationCriteria()
+	    const noexcept
+	{
+		return prop_criteria_;
+	}
+
+	void labelsSetPropagationCriteria(LabelsPropagationCriteria prop_criteria,
+	                                  bool                      propagate = true)
+	{
+		if (LabelsPropagationCriteria() == prop_criteria) {
+			return;
+		}
+
+		prop_criteria_ = prop_criteria;
+
+		// Set all inner nodes to modified
+		// FIXME: Possible to optimize this to only set the ones with children
+		// TODO: Enable below
+		// derived().setModified();
+
+		// if (propagate) {
+		// 	derived().propagateModified();
+		// }
 	}
 
  protected:
@@ -174,19 +228,21 @@ class LabelMap
 	|                                                                                     |
 	**************************************************************************************/
 
-	LabelMap() { onInitRoot(); }
+	LabelsMap() { onInitRoot(); }
 
-	LabelMap(LabelMap const& other) = default;
+	LabelsMap(LabelsMap const& other) = default;
 
-	LabelMap(LabelMap&& other) = default;
+	LabelsMap(LabelsMap&& other) = default;
 
 	template <class Derived2, class Tree2>
-	LabelMap(LabelMap<Derived2, Tree2> const& other)
+	LabelsMap(LabelsMap<Derived2, Tree2> const& other)
+	    : prop_criteria_(other.prop_criteria_)
 	{
 	}
 
 	template <class Derived2, class Tree2>
-	LabelMap(LabelMap<Derived2, Tree2>&& other)
+	LabelsMap(LabelsMap<Derived2, Tree2>&& other)
+	    : prop_criteria_(std::move(other.prop_criteria_))
 	{
 	}
 
@@ -196,7 +252,7 @@ class LabelMap
 	|                                                                                     |
 	**************************************************************************************/
 
-	~LabelMap() = default;
+	~LabelsMap() = default;
 
 	/**************************************************************************************
 	|                                                                                     |
@@ -204,19 +260,21 @@ class LabelMap
 	|                                                                                     |
 	**************************************************************************************/
 
-	LabelMap& operator=(LabelMap const& rhs) = default;
+	LabelsMap& operator=(LabelsMap const& rhs) = default;
 
-	LabelMap& operator=(LabelMap&& rhs) = default;
+	LabelsMap& operator=(LabelsMap&& rhs) = default;
 
 	template <class Derived2, class Tree2>
-	LabelMap& operator=(LabelMap<Derived2, Tree2> const& rhs)
+	LabelsMap& operator=(LabelsMap<Derived2, Tree2> const& rhs)
 	{
+		prop_criteria_ = rhs.prop_criteria_;
 		return *this;
 	}
 
 	template <class Derived2, class Tree2>
-	LabelMap& operator=(LabelMap<Derived2, Tree2>&& rhs)
+	LabelsMap& operator=(LabelsMap<Derived2, Tree2>&& rhs)
 	{
+		prop_criteria_ = std::move(rhs.prop_criteria_);
 		return *this;
 	}
 
@@ -224,7 +282,10 @@ class LabelMap
 	// Swap
 	//
 
-	void swap(LabelMap& other) noexcept {}
+	void swap(LabelsMap& other) noexcept
+	{
+		std::swap(prop_criteria_, other.prop_criteria_);
+	}
 
 	/**************************************************************************************
 	|                                                                                     |
@@ -245,14 +306,14 @@ class LabelMap
 	|                                                                                     |
 	**************************************************************************************/
 
-	[[nodiscard]] LabelBlock<BF>& labelBlock(pos_t pos)
+	[[nodiscard]] LabelsBlock<BF>& labelsBlock(pos_t pos)
 	{
-		return derived().template data<LabelBlock<BF>>(pos);
+		return derived().template data<LabelsBlock<BF>>(pos);
 	}
 
-	[[nodiscard]] LabelBlock<BF> const& labelBlock(pos_t pos) const
+	[[nodiscard]] LabelsBlock<BF> const& labelsBlock(pos_t pos) const
 	{
-		return derived().template data<LabelBlock<BF>>(pos);
+		return derived().template data<LabelsBlock<BF>>(pos);
 	}
 
 	/**************************************************************************************
@@ -263,89 +324,137 @@ class LabelMap
 
 	void onInitRoot()
 	{
-		auto& block = labelBlock(0);
+		auto& block = labelsBlock(0);
 
-		label_t value{};
-		block[0].label = value;
+		labels_t value{};
+		block[0].labels = value;
 	}
 
 	void onInitChildren(Index node, pos_t children)
 	{
-		labelBlock(children).fill(labelBlock(node.pos)[node.offset]);
+		labelsBlock(children).fill(labelsBlock(node.pos)[node.offset]);
+	}
+
+	void onPruneChildren(Index node, pos_t children)
+	{
+		// TODO: implement
+		// auto& v = labelsBlock(node.pos)[node.offset];
 	}
 
 	void onPropagateChildren(Index node, pos_t children)
 	{
-		auto const& children_block = labelBlock(children);
-		auto&       lb             = labelBlock(node.pos)[node.offset];
+		auto const& children_block = labelsBlock(children);
+		auto&       lb             = labelsBlock(node.pos)[node.offset];
 
-		label_t value{};
-		for (std::size_t i{}; BF > i; ++i) {
-			value |= children_block[i].label;
+		switch (prop_criteria_) {
+			case LabelsPropagationCriteria::ALL: {
+				for (std::size_t i{}; BF > i; ++i) {
+					lb.labels.insert(children_block[i].labels.begin(),
+					                 children_block[i].labels.end());
+				}
+				break;
+			}
+			case LabelsPropagationCriteria::SUMMARY: {
+				label_t value{};
+				for (std::size_t i{}; BF > i; ++i) {
+					value |=
+					    std::accumulate(children_block[i].labels.begin(),
+					                    children_block[i].labels.end(), 0, std::bit_or<label_t>());
+				}
+				lb.labels = {value};
+				break;
+			}
+			case LabelsPropagationCriteria::MAX: {
+				label_t value = std::numeric_limits<label_t>::lowest();
+				for (std::size_t i{}; BF > i; ++i) {
+					value = UFO_MAX(value, children_block[i].labels.empty()
+					                           ? std::numeric_limits<label_t>::lowest()
+					                           : *children_block[i].labels.rbegin());
+				}
+				lb.labels = {value};
+				break;
+			}
+			case LabelsPropagationCriteria::MIN: {
+				label_t value = std::numeric_limits<label_t>::max();
+				for (std::size_t i{}; BF > i; ++i) {
+					value = UFO_MIN(value, children_block[i].labels.empty()
+					                           ? std::numeric_limits<label_t>::max()
+					                           : *children_block[i].labels.rbegin());
+				}
+				lb.labels = {value};
+				break;
+			}
+			case LabelsPropagationCriteria::NONE: return;
 		}
-
-		lb.label = value;
 	}
+
+	//
+	// Is prunable
+	//
 
 	[[nodiscard]] bool onIsPrunable(pos_t block) const
 	{
+		using std::begin;
+		using std::end;
 		return std::all_of(
-		    begin(labelBlock(block).data) + 1, end(labelBlock(block).data),
-		    [v = labelBlock(block)[0].label](auto const& e) { return v == e.label; });
+		    begin(labelsBlock(block).data) + 1, end(labelsBlock(block).data),
+		    [v = labelsBlock(block)[0].labels](auto const& e) { return v == e.labels; });
 	}
-
-	void onPruneChildren(Index node, pos_t children) {}
 
 	//
 	// Input/output (read/write)
 	//
 
+	[[nodiscard]] static constexpr std::size_t serializedSizeNode() noexcept
+	{
+		return sizeof(labels_t);
+	}
+
 	[[nodiscard]] constexpr std::size_t serializedSize(
 	    std::vector<std::pair<pos_t, BitSet<BF>>> const& /* nodes */,
 	    std::size_t num_nodes) const
 	{
-		return num_nodes * sizeof(label_t);
+		return num_nodes * serializedSizeNode();
 	}
 
 	void onRead(ReadBuffer& in, std::vector<std::pair<pos_t, BitSet<BF>>> const& nodes)
 	{
 		for (auto [block, offset] : nodes) {
-			auto& lb = labelBlock(block);
+			auto& cb = labelsBlock(block);
 
 			if (offset.all()) {
-				std::array<label_t, BF> label;
-				in.read(label);
+				std::array<labels_t, BF> labels;
+				in.read(labels);
 				for (offset_t i{}; BF > i; ++i) {
-					lb[i] = LabelElement(label[i]);
+					cb[i] = LabelsElement(labels[i]);
 				}
 			} else {
 				for (offset_t i{}; BF > i; ++i) {
 					if (offset[i]) {
-						label_t value;
+						labels_t value;
 						in.read(value);
-						lb[i] = LabelElement(value);
+						cb[i] = LabelsElement(value);
 					}
 				}
 			}
 		}
 	}
 
-	void onWrite(WriteBuffer&                                     out,
-	             std::vector<std::pair<pos_t, BitSet<BF>>> const& nodes) const
+	void onWrite(WriteBuffer& out, std::vector<std::pair<pos_t, BitSet<BF>>> const& nodes)
 	{
 		for (auto [block, offset] : nodes) {
-			auto const& lb = LabelBlock(block);
+			auto const& lb = labelsBlock(block);
 
 			if (offset.all()) {
-				std::array<label_t, BF> label;
+				std::array<labels_t, BF> labels;
 				for (offset_t i{}; BF > i; ++i) {
-					label[i] = lb[i].label;
+					labels[i] = lb[i].labels;
 				}
-				out.write(label);
+				out.write(labels);
 			} else {
 				for (offset_t i{}; BF > i; ++i) {
 					if (offset[i]) {
-						out.write(lb[i].label);
+						out.write(lb[i].labels);
 					}
 				}
 			}
@@ -358,14 +467,27 @@ class LabelMap
 
 	void onDotFileInfo(std::ostream& out, Index node) const
 	{
-		out << "Label: " << label(node);
+		out << "Labels: ";
+
+		if (labelsBlock(node.pos)[node.offset].labels.empty()) return;
+
+		auto it = labelsBlock(node.pos)[node.offset].labels.begin();
+		out << *it++;
+
+		while (it != labelsBlock(node.pos)[node.offset].labels.end()) {
+			out << ',' << *it++;
+		}
 	}
+
+ private:
+	// Propagation criteria
+	LabelsPropagationCriteria prop_criteria_ = LabelsPropagationCriteria::ALL;
 };
 
 template <std::size_t Dim, std::size_t BF>
-struct map_block<LabelMap, Dim, BF> {
-	using type = LabelBlock<BF>;
+struct map_block<LabelsMap, Dim, BF> {
+	using type = LabelsBlock<BF>;
 };
 }  // namespace ufo
 
-#endif
+#endif  // UFO_MAP_LABELS_MAP_HPP

@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -43,9 +43,10 @@
 #define UFO_MAP_COLOR_COLOR_PREDICATE_HPP
 
 // UFO
-#include <ufo/map/color/predicate/alpha.hpp>
-#include <ufo/map/color/predicate/alpha_interval.hpp>
-#include <ufo/map/color/predicate/color_map.hpp>
-#include <ufo/map/color/predicate/has_color.hpp>
+// TODO: Add back
+// #include <ufo/map/color/predicate/alpha.hpp>
+// #include <ufo/map/color/predicate/alpha_interval.hpp>
+// #include <ufo/map/color/predicate/color_map.hpp>
+// #include <ufo/map/color/predicate/has_color.hpp>
 
 #endif  // UFO_MAP_COLOR_COLOR_PREDICATE_HPP

@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -39,11 +39,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_MAP_LABEL_PREDICATE_HPP
-#define UFO_MAP_LABEL_PREDICATE_HPP
+#ifndef UFO_MAP_LABELS_PREDICATE_HPP
+#define UFO_MAP_LABELS_PREDICATE_HPP
 
-// UFO
-#include <ufo/map/label/predicate/label.hpp>
-// #include <ufo/map/label/predicate/label_map.hpp>
+#include <ufo/map/labels/predicate/has_label.hpp>
+#include <ufo/map/labels/predicate/label.hpp>
 
-#endif  // UFO_MAP_LABEL_PREDICATE_HPP
+#endif  // UFO_MAP_LABELS_PREDICATE_HPP

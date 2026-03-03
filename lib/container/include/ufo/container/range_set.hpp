@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -43,7 +43,7 @@
 #define UFO_CONTAINER_RANGE_SET_HPP
 
 // UFO
-#include <ufo/container/range.hpp>
+#include <ufo/core/range.hpp>
 
 namespace ufo
 {
@@ -813,7 +813,7 @@ std::ostream& operator<<(std::ostream& os, RangeSet<Key> const& range_set)
 	return os;
 }
 
-/*!
+/**
  * @brief Returns true if b is a subsequence of a.
  *
  * @tparam Key1
@@ -843,7 +843,7 @@ template <typename Key1, typename Key2>
 	return true;
 }
 
-/*!
+/**
  * @brief Creates a new RangeSet containing the ranges in a which are not find
  * in b.
  *

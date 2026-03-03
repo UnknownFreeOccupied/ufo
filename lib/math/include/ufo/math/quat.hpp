@@ -55,6 +55,11 @@
 #include <numbers>
 #include <ostream>
 
+/**
+ * @ingroup math
+ * @{
+ */
+
 namespace ufo
 {
 
@@ -421,19 +426,6 @@ struct Quat {
 
 using Quatf = Quat<float>;
 using Quatd = Quat<double>;
-
-/**************************************************************************************
-|                                                                                     |
-|                                       Concept                                       |
-|                                                                                     |
-**************************************************************************************/
-
-/**
- * @brief Concept satisfied by any specialization of `Quat<U>`.
- * @tparam T Type to check.
- */
-template <class T>
-concept QuatType = requires(T const& t) { []<class U>(Quat<U> const&) {}(t); };
 
 /**************************************************************************************
 |                                                                                     |
@@ -1063,5 +1055,9 @@ struct std::formatter<ufo::Quat<T>> {
 		return std::format_to(ctx.out(), "qw: {} qx: {} qy: {} qz: {}", q.w, q.x, q.y, q.z);
 	}
 };
+
+/**
+ * @}
+ */
 
 #endif  // UFO_MATH_QUAT_HPP

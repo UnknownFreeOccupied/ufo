@@ -1,8 +1,3 @@
-option(UFO_CONTAINER_BUILD_TESTS    "Unit testing"           ON)
-option(UFO_CONTAINER_BUILD_COVERAGE "Test Coverage"          ON)
-
-include(GNUInstallDirs)
-
 add_library(Container INTERFACE)
 add_library(UFO::Container ALIAS Container)
 

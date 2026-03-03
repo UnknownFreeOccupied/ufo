@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -65,18 +65,18 @@ class TreeCode
 	friend class std::hash<TreeCode>;
 
  public:
-	using code_t    = std::uint32_t;
-	using key_t     = typename TreeKey<Dim>::key_t;
-	using depth_t   = std::uint32_t;
-	using size_type = std::size_t;
+	using code_type  = std::uint32_t;
+	using key_type   = typename TreeKey<Dim>::key_type;
+	using depth_type = std::uint32_t;
+	using size_type  = std::size_t;
 
  private:
-	static constexpr code_t const DEPTHS_PER_IDX = Morton<Dim>::LEVELS_32;
-	static constexpr code_t const OFFSET_MASK    = ~((~code_t(0)) << Dim);
+	static constexpr code_type const DEPTHS_PER_IDX = Morton<Dim>::LEVELS_32;
+	static constexpr code_type const OFFSET_MASK    = ~((~code_type(0)) << Dim);
 
 	static constexpr std::array<bool, 3> const ACTIVE{
-	    true, std::numeric_limits<key_t>::digits > DEPTHS_PER_IDX,
-	    std::numeric_limits<key_t>::digits > 2 * DEPTHS_PER_IDX};
+	    true, std::numeric_limits<key_type>::digits > DEPTHS_PER_IDX,
+	    std::numeric_limits<key_type>::digits > 2 * DEPTHS_PER_IDX};
 
  public:
 	/**************************************************************************************
@@ -88,13 +88,13 @@ class TreeCode
 	constexpr TreeCode() noexcept                = default;
 	constexpr TreeCode(TreeCode const&) noexcept = default;
 
-	constexpr TreeCode(std::array<code_t, 3> const& code, depth_t const& depth)
+	constexpr TreeCode(std::array<code_type, 3> const& code, depth_type const& depth)
 	    : code_(code), depth_(depth)
 	{
 		assert(valid());
 	}
 
-	constexpr explicit TreeCode(std::array<code_t, 3> const& code) : TreeCode(code, 0) {}
+	constexpr explicit TreeCode(std::array<code_type, 3> const& code) : TreeCode(code, 0) {}
 
 	constexpr explicit TreeCode(TreeKey<Dim> const& key) : depth_(key.depth())
 	{
@@ -156,11 +156,11 @@ class TreeCode
 	|                                                                                     |
 	**************************************************************************************/
 
-	[[nodiscard]] constexpr key_t operator[](size_type pos) const noexcept
+	[[nodiscard]] constexpr key_type operator[](size_type pos) const noexcept
 	{
 		assert(size() > pos);
 
-		key_t k = Morton<Dim>::decode32(code_[0], pos);
+		key_type k = Morton<Dim>::decode32(code_[0], pos);
 
 		if constexpr (ACTIVE[1]) {
 			k |= Morton<Dim>::decode32(code_[1], pos) << DEPTHS_PER_IDX;
@@ -206,11 +206,11 @@ class TreeCode
 		return ipow(std::size_t(2), static_cast<int>(Dim));
 	}
 
-	// [[nodiscard]] constexpr code_t code() const noexcept { return code_; }
+	// [[nodiscard]] constexpr code_type code() const noexcept { return code_; }
 
-	[[nodiscard]] static constexpr depth_t maxDepth() noexcept
+	[[nodiscard]] static constexpr depth_type maxDepth() noexcept
 	{
-		depth_t max_depth = DEPTHS_PER_IDX;
+		depth_type max_depth = DEPTHS_PER_IDX;
 		if constexpr (ACTIVE[1]) {
 			max_depth += DEPTHS_PER_IDX;
 		}
@@ -220,11 +220,11 @@ class TreeCode
 		return max_depth;
 	}
 
-	[[nodiscard]] constexpr depth_t depth() const noexcept { return depth_; }
+	[[nodiscard]] constexpr depth_type depth() const noexcept { return depth_; }
 
-	[[nodiscard]] static constexpr bool equalAtDepth(TreeCode const& lhs,
-	                                                 TreeCode const& rhs,
-	                                                 depth_t         depth) noexcept
+	[[nodiscard]] static constexpr bool sameAncestorAtDepth(TreeCode const& lhs,
+	                                                        TreeCode const& rhs,
+	                                                        depth_type      depth) noexcept
 	{
 		assert(maxDepth() >= depth);
 		assert(lhs.valid() && rhs.valid());
@@ -232,9 +232,9 @@ class TreeCode
 		auto i = depth / DEPTHS_PER_IDX;
 		auto d = depth % DEPTHS_PER_IDX;
 
-		std::array<code_t, 3> m{0 >= i ? ~code_t(0) : code_t(0),
-		                        1 >= i ? ~code_t(0) : code_t(0),
-		                        2 >= i ? ~code_t(0) : code_t(0)};
+		std::array<code_type, 3> m{0 >= i ? ~code_type(0) : code_type(0),
+		                           1 >= i ? ~code_type(0) : code_type(0),
+		                           2 >= i ? ~code_type(0) : code_type(0)};
 
 		m[i] <<= Dim * d;
 
@@ -243,27 +243,42 @@ class TreeCode
 		       (lhs.code_[2] & m[2]) == (rhs.code_[2] & m[2]);
 	}
 
-	[[nodiscard]] static constexpr depth_t depthWhereEqual(TreeCode const& lhs,
-	                                                       TreeCode const& rhs) noexcept
+	[[nodiscard]] constexpr bool isAncestorOf(TreeCode const& other) const noexcept
+	{
+		return depth() >= other.depth() && sameAncestorAtDepth(*this, other, depth());
+	}
+
+	[[nodiscard]] constexpr bool isDescendantOf(TreeCode const& other) const noexcept
+	{
+		return other.isAncestorOf(*this);
+	}
+
+	[[nodiscard]] constexpr bool isSiblingOf(TreeCode const& other) const noexcept
+	{
+		return depth() == other.depth() && sameAncestorAtDepth(*this, other, depth() + 1);
+	}
+
+	[[nodiscard]] static constexpr depth_type lowestCommonAncestor(
+	    TreeCode const& lhs, TreeCode const& rhs) noexcept
 	{
 		assert(lhs.valid() && rhs.valid());
 
 		auto depth =
 		    lhs.code_[2] != rhs.code_[2]
 		        ? 2 * DEPTHS_PER_IDX
-		        : static_cast<depth_t>(lhs.code_[1] != rhs.code_[1]) * DEPTHS_PER_IDX;
+		        : static_cast<depth_type>(lhs.code_[1] != rhs.code_[1]) * DEPTHS_PER_IDX;
 		depth = std::max(depth, std::max(lhs.depth(), rhs.depth()));
 
-		auto   i = depth / DEPTHS_PER_IDX;
-		auto   d = depth % DEPTHS_PER_IDX;
-		code_t c = (lhs.code_[i] ^ rhs.code_[i]) >> (Dim * d);
+		auto      i = depth / DEPTHS_PER_IDX;
+		auto      d = depth % DEPTHS_PER_IDX;
+		code_type c = (lhs.code_[i] ^ rhs.code_[i]) >> (Dim * d);
 		for (; c; c >>= Dim, ++depth) {
 		}
 
 		return depth;
 	}
 
-	[[nodiscard]] constexpr TreeCode toDepth(depth_t depth) const
+	[[nodiscard]] constexpr TreeCode toDepth(depth_type depth) const
 	{
 		assert(maxDepth() >= depth);
 
@@ -272,16 +287,16 @@ class TreeCode
 		return ret;
 	}
 
-	constexpr void setDepth(depth_t depth)
+	constexpr void setDepth(depth_type depth)
 	{
 		assert(maxDepth() >= depth);
 
 		auto i = depth / DEPTHS_PER_IDX;
 		auto d = depth % DEPTHS_PER_IDX;
 
-		std::array<code_t, 3> m{0 >= i ? ~code_t(0) : code_t(0),
-		                        1 >= i ? ~code_t(0) : code_t(0),
-		                        2 >= i ? ~code_t(0) : code_t(0)};
+		std::array<code_type, 3> m{0 >= i ? ~code_type(0) : code_type(0),
+		                           1 >= i ? ~code_type(0) : code_type(0),
+		                           2 >= i ? ~code_type(0) : code_type(0)};
 
 		m[i] <<= Dim * d;
 
@@ -291,31 +306,45 @@ class TreeCode
 		depth_ = depth;
 	}
 
-	/*!
+	/**
 	 * @brief Get the offset at the current depth (same as `c.offset(c.depth())`).
 	 *
 	 * @return The offset at the current depth.
 	 */
-	[[nodiscard]] constexpr code_t offset() const { return offset(depth_); }
+	[[nodiscard]] constexpr code_type offset() const { return offset(depth_); }
 
-	/*!
+	/**
 	 * @brief Get the offset at a specific depth for this code.
 	 *
 	 * @param depth The depth the index is requested for.
 	 * @return The offset at the specified depth.
 	 */
-	[[nodiscard]] constexpr code_t offset(depth_t depth) const
+	[[nodiscard]] constexpr code_type offset(depth_type depth) const
 	{
-		assert(maxDepth() >= depth);
+		assert(maxDepth() >= depth && depth_ <= depth);
 
 		auto i = depth / DEPTHS_PER_IDX;
 		auto d = depth % DEPTHS_PER_IDX;
 		return (code_[i] >> (Dim * d)) & OFFSET_MASK;
 	}
 
+	constexpr void setOffset(code_type offset) { setOffset(depth_, offset); }
+
+	constexpr void setOffset(depth_type depth, code_type offset)
+	{
+		assert(maxDepth() >= depth && depth_ <= depth && branchingFactor() > offset);
+
+		auto i = depth / DEPTHS_PER_IDX;
+		auto d = depth % DEPTHS_PER_IDX;
+
+		// NOTE: Two shifts to prevent shifting by more bits than code_type contains
+		code_[i] &= ((~code_type(0)) << Dim) << (Dim * d);
+		code_[i] |= static_cast<code_type>(offset) << (Dim * d);
+	}
+
 	[[nodiscard]] constexpr TreeCode parent() const { return toDepth(depth_ + 1); }
 
-	/*!
+	/**
 	 * @brief Get the code of a specific child of this code
 	 *
 	 * @param idx The index of the child
@@ -329,7 +358,7 @@ class TreeCode
 		return firstborn().firstbornSibling(idx);
 	}
 
-	/*!
+	/**
 	 * @brief Get the code of the firstborn child of this code (same as child(0)).
 	 *
 	 * @return TreeCode The firstborn child code
@@ -340,7 +369,7 @@ class TreeCode
 		return TreeCode(code_, depth_ - 1);
 	}
 
-	/*!
+	/**
 	 * @brief Get the code of a specific sibling of this code
 	 *
 	 * @param idx The index of the sibling
@@ -348,21 +377,36 @@ class TreeCode
 	 */
 	[[nodiscard]] constexpr TreeCode sibling(std::size_t idx) const
 	{
-		assert(branchingFactor() > idx);
-
 		TreeCode ret = *this;
+		ret.setOffset(depth_, idx);
+		return ret;
+	}
+
+	[[nodiscard]] constexpr TreeCode nextSibling() const
+	{
+		assert(branchingFactor() > offset() + 1);
 
 		auto i = depth_ / DEPTHS_PER_IDX;
 		auto d = depth_ % DEPTHS_PER_IDX;
 
-		// NOTE: Two shifts to prevent shifting by more bits than code_t contains
-		ret.code_[i] &= ((~code_t(0)) << Dim) << (Dim * d);
-		ret.code_[i] |= static_cast<code_t>(idx) << (Dim * d);
-
+		TreeCode ret = *this;
+		ret.code_[i] += code_type(1) << (Dim * d);
 		return ret;
 	}
 
-	/*!
+	[[nodiscard]] constexpr TreeCode prevSibling() const
+	{
+		assert(0 < offset());
+
+		auto i = depth_ / DEPTHS_PER_IDX;
+		auto d = depth_ % DEPTHS_PER_IDX;
+
+		TreeCode ret = *this;
+		ret.code_[i] -= code_type(1) << (Dim * d);
+		return ret;
+	}
+
+	/**
 	 * @brief Get the code of a specific sibling of this firstborn code
 	 *
 	 * @note Should only be called on firstborn codes (i.e., `offset(depth())` should be
@@ -380,11 +424,11 @@ class TreeCode
 		auto d = depth_ % DEPTHS_PER_IDX;
 
 		TreeCode ret = *this;
-		ret.code_[i] |= static_cast<code_t>(idx) << (Dim * d);
+		ret.code_[i] |= static_cast<code_type>(idx) << (Dim * d);
 		return ret;
 	}
 
-	// void append(code_t code, depth_t num_depths)
+	// void append(code_type code, depth_type num_depths)
 	// {
 	// 	// TODO: Fix asserts
 	// 	assert(depth() >= num_depths);
@@ -392,7 +436,7 @@ class TreeCode
 	// 	// TODO: Implement
 	// }
 
-	// code_t remove(depth_t num_depths)
+	// code_type remove(depth_type num_depths)
 	// {
 	// 	// TODO: Fix asserts
 	// 	assert(maxDepth() - depth() >= num_depths);
@@ -401,7 +445,7 @@ class TreeCode
 	// 	// TODO: Implement
 	// }
 
-	// [[nodiscard]] code_t lowestOffsets(depth_t num_depths) const
+	// [[nodiscard]] code_type lowestOffsets(depth_type num_depths) const
 	// {
 	// 	// // TODO: Fix asserts
 	// 	// assert(maxDepth() - depth() >= num_depths);
@@ -413,10 +457,11 @@ class TreeCode
 	// 	assert(DEPTHS_PER_IDX >= num_depths);
 
 	// 	return code_[0] &
-	// 	       (~code_t(0) >> (std::numeric_limits<code_t>::digits - Dim * num_depths));
+	// 	       (~code_type(0) >> (std::numeric_limits<code_type>::digits - Dim *
+	// num_depths));
 	// }
 
-	// void lowestOffsets(depth_t num_depths, code_t lowest_offsets)
+	// void lowestOffsets(depth_type num_depths, code_type lowest_offsets)
 	// {
 	// 	// // TODO: Fix asserts
 	// 	// assert(maxDepth() - depth() >= num_depths);
@@ -431,12 +476,13 @@ class TreeCode
 	// 	code_[0] |= lowest_offsets;
 
 	// 	// return code_[0] &
-	// 	//        (~code_t(0) >> (std::numeric_limits<code_t>::digits - Dim * num_depths));
+	// 	//        (~code_type(0) >> (std::numeric_limits<code_type>::digits - Dim *
+	// num_depths));
 	// }
 
-	[[nodiscard]] code_t lowestOffsets() const { return code_[0]; }
+	[[nodiscard]] code_type lowestOffsets() const { return code_[0]; }
 
-	void lowestOffsets(code_t lowest_offsets, depth_t depth = 0)
+	void lowestOffsets(code_type lowest_offsets, depth_type depth = 0)
 	{
 		code_[0] = lowest_offsets;
 		depth_   = depth;
@@ -491,8 +537,8 @@ class TreeCode
 	}
 
  private:
-	std::array<code_t, 3> code_{};
-	depth_t               depth_ = maxDepth() + 1;
+	std::array<code_type, 3> code_{};
+	depth_type               depth_ = maxDepth() + 1;
 };
 
 using BinaryCode = TreeCode<1>;
@@ -510,7 +556,7 @@ struct hash<ufo::TreeCode<Dim>> {
 	{
 		// Code size
 		static constexpr std::size_t const CS =
-		    std::numeric_limits<typename ufo::TreeCode<Dim>::code_t>::digits;
+		    std::numeric_limits<typename ufo::TreeCode<Dim>::code_type>::digits;
 		// Hash size
 		static constexpr std::size_t const HS = std::numeric_limits<std::size_t>::digits;
 

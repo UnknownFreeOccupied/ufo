@@ -61,9 +61,13 @@
 #include <type_traits>
 #include <utility>
 
+/**
+ * @ingroup math
+ * @{
+ */
+
 namespace ufo
 {
-
 // Forward declaration
 template <std::size_t Rows, std::size_t Cols, class T>
 struct Mat;
@@ -1237,7 +1241,7 @@ template <std::size_t R, std::size_t C, class T = float>
  * @brief Computes the eigenvalues of a real symmetric 3×3 matrix, sorted ascending.
  *
  * @details Uses the closed-form trigonometric solution (Cardano's method adapted for
- *          symmetric 3×3 matrices). Only the upper triangle of @p m is read; the
+ *          symmetric 3×3 matrices). Only the upper triangle of `m` is read; the
  *          lower triangle is assumed to equal the upper triangle.
  *
  * @tparam T Floating-point scalar type.
@@ -1279,7 +1283,7 @@ template <std::floating_point T>
 /**
  * @brief Computes the eigenvectors of a real symmetric 3×3 matrix.
  *
- * @details Each returned vector is normalized. The ordering matches @p eigen_values,
+ * @details Each returned vector is normalized. The ordering matches `eigen_values`,
  *          so `result[i]` is the eigenvector for `eigen_values[i]`.
  *
  * @note The computation is undefined if the covariance is degenerate (e.g. all points
@@ -1287,7 +1291,7 @@ template <std::floating_point T>
  *
  * @tparam T Floating-point scalar type.
  * @param [in] m            A real symmetric 3×3 matrix (upper triangle is read).
- * @return Array of three unit eigenvectors ordered to match @p eigen_values.
+ * @return Array of three unit eigenvectors ordered to match `eigen_values`.
  */
 template <std::floating_point T>
 [[nodiscard]] constexpr std::array<Vec<3, T>, 3> eigenVectors(
@@ -1299,7 +1303,7 @@ template <std::floating_point T>
 /**
  * @brief Computes the eigenvectors of a real symmetric 3×3 matrix.
  *
- * @details Each returned vector is normalized. The ordering matches @p eigen_values,
+ * @details Each returned vector is normalized. The ordering matches `eigen_values`,
  *          so `result[i]` is the eigenvector for `eigen_values[i]`.
  *
  * @note The computation is undefined if the covariance is degenerate (e.g. all points
@@ -1308,7 +1312,7 @@ template <std::floating_point T>
  * @tparam T Floating-point scalar type.
  * @param [in] m            A real symmetric 3×3 matrix (upper triangle is read).
  * @param [in] eigen_values Pre-computed eigenvalues, e.g. from `eigenValues(m)`.
- * @return Array of three unit eigenvectors ordered to match @p eigen_values.
+ * @return Array of three unit eigenvectors ordered to match `eigen_values`.
  */
 template <std::floating_point T>
 [[nodiscard]] constexpr std::array<Vec<3, T>, 3> eigenVectors(
@@ -1365,10 +1369,9 @@ template <std::floating_point T>
 }
 
 /**
- * @brief Builds a right-handed 3-D orthographic projection matrix with a depth range.
- * @details Maps the box `[left, right] × [bottom, top] × [zNear, zFar]` to NDC,
- *          using the handedness and depth-range convention selected by the template
- *          parameters.
+ * @brief Builds an orthographic projection matrix (OpenCV convention).
+ * @details Constructs a right-handed orthographic matrix (+X Right, +Y Down, +Z Forward)
+ *          with a `[0, 1]` depth range.
  * @tparam T           Floating-point element type.
  * @param [in] left   Left clipping plane.
  * @param [in] right  Right clipping plane.
@@ -1386,7 +1389,7 @@ template <std::floating_point T>
 
 	m[0][0] = T(2) / (right - left);
 	m[1][1] = T(2) / (top - bottom);
-	m[2][2] = -T(1) / (zFar - zNear);
+	m[2][2] = T(1) / (zFar - zNear);
 	m[0][3] = -(right + left) / (right - left);
 	m[1][3] = -(top + bottom) / (top - bottom);
 	m[2][3] = -zNear / (zFar - zNear);
@@ -1395,10 +1398,9 @@ template <std::floating_point T>
 }
 
 /**
- * @brief Builds a right-handed perspective projection matrix from field-of-view and clip
- * planes.
- * @details Constructs the standard perspective matrix used to project 3-D geometry
- *          onto a 2-D viewport. Ueses the `[0, 1]` depth ranges convention.
+ * @brief Builds a perspective projection matrix (OpenCV convention).
+ * @details Constructs a right-handed perspective matrix (+X Right, +Y Down, +Z Forward)
+ *          with a `[0, 1]` depth range.
  * @tparam T           Floating-point element type.
  * @param [in] fovy   Vertical field of view in radians.
  * @param [in] aspect Aspect ratio (viewport width / viewport height).
@@ -1415,17 +1417,50 @@ template <std::floating_point T>
 
 	m[0][0] = T(1) / (aspect * tan_half_fovy);
 	m[1][1] = T(1) / tan_half_fovy;
-	m[2][2] = far / (near - far);
-	m[3][2] = -T(1);
+	m[2][2] = far / (far - near);
+	m[3][2] = T(1);
 	m[2][3] = -(far * near) / (far - near);
 
 	return m;
 }
 
 /**
- * @brief Builds a right-handed view matrix that orients the camera toward a target point.
- * @details Computes the look-at view transform: places the camera at `eye`, looks
- *          toward `target`, and uses `up` as the world-up reference vector.
+ * @brief Builds a perspective projection matrix (OpenCV convention).
+ * @details Constructs a right-handed perspective matrix (+X Right, +Y Down, +Z Forward)
+ *          from camera intrinsics (focal lengths, principal point, and resolution)
+ *          with a `[0, 1]` depth range.
+ * @tparam T           Floating-point element type.
+ * @param [in] fx     Horizontal focal length.
+ * @param [in] fy     Vertical focal length.
+ * @param [in] cx     Horizontal principal point (offset from center).
+ * @param [in] cy     Vertical principal point (offset from center).
+ * @param [in] width  Viewport width.
+ * @param [in] height Viewport height.
+ * @param [in] near   Near clipping distance.
+ * @param [in] far    Far clipping distance.
+ * @return A `Mat<4, 4, T>` representing the perspective projection.
+ */
+template <std::floating_point T>
+[[nodiscard]] Mat<4, 4, T> perspective(T fx, T fy, T cx, T cy, T width, T height, T near,
+                                       T far)
+{
+	Mat<4, 4, T> m{};
+
+	m[0][0] = T(2) * fx / width;
+	m[1][1] = T(2) * fy / height;
+	m[0][2] = (T(2) * cx / width) - T(1);
+	m[1][2] = (T(2) * cy / height) - T(1);
+	m[2][2] = far / (far - near);
+	m[3][2] = T(1);
+	m[2][3] = -(far * near) / (far - near);
+
+	return m;
+}
+
+/**
+ * @brief Builds a view matrix (OpenCV convention).
+ * @details Computes a right-handed look-at view transform (+X Right, +Y Down, +Z
+ * Forward): places the camera at `eye` and looks toward `target`.
  * @tparam T           Floating-point element type.
  * @param [in] eye    Camera position in world space.
  * @param [in] target Point in world space the camera looks at.
@@ -1445,15 +1480,15 @@ template <std::floating_point T>
 	m[0][0] = s[0];
 	m[0][1] = s[1];
 	m[0][2] = s[2];
-	m[1][0] = u[0];
-	m[1][1] = u[1];
-	m[1][2] = u[2];
-	m[2][0] = -f[0];
-	m[2][1] = -f[1];
-	m[2][2] = -f[2];
+	m[1][0] = -u[0];
+	m[1][1] = -u[1];
+	m[1][2] = -u[2];
+	m[2][0] = f[0];
+	m[2][1] = f[1];
+	m[2][2] = f[2];
 	m[0][3] = -dot(s, eye);
-	m[1][3] = -dot(u, eye);
-	m[2][3] = dot(f, eye);
+	m[1][3] = dot(u, eye);
+	m[2][3] = -dot(f, eye);
 	m[3][3] = T(1);
 
 	return m;
@@ -1474,17 +1509,13 @@ template <std::floating_point T>
 [[nodiscard]] Mat<4, 4, T> infinitePerspective(T fovy, T aspect, T near)
 {
 	Mat<4, 4, T> m{};
-	T const      range  = std::tan(fovy / T(2)) * near;
-	T const      left   = -range * aspect;
-	T const      right  = range * aspect;
-	T const      bottom = -range;
-	T const      top    = range;
+	T const      tan_half_fovy = std::tan(fovy / T(2));
 
-	m[0][0] = (T(2) * near) / (right - left);
-	m[1][1] = (T(2) * near) / (top - bottom);
+	m[0][0] = T(1) / (aspect * tan_half_fovy);
+	m[1][1] = T(1) / tan_half_fovy;
 
-	m[2][2] = -T(1);
-	m[3][2] = -T(1);
+	m[2][2] = T(1);
+	m[3][2] = T(1);
 	m[2][3] = -near;
 
 	return m;
@@ -1616,6 +1647,10 @@ std::ostream& operator<<(std::ostream& out, Mat<Rows, Cols, T> const& m)
 }
 
 }  // namespace ufo
+
+/**
+ * @}
+ */
 
 template <std::size_t Rows, std::size_t Cols, class T>
 struct std::tuple_size<ufo::Mat<Rows, Cols, T>>

@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -156,7 +156,7 @@ class AngularIntegrator final : public Integrator<Dim>
 
 		auto const t8 = std::chrono::high_resolution_clock::now();
 
-		this->insertHits(policy, map, cloud);
+		this->insertHits(policy, map, cloud, sensor_origin);
 
 		auto const t9 = std::chrono::high_resolution_clock::now();
 
@@ -215,6 +215,7 @@ class AngularIntegrator final : public Integrator<Dim>
 		}
 
 		data_.resize(rows_ * columns_);
+		// TODO: Is this correct?
 		data_2_.resize(rows_ * columns_ / (ds_ * ds_));
 	}
 
@@ -397,6 +398,7 @@ class AngularIntegrator final : public Integrator<Dim>
 				auto const index   = first_ai + pi;
 				auto const index_2 = first_ai_2 + pi_2;
 				assert(data_.size() > index);
+				// TODO: This is triggered
 				assert(data_2_.size() > index_2);
 				auto& data   = data_[index];
 				auto& data_2 = data_2_[index_2];
@@ -770,7 +772,7 @@ class AngularIntegrator final : public Integrator<Dim>
 	// 	}
 	// }
 
-	// /*!
+	// /**
 	//  * @brief Minimum and maximum azimuthal angles between [-pi, 2 * pi] such that first
 	//  is
 	//  * always greater than second.
@@ -840,7 +842,7 @@ class AngularIntegrator final : public Integrator<Dim>
 		}
 	}
 
-	/*!
+	/**
 	 * @brief Minimum and maximum azimuthal angles between [-pi, 2 * pi] such that first is
 	 * always greater than second.
 	 *

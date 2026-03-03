@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -43,54 +43,21 @@
 #define UFO_CONTAINER_TREE_MAP_BLOCK_HPP
 
 // UFO
-#include <ufo/container/tree/block.hpp>
-#include <ufo/container/tree/code.hpp>
-#include <ufo/container/tree/index.hpp>
-#include <ufo/geometry/aabb.hpp>
+#include <ufo/container/tree/map/inner_block.hpp>
+#include <ufo/container/tree/map/leaf_block.hpp>
 
 // STL
-#include <array>
 #include <cstddef>
-#include <limits>
-#include <list>
-#include <utility>
 
 namespace ufo
 {
-template <std::size_t Dim, std::size_t BF, class T>
-struct TreeMapBlock : public TreeBlock<Dim, BF> {
-	using Base = TreeBlock<Dim, BF>;
+template <class T>
+struct TreeMapBlock {
+	template <std::size_t Dim, std::size_t BF>
+	using LeafBlock = TreeMapLeafBlock<Dim, BF, T>;
 
-	using Code           = TreeCode<Dim>;
-	using length_t       = typename Base::length_t;
-	using Length         = typename Base::Length;
-	using Point          = typename Base::Point;
-	using Bounds         = AABB<Dim, typename Point::value_type>;
-	using scalar_type    = typename Point::value_type;
-	using value_type     = std::pair<Point const, T>;
-	using container_type = std::list<value_type>;
-
-	static constexpr auto const MIN =
-	    Point(std::numeric_limits<typename Point::value_type>::lowest());
-	static constexpr auto const MAX =
-	    Point(std::numeric_limits<typename Point::value_type>::max());
-
-	std::array<Bounds, BF>         bounds = createArray<BF>(Bounds(MAX, MIN));
-	std::array<container_type, BF> values;
-
-	constexpr TreeMapBlock() = default;
-
-	constexpr TreeMapBlock(TreeIndex::pos_t parent_block, Code code, Point center,
-	                       Length half_length)
-	    : Base(parent_block, code, center, half_length)
-	{
-	}
-
-	constexpr TreeMapBlock(TreeIndex::pos_t parent_block, TreeMapBlock const& parent,
-	                       std::size_t offset, Length half_length)
-	    : Base(parent_block, parent, offset, half_length)
-	{
-	}
+	template <std::size_t Dim, std::size_t BF>
+	using InnerBlock = TreeMapInnerBlock<Dim, BF, T>;
 };
 }  // namespace ufo
 

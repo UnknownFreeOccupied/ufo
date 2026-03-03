@@ -20,6 +20,7 @@ option(UFO_COVERAGE                   "Test Coverage"                      OFF)
 option(UFO_DEV_MODE                   "Set up development helper settings" ON)
 # option(UFO_ENABLE_NATIVE_OPTIMIZATION "Optimize for the host CPU"          ON)
 option(UFO_ENABLE_LTO                 "Enable Link Time Optimization"      ON)
+option(UFO_ENABLE_BMI2                "Enable BMI2 instructions"           ON)
 
 if (UFO_DEV_MODE)
 	# Speed up development builds
@@ -43,21 +44,21 @@ if(UFO_BUILD_TESTS)
 	add_subdirectory(tests)
 endif()
 
-# add_subdirectory(lib/cloud)
+add_subdirectory(lib/cloud)
 add_subdirectory(lib/compute)
-# add_subdirectory(lib/container)
+add_subdirectory(lib/container)
 add_subdirectory(lib/core)
 add_subdirectory(lib/execution)
-# add_subdirectory(lib/geometry)
+add_subdirectory(lib/geometry)
 # add_subdirectory(lib/io)
 # add_subdirectory(lib/map)
 add_subdirectory(lib/math)
-# add_subdirectory(lib/morton)
+add_subdirectory(lib/morton)
 # add_subdirectory(lib/plan)
-# add_subdirectory(lib/sensor)
+add_subdirectory(lib/sensor)
 # add_subdirectory(lib/time)
 add_subdirectory(lib/utility)
-# add_subdirectory(lib/vision)
+add_subdirectory(lib/vision)
 # # add_subdirectory(lib/viz)
 
 add_library(UFO_Warnings INTERFACE)
@@ -72,21 +73,21 @@ add_library(UFO INTERFACE)
 add_library(UFO::UFO ALIAS UFO)
 
 target_link_libraries(UFO INTERFACE 
-	# UFO::Cloud
+	UFO::Cloud
 	UFO::Compute
-	# UFO::Container
+	UFO::Container
 	UFO::Core
 	UFO::Execution
-	# UFO::Geometry
+	UFO::Geometry
 	# UFO::IO
 	# UFO::Map
 	UFO::Math
-	# UFO::Morton
+	UFO::Morton
 	# UFO::Plan
-	# UFO::Sensor
+	UFO::Sensor
 	# UFO::Time
 	UFO::Utility
-	# UFO::Vision
+	UFO::Vision
 	# # UFO::Viz
 	$<BUILD_INTERFACE:UFO::Warnings>
 )

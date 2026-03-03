@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -57,6 +57,7 @@ namespace ufo
 {
 enum class MapType : std::uint64_t {
 	NONE         = std::uint64_t(0),
+	TREE         = NONE,
 	ALL          = ~std::uint64_t(0),
 	OCCUPANCY    = std::uint64_t(1) << 0,
 	COLOR        = std::uint64_t(1) << 1,

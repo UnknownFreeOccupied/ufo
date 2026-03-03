@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -58,17 +58,23 @@
 #include <cstddef>
 #include <limits>
 #include <list>
+#include <type_traits>
 
 namespace ufo
 {
 template <std::size_t Dim, class T>
-class TreeMap
-    : protected Tree<TreeMap<Dim, T>, Dim, false,
-                     TreeMapBlock<Dim, std::size_t(1) << Dim, T>>
+class TreeMap : protected Tree<TreeMap<Dim, T>, Dim, TreeMapBlock<T>>
 {
  protected:
-	using Block = TreeMapBlock<Dim, std::size_t(1) << Dim, T>;
-	using Base  = Tree<TreeMap, Dim, false, Block>;
+	using Base                     = Tree<TreeMap, Dim, TreeMapBlock<T>>;
+	static constexpr auto const BF = Base::branchingFactor();
+	using LeafBlock                = typename TreeMapBlock<T>::template LeafBlock<Dim, BF>;
+	using InnerBlock               = typename TreeMapBlock<T>::template InnerBlock<Dim, BF>;
+
+	static_assert(
+	    std::is_same_v<typename LeafBlock::value_type, typename InnerBlock::value_type>);
+	static_assert(std::is_same_v<typename LeafBlock::container_type,
+	                             typename InnerBlock::container_type>);
 
 	//
 	// Friends
@@ -88,22 +94,22 @@ class TreeMap
 	**************************************************************************************/
 
 	// UFO stuff
-	using Index    = typename Base::Index;
-	using Node     = typename Base::Node;
-	using Code     = typename Base::Code;
-	using Key      = typename Base::Key;
-	using Point    = typename Base::Point;
-	using Coord    = typename Base::Coord;
-	using Bounds   = typename Base::Bounds;
-	using Length   = typename Base::Length;
-	using coord_t  = typename Base::coord_t;
-	using depth_t  = typename Base::depth_t;
-	using offset_t = typename Base::offset_t;
-	using length_t = typename Base::length_t;
-	using pos_t    = typename Base::pos_t;
+	using Index       = typename Base::Index;
+	using Node        = typename Base::Node;
+	using Code        = typename Base::Code;
+	using Key         = typename Base::Key;
+	using Point       = typename Base::Point;
+	using Coord       = typename Base::Coord;
+	using Bounds      = typename Base::Bounds;
+	using Length      = typename Base::Length;
+	using coord_type  = typename Base::coord_type;
+	using depth_type  = typename Base::depth_type;
+	using offset_type = typename Base::offset_type;
+	using length_type = typename Base::length_type;
+	using pos_type    = typename Base::pos_type;
 
 	// STL stuff
-	using value_type      = typename Block::value_type;
+	using value_type      = typename LeafBlock::value_type;
 	using mapped_type     = T;
 	using reference       = value_type&;
 	using const_reference = value_type const&;
@@ -184,7 +190,7 @@ class TreeMap
 	friend class TreeMapQueryNearestIterator;
 
  private:
-	using container_type = typename Block::container_type;
+	using container_type = typename LeafBlock::container_type;
 
  public:
 	/**************************************************************************************
@@ -193,36 +199,41 @@ class TreeMap
 	|                                                                                     |
 	**************************************************************************************/
 
-	TreeMap(Length  leaf_node_length = Length(0.1),
-	        depth_t num_depth_levels = std::min(depth_t(17), Base::maxNumDepthLevels()))
+	TreeMap(Length     leaf_node_length = Length(0.1),
+	        depth_type num_depth_levels = std::min(depth_type(17),
+	                                               Base::maxNumDepthLevels()))
 	    : Base(leaf_node_length, num_depth_levels)
 	{
 	}
 
-	TreeMap(length_t leaf_node_length,
-	        depth_t  num_depth_levels = std::min(depth_t(17), Base::maxNumDepthLevels()))
+	TreeMap(length_type leaf_node_length,
+	        depth_type  num_depth_levels = std::min(depth_type(17),
+	                                                Base::maxNumDepthLevels()))
 	    : TreeMap(Length(leaf_node_length), num_depth_levels)
 	{
 	}
 
 	template <class InputIt>
-	TreeMap(InputIt first, InputIt last, length_t leaf_node_length = length_t(0.1),
-	        depth_t num_depth_levels = std::min(depth_t(17), Base::maxNumDepthLevels()))
+	TreeMap(InputIt first, InputIt last, length_type leaf_node_length = length_type(0.1),
+	        depth_type num_depth_levels = std::min(depth_type(17),
+	                                               Base::maxNumDepthLevels()))
 	    : TreeMap(leaf_node_length, num_depth_levels)
 	{
 		insert(first, last);
 	}
 
 	TreeMap(std::initializer_list<value_type> init,
-	        length_t                          leaf_node_length = length_t(0.1),
-	        depth_t num_depth_levels = std::min(depth_t(17), Base::maxNumDepthLevels()))
+	        length_type                       leaf_node_length = length_type(0.1),
+	        depth_type                        num_depth_levels = std::min(depth_type(17),
+	                                                                      Base::maxNumDepthLevels()))
 	    : TreeMap(init.begin(), init.end(), leaf_node_length, num_depth_levels)
 	{
 	}
 
 	template <class Range>
-	TreeMap(Range const& range, length_t leaf_node_length = length_t(0.1),
-	        depth_t num_depth_levels = std::min(depth_t(17), Base::maxNumDepthLevels()))
+	TreeMap(Range const& range, length_type leaf_node_length = length_type(0.1),
+	        depth_type num_depth_levels = std::min(depth_type(17),
+	                                               Base::maxNumDepthLevels()))
 	    : TreeMap(std::begin(range), std::end(range), leaf_node_length, num_depth_levels)
 	{
 	}
@@ -392,21 +403,21 @@ class TreeMap
 	|                                                                                     |
 	**************************************************************************************/
 
-	/*!
+	/**
 	 * @brief Checks if the container has no elements.
 	 *
 	 * @return `true` if the container is empty, `false` otherwise.
 	 */
 	[[nodiscard]] bool empty() const noexcept { return 0 == size(); }
 
-	/*!
+	/**
 	 * @brief Returns the number of elements in the container.
 	 *
 	 * @return The number of elements in the container.
 	 */
 	[[nodiscard]] size_type size() const noexcept { return size_; }
 
-	/*!
+	/**
 	 * @brief Returns the minimum `Bounds` able to contain all values stored
 	 * in the container.
 	 *
@@ -420,7 +431,7 @@ class TreeMap
 	|                                                                                     |
 	**************************************************************************************/
 
-	/*!
+	/**
 	 * @brief Erases all elements from the container. After this call, `size()` returns
 	 * zero.
 	 */
@@ -787,7 +798,7 @@ class TreeMap
 		return num_removed;
 	}
 
-	/*!
+	/**
 	 * @brief Exchanges the contents of the container with those of `other`.
 	 *
 	 * @param other	container to exchange the contents with
@@ -804,7 +815,7 @@ class TreeMap
 	|                                                                                     |
 	**************************************************************************************/
 
-	/*!
+	/**
 	 * @brief Returns the number of elements with Point that compares equivalent to the
 	 * specified argument.
 	 *
@@ -818,7 +829,7 @@ class TreeMap
 		                     [point](auto const& x) { return x.first == point; });
 	}
 
-	/*!
+	/**
 	 * @brief Checks if there is an element with Point equivalent to `point` in the
 	 * container.
 	 *
@@ -961,7 +972,7 @@ class TreeMap
 	|                                                                                     |
 	**************************************************************************************/
 
-	/*!
+	/**
 	 * @brief Returns the minimum `Bounds` able to contain all values stored
 	 * in the node and all of its children.
 	 *
@@ -976,7 +987,7 @@ class TreeMap
 		return Base::treeBlock(n).bounds[n.offset];
 	}
 
-	/*!
+	/**
 	 * @brief Returns the minimum `Bounds` able to contain all values stored
 	 * in the node and all of its children.
 	 *
@@ -1012,9 +1023,9 @@ class TreeMap
 
 	void onInitRoot() {}
 
-	void onInitChildren(Index /* node */, pos_t /* children */) {}
+	void onInitChildren(Index /* node */, pos_type /* children */) {}
 
-	void onPruneChildren(Index /* node */, pos_t /* children */) {}
+	void onPruneChildren(Index /* node */, pos_type /* children */) {}
 
 	/**************************************************************************************
 	|                                                                                     |
@@ -1022,7 +1033,7 @@ class TreeMap
 	|                                                                                     |
 	**************************************************************************************/
 
-	/*!
+	/**
 	 * @brief Checks if the node and none of its children have any elements.
 	 *
 	 * @param node the node to check
@@ -1141,9 +1152,9 @@ class TreeMap
 	|                                                                                     |
 	**************************************************************************************/
 
-	[[nodiscard]] auto& values(pos_t block) { return Base::treeBlock(block).values; }
+	[[nodiscard]] auto& values(pos_type block) { return Base::treeBlock(block).values; }
 
-	[[nodiscard]] auto const& values(pos_t block) const
+	[[nodiscard]] auto const& values(pos_type block) const
 	{
 		return Base::treeBlock(block).values;
 	}
@@ -1158,7 +1169,7 @@ class TreeMap
 		return Base::treeBlock(node).values[node.offset];
 	}
 
-	/*!
+	/**
 	 * @brief Returns the minimum point of the `Bounds` able to contain all values stored
 	 * in the node and all of its children.
 	 *
@@ -1171,7 +1182,7 @@ class TreeMap
 		return Base::treeBlock(node).bounds[node.offset].min;
 	}
 
-	/*!
+	/**
 	 * @brief Returns the minimum point of the `Bounds` able to contain all values stored
 	 * in the node and all of its children.
 	 *
@@ -1184,7 +1195,7 @@ class TreeMap
 		return Base::treeBlock(node).bounds[node.offset].min;
 	}
 
-	/*!
+	/**
 	 * @brief Returns the maximum point of the `Bounds` able to contain all values stored
 	 * in the node and all of its children.
 	 *
@@ -1197,7 +1208,7 @@ class TreeMap
 		return Base::treeBlock(node).bounds[node.offset].max;
 	}
 
-	/*!
+	/**
 	 * @brief Returns the maximum point of the `Bounds` able to contain all values stored
 	 * in the node and all of its children.
 	 *

@@ -53,6 +53,11 @@
 namespace ufo
 {
 /**
+ * @ingroup core
+ * @{
+ */
+
+/**
  * @brief Represents an N-dimensional unit surface normal vector as a fixed-size array.
  *
  * @details
@@ -80,14 +85,14 @@ struct Normal : Vec<Dim, T> {
 	/**
 	 * @brief Constructs from a `Vec<Dim, T>`.
 	 *
-	 * @param normal The vector to initialize the normal from.
+	 * @param [in] normal The vector to initialize the normal from.
 	 */
 	constexpr Normal(Vec<Dim, T> const& normal) noexcept : Vec<Dim, T>(normal) {}
 
 	/**
-	 * @brief Constructs from exactly @p Dim scalar components.
+	 * @brief Constructs from exactly `Dim` scalar components.
 	 *
-	 * @param args Component values in order (x, y, [z, ...]).
+	 * @param [in] args Component values in order (x, y, [z, ...]).
 	 */
 	template <std::convertible_to<T>... Args>
 	  requires(sizeof...(Args) == Dim)
@@ -95,6 +100,11 @@ struct Normal : Vec<Dim, T> {
 	{
 	}
 };
+
+/**
+ * @ingroup normal
+ * @{
+ */
 
 /**
  * @brief 2D single-precision surface normal.
@@ -121,17 +131,16 @@ using Normal3d = Normal<3, double>;
  */
 using Normal4d = Normal<4, double>;
 
-}  // namespace ufo
+/**
+ * @}
+ */
 
 /**
- * @brief `std::format` / `std::formatter` specialization for `ufo::Normal<Dim, T>`.
- *
- * Delegates to `std::formatter<ufo::Vec<Dim, T>>`. See that specialization for the output
- * format. No format specifier is accepted; the format string must be empty (`{}`).
- *
- * @tparam Dim Dimensionality of the normal vector.
- * @tparam T   Scalar type for each component.
+ * @}
  */
+
+}  // namespace ufo
+
 template <std::size_t Dim, std::formattable<char> T>
 struct std::formatter<ufo::Normal<Dim, T>> : std::formatter<ufo::Vec<Dim, T>> {
 	auto format(ufo::Normal<Dim, T> const& n, std::format_context& ctx) const
@@ -145,16 +154,17 @@ struct std::formatter<ufo::Normal<Dim, T>> : std::formatter<ufo::Vec<Dim, T>> {
 namespace ufo
 {
 /**
- * @brief Writes a human-readable representation of @p n to @p os.
+ * @ingroup core
+ * @brief Writes a human-readable representation of `n` to `os`.
  *
- * @param os Output stream.
- * @param n Normal to print.
+ * @param [in,out] out Output stream.
+ * @param [in] n Normal to print.
  * @return Reference to the output stream.
  */
 template <std::size_t Dim, class T>
-std::ostream& operator<<(std::ostream& os, Normal<Dim, T> const& n)
+std::ostream& operator<<(std::ostream& out, Normal<Dim, T> const& n)
 {
-	return os << std::format("{}", n);
+	return out << std::format("{}", n);
 }
 }  // namespace ufo
 

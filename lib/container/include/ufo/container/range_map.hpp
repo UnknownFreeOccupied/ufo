@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -43,7 +43,7 @@
 #define UFO_CONTAINER_RANGE_MAP_HPP
 
 // UFO
-#include <ufo/container/range.hpp>
+#include <ufo/core/range.hpp>
 
 namespace ufo
 {

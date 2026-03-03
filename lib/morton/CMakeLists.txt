@@ -1,10 +1,3 @@
-option(UFO_MORTON_BUILD_TESTS "Unit testing" ON)
-option(UFO_MORTON_BUILD_COVERAGE "Test Coverage" ON)
-
-option(UFO_MORTON_BMI2 "Enable BMI2 instruction set (if available)" OFF)
-
-include(GNUInstallDirs)
-
 add_library(Morton INTERFACE)
 add_library(UFO::Morton ALIAS Morton)
 
@@ -14,17 +7,12 @@ target_sources(Morton
     BASE_DIRS
 			include
     FILES
-			include/ufo/morton/detail/morton.hpp
 			include/ufo/morton/morton.hpp
-			include/ufo/morton/morton1.hpp
-			include/ufo/morton/morton2.hpp
-			include/ufo/morton/morton3.hpp
-			include/ufo/morton/morton4.hpp
 )
 
 target_link_libraries(Morton INTERFACE UFO::Math)
 
-if(UFOMORTON_BMI2)
+if(UFO_ENABLE_BMI2)
 	message(CHECK_START "Checking BMI2 instruction set support")
 
 	include(CheckCXXSourceCompiles)
@@ -32,8 +20,7 @@ if(UFOMORTON_BMI2)
 
 	cmake_push_check_state()
 
-	set(TEST_FLAG "-mbmi2")
-	set(CMAKE_REQUIRED_FLAGS "${TEST_FLAG} -O0")
+	set(CMAKE_REQUIRED_FLAGS "-mbmi2")
 	check_cxx_source_compiles("
 			#include <immintrin.h>
 			int main() {
@@ -45,7 +32,7 @@ if(UFOMORTON_BMI2)
 
 	if(HAVE_BMI2)
 		message(CHECK_PASS "supported and enabled")
-		target_compile_definitions(Morton INTERFACE UFO_MORTON_BMI2=1)
+		target_compile_definitions(Morton INTERFACE UFO_BMI2=1)
 		target_compile_options(Morton INTERFACE -mbmi2)
 	else()
 		message(CHECK_FAIL "not supported and disabled")
@@ -54,10 +41,9 @@ if(UFOMORTON_BMI2)
 	cmake_pop_check_state()
 endif()
 
-if(UFO_BUILD_TESTS AND UFO_MORTON_BUILD_TESTS)
+if(UFO_BUILD_TESTS)
 	add_subdirectory(tests)
 endif()
-
 
 install(
   TARGETS Morton

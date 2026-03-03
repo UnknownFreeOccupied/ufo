@@ -1,1 +1,1 @@
-add_subdirectory(ufoviz)
+add_subdirectory(viz)
