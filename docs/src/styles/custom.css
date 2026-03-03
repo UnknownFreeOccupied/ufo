@@ -8,3 +8,14 @@
 .katex-html svg {
 	height: inherit;
 }
+
+/* Force Mermaid containers and their SVGs to be transparent */
+.mermaid,
+.mermaid svg {
+	background-color: transparent !important;
+}
+
+/* Vertically center the contents of table data cells */
+.middle-align-table td {
+	vertical-align: middle;
+}
