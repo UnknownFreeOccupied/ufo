@@ -5,12 +5,36 @@ description: Install UFO.
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
+## System Requirements
+
+UFO requires a modern C++ environment:
+
+- **CMake**: version 3.23 or newer.
+- **C++ Standard**: C++23.
+
+### Supported Compilers
+
+<Tabs syncKey="os">
+  <TabItem label="Linux" icon="linux">
+    - **GCC**: 14 or newer.
+    - **Clang**: 18 or newer.
+    - **Note**: Ensure [`oneTBB`](https://uxlfoundation.github.io/oneTBB/) or [`OpenMP`](https://www.openmp.org/) is installed for parallel processing.
+  </TabItem>
+  <TabItem label="macOS" icon="apple">
+    - **LLVM/Clang**: 21 or newer (installed via Homebrew).
+    - **Note**: Apple Clang currently lacks full C++23 support. Use `brew install llvm@21`.
+  </TabItem>
+  <TabItem label="Windows" icon="seti:windows">
+    - **MSVC**: Visual Studio 2022 (version 17.10+) or newer.
+  </TabItem>
+</Tabs>
+
 ## Prerequisite
 
 <Tabs syncKey="os">
-  <TabItem label="Linux" icon="linux">You need to have [`Git`](https://git-scm.com/), [`CMake`](https://cmake.org/), and a `C++` compiler installed. To use parallel processing, you may need to install [`oneTBB`](https://uxlfoundation.github.io/oneTBB/) or [`OpenMP`](https://www.openmp.org/) as well.</TabItem>
-  <TabItem label="macOS" icon="apple">You need to have [`Git`](https://git-scm.com/), [`CMake`](https://cmake.org/), and a `C++` compiler installed.</TabItem>
-	<TabItem label="Windows" icon="seti:windows">You need to have [`Git`](https://git-scm.com/), [`CMake`](https://cmake.org/), and a `C++` compiler installed.</TabItem>
+  <TabItem label="Linux" icon="linux">You need to have [`Git`](https://git-scm.com/) and [`CMake`](https://cmake.org/) installed along with a supported C++ compiler.</TabItem>
+  <TabItem label="macOS" icon="apple">You need to have [`Git`](https://git-scm.com/) and [`CMake`](https://cmake.org/) installed along with a supported C++ compiler.</TabItem>
+	<TabItem label="Windows" icon="seti:windows">You need to have [`Git`](https://git-scm.com/) and [`CMake`](https://cmake.org/) installed along with a supported C++ compiler.</TabItem>
 </Tabs>
 
 ## Install
