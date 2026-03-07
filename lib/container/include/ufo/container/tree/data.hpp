@@ -46,7 +46,7 @@
 #include <ufo/compute/compute.hpp>
 #include <ufo/container/tree/container.hpp>
 #include <ufo/container/tree/index.hpp>
-#include <ufo/math/math.hpp>
+#include <ufo/numeric/math.hpp>
 #include <ufo/utility/type_traits.hpp>
 
 // STL

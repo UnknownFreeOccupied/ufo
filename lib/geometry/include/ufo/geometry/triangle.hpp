@@ -44,7 +44,7 @@
 
 // UFO
 #include <ufo/geometry/aabb.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
 #include <algorithm>

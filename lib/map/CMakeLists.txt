@@ -164,7 +164,7 @@ target_link_libraries(Map
 		UFO::Core
 		UFO::Execution
 		UFO::Geometry
-		UFO::Math
+		UFO::Numeric
 		UFO::Morton
 		UFO::Time
 		UFO::Utility

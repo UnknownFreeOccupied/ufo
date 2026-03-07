@@ -53,10 +53,10 @@
 #include <ufo/geometry/geometry.hpp>
 #include <ufo/map/integrator/integrator.hpp>
 #include <ufo/map/integrator/sensor_error.hpp>
-#include <ufo/math/math.hpp>
-#include <ufo/math/numbers.hpp>
-#include <ufo/math/transform.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/math.hpp>
+#include <ufo/numeric/numbers.hpp>
+#include <ufo/numeric/transform.hpp>
+#include <ufo/numeric/vec.hpp>
 #include <ufo/utility/spinlock.hpp>
 
 // STL

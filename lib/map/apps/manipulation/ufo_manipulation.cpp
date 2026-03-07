@@ -2,7 +2,7 @@
 #include <ufo/cloud/point_cloud.hpp>
 #include <ufo/map/integrator/angular_integrator.hpp>
 #include <ufo/map/ufomap.hpp>
-#include <ufo/math/transform3.hpp>
+#include <ufo/numeric/transform3.hpp>
 #include <ufo/vision/camera.hpp>
 
 // STL

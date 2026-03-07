@@ -43,7 +43,7 @@
 #define UFO_CONTAINER_TREE_COORD_HPP
 
 // UFO
-#include <ufo/math/detail/vec.hpp>
+#include <ufo/numeric/detail/vec.hpp>
 #include <ufo/utility/type_traits.hpp>
 
 // STL

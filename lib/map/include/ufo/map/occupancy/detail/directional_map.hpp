@@ -53,8 +53,8 @@
 #include <ufo/map/occupancy/propagation_criteria.hpp>
 #include <ufo/map/occupancy/state.hpp>
 #include <ufo/map/type.hpp>
-#include <ufo/math/math.hpp>
-#include <ufo/math/transform3.hpp>
+#include <ufo/numeric/math.hpp>
+#include <ufo/numeric/transform3.hpp>
 #include <ufo/utility/bit_set.hpp>
 #include <ufo/utility/io/buffer.hpp>
 #include <ufo/utility/macros.hpp>

@@ -10,7 +10,7 @@ target_sources(Morton
 			include/ufo/morton/morton.hpp
 )
 
-target_link_libraries(Morton INTERFACE UFO::Math)
+target_link_libraries(Morton INTERFACE UFO::Numeric)
 
 if(UFO_ENABLE_BMI2)
 	message(CHECK_START "Checking BMI2 instruction set support")

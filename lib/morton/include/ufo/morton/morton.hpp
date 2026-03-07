@@ -51,7 +51,7 @@
 #define UFO_MORTON_HPP
 
 // UFO
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
 #include <cassert>

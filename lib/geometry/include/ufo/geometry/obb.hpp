@@ -44,9 +44,9 @@
 
 // UFO
 #include <ufo/geometry/aabb.hpp>
-#include <ufo/math/mat.hpp>
-#include <ufo/math/quat.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/mat.hpp>
+#include <ufo/numeric/quat.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
 #include <cmath>

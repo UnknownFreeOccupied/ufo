@@ -44,7 +44,7 @@
 
 // UFO
 #include <ufo/map/type.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/vec.hpp>
 #include <ufo/utility/enum.hpp>
 #include <ufo/utility/io/buffer.hpp>
 #include <ufo/utility/string.hpp>

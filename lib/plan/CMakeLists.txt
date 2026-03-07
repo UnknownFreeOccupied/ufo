@@ -21,7 +21,7 @@ target_link_libraries(Plan
 	INTERFACE
 		UFO::Container
 		UFO::Map
-		UFO::Math
+		UFO::Numeric
 )
 
 if(UFO_BUILD_TESTS AND UFO_PLAN_BUILD_TESTS)

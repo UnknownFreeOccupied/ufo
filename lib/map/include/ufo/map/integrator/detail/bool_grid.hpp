@@ -44,7 +44,7 @@
 
 // UFO
 #include <ufo/container/tree/code.hpp>
-#include <ufo/math/math.hpp>
+#include <ufo/numeric/math.hpp>
 
 // STL
 #include <array>

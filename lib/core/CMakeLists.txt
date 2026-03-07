@@ -20,7 +20,7 @@ target_sources(Core
 
 set_target_properties(Core PROPERTIES CXX_SCAN_FOR_MODULES OFF)
 
-target_link_libraries(Core INTERFACE UFO::Math)
+target_link_libraries(Core INTERFACE UFO::Numeric)
 
 if(UFO_BUILD_TESTS)
   add_subdirectory(tests)

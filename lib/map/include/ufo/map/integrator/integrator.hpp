@@ -62,7 +62,7 @@
 #include <ufo/map/integrator/detail/miss_grid.hpp>
 #include <ufo/map/type.hpp>
 #include <ufo/map/void_region/map.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/vec.hpp>
 #include <ufo/utility/spinlock.hpp>
 #include <ufo/utility/type_traits.hpp>
 

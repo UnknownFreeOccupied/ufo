@@ -2,7 +2,7 @@
 #define UFO_PLAN_EDGE_HPP
 
 // UFO
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
 #include <cstddef>

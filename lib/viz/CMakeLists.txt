@@ -49,7 +49,7 @@ target_link_libraries(Viz
 	PUBLIC
 		UFO::Compute
 		UFO::Map
-		UFO::Math
+		UFO::Numeric
 		UFO::Plan
 		UFO::Vision
 

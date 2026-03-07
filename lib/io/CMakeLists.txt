@@ -77,7 +77,7 @@ target_link_libraries(IO
 		UFO::Cloud
 		UFO::Core
 		UFO::Execution
-		UFO::Math
+		UFO::Numeric
 		UFO::Sensor
 		UFO::Vision
 

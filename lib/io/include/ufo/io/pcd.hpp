@@ -48,8 +48,8 @@
 #include <ufo/core/normal.hpp>
 #include <ufo/io/cloud_properties.hpp>
 #include <ufo/io/file_handler.hpp>
-#include <ufo/math/transform3.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/transform3.hpp>
+#include <ufo/numeric/vec.hpp>
 #include <ufo/vision/color.hpp>
 
 // STL

@@ -13,7 +13,7 @@ target_sources(Sensor
 
 target_link_libraries(Sensor 
 	INTERFACE
-		UFO::Math
+		UFO::Numeric
 )
 
 if(UFO_BUILD_TESTS)

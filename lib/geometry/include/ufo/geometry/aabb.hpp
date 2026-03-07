@@ -43,7 +43,7 @@
 #define UFO_GEOMETRY_AABB_HPP
 
 // UFO
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
 #include <concepts>

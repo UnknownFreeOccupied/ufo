@@ -47,7 +47,7 @@ target_link_libraries(Vision
 	INTERFACE 
 		UFO::Execution
 		UFO::Geometry
-		UFO::Math
+		UFO::Numeric
 		UFO::Utility
 )
 

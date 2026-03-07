@@ -46,8 +46,8 @@
 #include <ufo/cloud/cloud.hpp>
 #include <ufo/execution/execution.hpp>
 #include <ufo/io/cloud_properties.hpp>
-#include <ufo/math/transform.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/transform.hpp>
+#include <ufo/numeric/vec.hpp>
 #include <ufo/vision/color.hpp>
 
 // STL

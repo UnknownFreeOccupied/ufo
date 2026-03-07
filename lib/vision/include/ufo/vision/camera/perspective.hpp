@@ -50,9 +50,9 @@
 #include <ufo/execution/algorithm.hpp>
 #include <ufo/execution/execution.hpp>
 #include <ufo/geometry/ray.hpp>
-#include <ufo/math/mat.hpp>
-#include <ufo/math/transform.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/mat.hpp>
+#include <ufo/numeric/transform.hpp>
+#include <ufo/numeric/vec.hpp>
 #include <ufo/vision/camera/perspective_intrinsics.hpp>
 #include <ufo/vision/image.hpp>
 

@@ -11,7 +11,7 @@
 #include <ufo/geometry/cylinder.hpp>
 #include <ufo/geometry/line_segment.hpp>
 #include <ufo/geometry/sphere.hpp>
-#include <ufo/math/vec3.hpp>
+#include <ufo/numeric/vec3.hpp>
 #include <ufo/plan/graph.hpp>
 #include <ufo/plan/path.hpp>
 

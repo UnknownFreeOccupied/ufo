@@ -48,7 +48,7 @@
 #include <ufo/map/color/block.hpp>
 #include <ufo/map/color/map.hpp>
 #include <ufo/map/type.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/vec.hpp>
 #include <ufo/utility/bit_set.hpp>
 #include <ufo/utility/enum.hpp>
 #include <ufo/utility/io/buffer.hpp>

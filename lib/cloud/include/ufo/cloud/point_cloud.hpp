@@ -45,8 +45,8 @@
 // UFO
 #include <ufo/cloud/cloud.hpp>
 #include <ufo/execution/execution.hpp>
-#include <ufo/math/transform.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/transform.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
 #include <algorithm>

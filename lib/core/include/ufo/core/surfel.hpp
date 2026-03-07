@@ -42,8 +42,8 @@
 #define UFO_CORE_SURFEL_HPP
 
 // UFO
-#include <ufo/math/mat.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/mat.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
 #include <algorithm>

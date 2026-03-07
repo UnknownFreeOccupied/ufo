@@ -43,8 +43,8 @@
 #define UFO_CONTAINER_TREE_KEY_HPP
 
 // UFO
-#include <ufo/math/vec.hpp>
 #include <ufo/morton/morton.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
 #include <cassert>

@@ -38,7 +38,7 @@ target_sources(Geometry
 
 target_link_libraries(Geometry 
 	INTERFACE 
-		UFO::Math
+		UFO::Numeric
 )
 
 if(UFO_BUILD_TESTS)

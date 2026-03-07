@@ -42,7 +42,7 @@
 #define UFO_CORE_NORMAL_HPP
 
 // UFO
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
 #include <concepts>

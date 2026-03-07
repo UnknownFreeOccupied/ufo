@@ -61,8 +61,8 @@
 #include <ufo/execution/execution.hpp>
 #include <ufo/geometry/aabb.hpp>
 #include <ufo/geometry/ray.hpp>
-#include <ufo/math/math.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/math.hpp>
+#include <ufo/numeric/vec.hpp>
 #include <ufo/utility/bit_set.hpp>
 #include <ufo/utility/io/buffer.hpp>
 #include <ufo/utility/iterator_wrapper.hpp>

@@ -56,7 +56,7 @@
 #include <ufo/geometry/ray.hpp>
 #include <ufo/geometry/sphere.hpp>
 #include <ufo/geometry/triangle.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
 #include <cmath>
