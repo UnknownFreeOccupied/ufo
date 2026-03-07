@@ -1,37 +1,54 @@
-option(UFO_GEOMETRY_BUILD_TESTS    "Unit testing"           ON)
-option(UFO_GEOMETRY_BUILD_COVERAGE "Test Coverage"          ON)
-
-include(GNUInstallDirs)
-
 add_library(Geometry INTERFACE)
 add_library(UFO::Geometry ALIAS Geometry)
 
+target_sources(Geometry
+	INTERFACE
+  	FILE_SET HEADERS
+    BASE_DIRS
+			include
+    FILES
+			include/ufo/geometry/detail/closest_point.hpp
+			include/ufo/geometry/detail/contains.hpp
+			include/ufo/geometry/detail/distance.hpp
+			include/ufo/geometry/detail/fun.hpp
+			include/ufo/geometry/detail/helper.hpp
+			include/ufo/geometry/detail/intersects.hpp
+
+			include/ufo/geometry/aabb.hpp
+			include/ufo/geometry/capsule.hpp
+			include/ufo/geometry/closest_point.hpp
+			include/ufo/geometry/contains.hpp
+			include/ufo/geometry/cylinder.hpp
+			include/ufo/geometry/disjoint.hpp
+			include/ufo/geometry/distance.hpp
+			include/ufo/geometry/ellipsoid.hpp
+			include/ufo/geometry/frustum.hpp
+			include/ufo/geometry/fun.hpp
+			include/ufo/geometry/geometry.hpp
+			include/ufo/geometry/inside.hpp
+			include/ufo/geometry/intersects.hpp
+			include/ufo/geometry/line_segment.hpp
+			include/ufo/geometry/line.hpp
+			include/ufo/geometry/obb.hpp
+			include/ufo/geometry/plane.hpp
+			include/ufo/geometry/ray.hpp
+			include/ufo/geometry/sphere.hpp
+			include/ufo/geometry/triangle.hpp
+)
+
 target_link_libraries(Geometry 
 	INTERFACE 
-		UFO::Math
+		UFO::Numeric
 )
 
-target_include_directories(Geometry 
-	INTERFACE
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
-
-if(UFO_BUILD_TESTS AND UFO_GEOMETRY_BUILD_TESTS)
+if(UFO_BUILD_TESTS)
   add_subdirectory(tests)
 endif()
 
 
-install(TARGETS Geometry 
-	EXPORT UFO-targets
+install(
+  TARGETS Geometry
+	EXPORT UFOTargets
+  FILE_SET HEADERS
 	COMPONENT Geometry
-	LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR}
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-	COMPONENT Geometry
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )

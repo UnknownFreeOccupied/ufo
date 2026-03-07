@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -43,8 +43,8 @@
 #define UFO_CONTAINER_TREE_KEY_HPP
 
 // UFO
-#include <ufo/math/vec.hpp>
 #include <ufo/morton/morton.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
 #include <cassert>
@@ -60,10 +60,10 @@ template <std::size_t Dim>
 class TreeKey : public Vec<Dim, std::uint32_t>
 {
  public:
-	using key_t     = std::uint32_t;
-	using Key       = Vec<Dim, key_t>;
-	using depth_t   = key_t;
-	using size_type = std::size_t;
+	using key_type   = std::uint32_t;
+	using Key        = Vec<Dim, key_type>;
+	using depth_type = key_type;
+	using size_type  = std::size_t;
 
  public:
 	/**************************************************************************************
@@ -75,7 +75,7 @@ class TreeKey : public Vec<Dim, std::uint32_t>
 	constexpr TreeKey() noexcept               = default;
 	constexpr TreeKey(TreeKey const&) noexcept = default;
 
-	constexpr TreeKey(Key key, depth_t depth) : Key(key), depth_(depth) {}
+	constexpr TreeKey(Key key, depth_type depth) : Key(key), depth_(depth) {}
 
 	constexpr explicit TreeKey(Key key) : TreeKey(key, 0) {}
 
@@ -93,14 +93,14 @@ class TreeKey : public Vec<Dim, std::uint32_t>
 	|                                                                                     |
 	**************************************************************************************/
 
-	[[nodiscard]] static constexpr depth_t maxDepth() noexcept
+	[[nodiscard]] static constexpr depth_type maxDepth() noexcept
 	{
 		// All the time you have to leave the space.
 		// Shifting with `maxDepth()` causes problems when
-		// `std::numeric_limits<key_t>::digits <= maxDepth()` because you are trying to
+		// `std::numeric_limits<key_type>::digits <= maxDepth()` because you are trying to
 		// shift more bits than are allowed and has a well-defined behaviour in C++.
 		// Therefore, we have this check; otherwise, would cause "shift count overflow".
-		return std::numeric_limits<key_t>::digits - 1;
+		return std::numeric_limits<key_type>::digits - 1;
 	}
 
 	/**************************************************************************************
@@ -111,9 +111,9 @@ class TreeKey : public Vec<Dim, std::uint32_t>
 
 	[[nodiscard]] constexpr bool valid() const noexcept { return maxDepth() >= depth_; }
 
-	[[nodiscard]] constexpr depth_t depth() const noexcept { return depth_; }
+	[[nodiscard]] constexpr depth_type depth() const noexcept { return depth_; }
 
-	[[nodiscard]] constexpr TreeKey toDepth(depth_t depth) const
+	[[nodiscard]] constexpr TreeKey toDepth(depth_type depth) const
 	{
 		assert(maxDepth() >= depth);
 
@@ -122,12 +122,12 @@ class TreeKey : public Vec<Dim, std::uint32_t>
 		return ret;
 	}
 
-	/*!
+	/**
 	 * @brief Change the depth of the key.
 	 *
 	 * @note This will change the x, y, z components of the key.
 	 */
-	constexpr void setDepth(depth_t depth) noexcept
+	constexpr void setDepth(depth_type depth) noexcept
 	{
 		assert(maxDepth() >= depth);
 
@@ -141,13 +141,15 @@ class TreeKey : public Vec<Dim, std::uint32_t>
 
 	// TODO: Add methods from Code
 
-	[[nodiscard]] constexpr key_t offset(depth_t depth) const noexcept
+	[[nodiscard]] constexpr key_type offset() const noexcept { return offset(depth_); }
+
+	[[nodiscard]] constexpr key_type offset(depth_type depth) const noexcept
 	{
 		assert(maxDepth() >= depth);
 		assert(depth_ <= depth);
 
-		auto  v   = (*this >> (depth - depth_)) & key_t(1);
-		key_t ret = v[0];
+		auto     v   = (*this >> (depth - depth_)) & key_type(1);
+		key_type ret = v[0];
 		for (std::size_t i = 1; Dim > i; ++i) {
 			ret |= v[i] << i;
 		}
@@ -172,7 +174,7 @@ class TreeKey : public Vec<Dim, std::uint32_t>
 	}
 
  private:
-	depth_t depth_{};
+	depth_type depth_{};
 };
 
 using BinaryKey = TreeKey<1>;

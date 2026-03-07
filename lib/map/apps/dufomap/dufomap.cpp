@@ -9,7 +9,7 @@
 #include <ufo/map/predicate/spatial.hpp>
 #include <ufo/map/types.hpp>
 #include <ufo/map/ufomap.hpp>
-#include <ufo/math/pose6.hpp>
+#include <ufo/numeric/pose6.hpp>
 #include <ufo/util/timing.hpp>
 
 // TOML

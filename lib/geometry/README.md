@@ -7,6 +7,22 @@ The UFO geometry library
 
 AABC is the same as AABB but equal sized
 
+|                  | AABB  | Capsule | Cylinder | Ellipsoid | Frustum |   Line    | Line Segment |   OBB   | Plane | Ray  | Sphere |
+| ---------------- | :---: | :-----: | :------: | :-------: | :-----: | :-------: | :----------: | :-----: | :---: | :--: | :----: |
+| **AABB**         |   ✖   |    ✖    |    ✖     |     ✖     |    ✖    |     ✖     |      ✖       |    ✖    |   ✖   |  ✖   |   ✖    | 
+| **Capsule**      |   ✖   |    ✖    |    ✖     |     ✖     |    ✖    |     ✖     |      ✖       |    ✖    |   ✖   |  ✖   |   ✖    | 
+| **Cylinder**     |   ✖   |    ✖    |    ✖     |     ✖     |    ✖    |     ✖     |      ✖       |    ✖    |   ✖   |  ✖   |   ✖    | 
+| **Ellipsoid**    |   ✖   |    ✖    |    ✖     |     ✖     |    ✖    |     ✖     |      ✖       |    ✖    |   ✖   |  ✖   |   ✖    | 
+| **Frustum**      |   ✖   |    ✖    |    ✖     |     ✖     |    ✖    |     ✖     |      ✖       |    ✖    |   ✖   |  ✖   |   ✖    | 
+| **Line**         |   ✖   |    ✖    |    ✖     |     ✖     |    ✖    |     ✖     |      ✖       |    ✖    |   ✖   |  ✖   |   ✖    | 
+| **Line Segment** |   ✖   |    ✖    |    ✖     |     ✖     |    ✖    |     ✖     |      ✖       |    ✖    |   ✖   |  ✖   |   ✖    | 
+| **OBB**          |   ✖   |    ✖    |    ✖     |     ✖     |    ✖    |     ✖     |      ✖       |    ✖    |   ✖   |  ✖   |  ✔✖    | 
+| **Plane**        |   ✖   |    ✖    |    ✖     |     ✖     |    ✖    |     ✖     |      ✖       |    ✖    |   ✖   |  ✖   |   ✖    | 
+| **Ray**          |   ✖   |    ✖    |    ✖     |     ✖     |    ✖    |     ✖     |      ✖       |    ✖    |   ✖   |  ✖   |   ✖    | 
+| **Sphere**       |   ✖   |    ✖    |    ✖     |     ✖     |    ✖    |     ✖     |      ✖       |    ✖    |   ✖   |  ✖   |   ✖    | 
+| **Triangle**     |   ✖   |    ✖    |    ✖     |     ✖     |    ✖    |     ✖     |      ✖       |    ✖    |   ✖   |  ✖   |   ✖    | 
+
+
 ## Intersection test
 
 Supports intersection test between

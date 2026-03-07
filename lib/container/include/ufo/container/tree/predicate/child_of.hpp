@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -52,7 +52,7 @@
 
 namespace ufo::pred
 {
-template <std::size_t Dim>
+template <std::size_t Dim, bool Negated = false>
 struct ChildOf {
 	TreeCode<Dim> code;
 
@@ -63,29 +63,67 @@ struct ChildOf {
 template <std::size_t Dim>
 ChildOf(TreeCode<Dim>) -> ChildOf<Dim>;
 
-template <std::size_t Dim>
-struct Filter<ChildOf<Dim>> : public FilterBase<ChildOf<Dim>> {
-	using Pred = ChildOf<Dim>;
+template <std::size_t Dim, bool Negated>
+[[nodiscard]] constexpr ChildOf<Dim, !Negated> operator!(
+    ChildOf<Dim, Negated> const& p) noexcept
+{
+	return ChildOf<Dim, !Negated>{p.code};
+}
+
+template <std::size_t Dim, bool Negated>
+struct Filter<ChildOf<Dim, Negated>> {
+	using Pred = ChildOf<Dim, Negated>;
 
 	template <class Tree>
-	static constexpr void init(Pred&, Tree const&)
+	static constexpr void init(Pred&, Tree const&) noexcept
 	{
+	}
+
+	template <class Value>
+	[[nodiscard]] static constexpr bool returnableValue(Pred const&, Value const&) noexcept
+	{
+		return true;
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const& t,
-	                                               typename Tree::Node const& n)
+	                                               typename Tree::Node const& n) noexcept
 	{
-		return p.code.depth() > t.depth(n) &&
-		       TreeCode<Dim>::equalAtDepth(p.code, t.code(n), p.code.depth());
+		if constexpr (Negated) {
+			return !(p.code.depth() > t.depth(n) &&
+			         TreeCode<Dim>::equalAtDepth(p.code, t.code(n), p.code.depth()));
+		} else {
+			return p.code.depth() > t.depth(n) &&
+			       TreeCode<Dim>::equalAtDepth(p.code, t.code(n), p.code.depth());
+		}
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool traversable(Pred const& p, Tree const& t,
-	                                                typename Tree::Node const& n)
+	                                                typename Tree::Node const& n) noexcept
 	{
-		return TreeCode<Dim>::equalAtDepth(p.code, t.code(n),
-		                                   std::max(p.code.depth(), t.depth(n)));
+		if constexpr (Negated) {
+			return returnable(p, t, n);
+		} else {
+			return TreeCode<Dim>::equalAtDepth(p.code, t.code(n),
+			                                   std::max(p.code.depth(), t.depth(n)));
+		}
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool returnableRay(Pred const& p, Tree const& t,
+	                                                  typename Tree::Node const& n,
+	                                                  typename Tree::Ray const&) noexcept
+	{
+		return returnable(p, t, n);
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool traversableRay(Pred const& p, Tree const& t,
+	                                                   typename Tree::Node const& n,
+	                                                   typename Tree::Ray const&) noexcept
+	{
+		return traversable(p, t, n);
 	}
 };
 }  // namespace ufo::pred

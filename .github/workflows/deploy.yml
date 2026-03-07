@@ -4,7 +4,7 @@ on:
   # Trigger the workflow every time you push to the `main` branch
   # Using a different branch name? Replace `main` with your branch’s name
   push:
-    branches: [ main ]
+    branches: [ "**" ]
   # Allows you to run this workflow manually from the Actions tab on GitHub.
   workflow_dispatch:
 
@@ -25,14 +25,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout your repository using git
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Install Doxygen and Graphviz
         run: sudo apt update && sudo apt install -y doxygen graphviz
 
       - name: Generate Doxygen API documentation
         run: |
-          cmake -B build -DUFO_BUILD_DOCS=ON
+          cmake -B build -DUFO_BUILD_DOCS=ON -DCMAKE_CXX_COMPILER=g++-14 -DCMAKE_C_COMPILER=gcc-14 -DUFO_DEV_MODE=OFF
           cmake --build build --target Docs
           cp -r build/docs/html docs/public/cpp_api
           

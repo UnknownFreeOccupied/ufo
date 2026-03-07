@@ -1,20 +1,39 @@
 option(UFO_VIZ_BUILD_TESTS "Unit testing" ON)
 option(UFO_VIZ_BUILD_COVERAGE "Test Coverage" ON)
 
+include(GNUInstallDirs)
+
 add_subdirectory(apps)
 
 add_subdirectory(glfw_webgpu)
 
-add_library(Viz
-	src/viz.cpp
-)
+add_library(Viz STATIC)
 add_library(UFO::Viz ALIAS Viz)
+
+target_sources(Viz
+	PRIVATE
+		src/viz.cpp
+
+	PUBLIC
+  	FILE_SET HEADERS
+    BASE_DIRS
+			include
+    FILES
+			include/ufo/viz/renderable/map.hpp
+			include/ufo/viz/renderable/path.hpp
+			include/ufo/viz/renderable/plan.hpp
+			include/ufo/viz/renderable/renderable_trianglelist.hpp
+			include/ufo/viz/renderable/triangulate.hpp
+
+			include/ufo/viz/renderable.hpp
+			include/ufo/viz/viz.hpp
+)
 
 set_target_properties(Viz
 	PROPERTIES
 		VERSION ${PROJECT_VERSION}
 		SOVERSION ${PROJECT_VERSION_MAJOR}
-		CXX_STANDARD 17
+		CXX_STANDARD 23
 		CXX_EXTENSIONS OFF
 		OUTPUT_NAME "UFOViz"
 )
@@ -30,21 +49,13 @@ target_link_libraries(Viz
 	PUBLIC
 		UFO::Compute
 		UFO::Map
-		UFO::Math
+		UFO::Numeric
 		UFO::Plan
 		UFO::Vision
 
 	# imgui
 	PRIVATE
 		glfw_webgpu
-)
-
-include(GNUInstallDirs)
-
-target_include_directories(Viz
-	PUBLIC
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-		$<INSTALL_INTERFACE:include>
 )
 
 if(UFO_DEV_MODE)
@@ -65,43 +76,9 @@ if(UFO_BUILD_TESTS AND UFO_VIZ_BUILD_TESTS)
 endif()
 
 
-install(TARGETS Viz glfw_webgpu EXPORT Viz-targets
-	COMPONENT Viz
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	INCLUDES DESTINATION include
-)
-
-install(EXPORT Viz-targets
-	FILE "Viz-targets.cmake"
-	NAMESPACE UFO::
-	DESTINATION lib/cmake/${PROJECT_NAME}
-	COMPONENT Viz
-)
-
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-	"${CMAKE_CURRENT_BINARY_DIR}/Viz-config-version.cmake"
-	VERSION ${PROJECT_VERSION}
-	COMPATIBILITY SameMajorVersion
-)
-
-configure_package_config_file(
-	"${CMAKE_CURRENT_SOURCE_DIR}/cmake/Viz-config.cmake.in"
-	"${CMAKE_CURRENT_BINARY_DIR}/Viz-config.cmake"
-	INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-)
-
 install(
-	FILES
-	"${CMAKE_CURRENT_BINARY_DIR}/Viz-config.cmake"
-	"${CMAKE_CURRENT_BINARY_DIR}/Viz-config-version.cmake"
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+  TARGETS Viz glfw_webgpu
+	EXPORT UFOTargets
+  FILE_SET HEADERS
 	COMPONENT Viz
-)
-
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include
-	COMPONENT Viz
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )

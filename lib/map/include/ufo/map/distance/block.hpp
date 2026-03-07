@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -44,7 +44,7 @@
 // UFO
 #include <ufo/geometry/aabb.hpp>
 #include <ufo/map/distance/info.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/vec.hpp>
 #include <ufo/utility/create_array.hpp>
 
 // STL

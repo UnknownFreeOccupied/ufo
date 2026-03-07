@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -43,10 +43,10 @@
 #define UFO_MAP_INTEGRATOR_INTEGRATOR_HPP
 
 // UFO
+#include <ufo/cloud/label.hpp>
 #include <ufo/cloud/point_cloud.hpp>
 #include <ufo/container/tree/coord.hpp>
 #include <ufo/container/tree/index.hpp>
-#include <ufo/core/label.hpp>
 #include <ufo/execution/algorithm.hpp>
 #include <ufo/execution/execution.hpp>
 #include <ufo/map/color/map.hpp>
@@ -62,7 +62,7 @@
 #include <ufo/map/integrator/detail/miss_grid.hpp>
 #include <ufo/map/type.hpp>
 #include <ufo/map/void_region/map.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/vec.hpp>
 #include <ufo/utility/spinlock.hpp>
 #include <ufo/utility/type_traits.hpp>
 
@@ -83,7 +83,7 @@ class Integrator
 	// Tags
 	//
 	using occupancy_t = float;
-	using logit_t     = OccupancyElement::logit_t;
+	using logit_t     = float;  // FIXME: Do not hardcode
 	using depth_t     = unsigned;
 
 	depth_t hit_depth  = 0;
@@ -110,12 +110,11 @@ class Integrator
 	// A single miss in a void region will set the occupancy to min
 	bool void_region_instant_min_occupancy = true;
 
-	// Label to be ignored when updating LabelMap
-	std::uint32_t ignore_label = 0;
-
 	bool propagate      = false;
 	bool prune          = true;
 	bool reset_modified = true;
+
+	// TODO: WeightMode color_weight_mode = WeightMode::FIXED;
 
  public:
 	template <class Map, class T, class... Rest>
@@ -141,32 +140,29 @@ class Integrator
 	|                                                                                     |
 	**************************************************************************************/
 
-	template <class Map, class Data>
-	void insertHit(Map& map, TreeIndex const& node, Data const& data, logit_t occupancy,
-	               logit_t occupancy_min, logit_t occupancy_max) const
+	template <class Map, class... Ts>
+	void insertHit(Map& map, TreeIndex const& node, SoAElement<Ts...> const& data,
+	               logit_t occupancy, logit_t occupancy_min, logit_t occupancy_max) const
 	{
 		if constexpr (Map::hasMapTypes(MapType::OCCUPANCY)) {
 			if constexpr (Map::hasMapTypes(MapType::VOID_REGION)) {
 				if (void_region_instant_max_occupancy && map.voidRegion(node)) {
-					map.occupancySetLogit(node, occupancy_max, false);
+					map.occupancyLogitSet(node, occupancy_max, false);
 				} else {
-					map.occupancyUpdateLogit(node, occupancy, occupancy_min, occupancy_max, false);
+					map.occupancyLogitUpdate(node, occupancy, false);
 				}
 			} else {
-				map.occupancyUpdateLogit(node, occupancy, occupancy_min, occupancy_max, false);
+				map.occupancyLogitUpdate(node, occupancy, false);
 			}
 		}
 
-		if constexpr (Map::hasMapTypes(MapType::COLOR) && contains_type_v<Color, Data>) {
-			// TODO: Make correct
-			map.colorSet(node, data.template get<Color>(), false);
-		}
+		if constexpr (Map::hasMapTypes(MapType::COLOR) && contains_color_v<Ts...>) {
+			using color_type = first_color_t<Ts...>;
 
-		if constexpr (Map::hasMapTypes(MapType::LABEL)) {
-			auto l = data.template get<Label>();
-			if (l.label != ignore_label) {
-				map.labelSet(node, l.label, false);
-			}
+			// TODO: Do something with weight (depending on `color_weight_mode`)
+
+			auto c = data.template get<color_type>();
+			map.colorAdd(node, c, false);
 		}
 
 		// TODO: Add more map types
@@ -228,6 +224,100 @@ class Integrator
 		              });
 	}
 
+	template <class Map, class T, class... Ts>
+	void insertHit(Map& map, Vec<Dim, T> const& sensor_origin, TreeIndex const& node,
+	               SoAElement<Ts...> const& data, logit_t occupancy, logit_t occupancy_min,
+	               logit_t occupancy_max) const
+	{
+		if constexpr (Map::hasMapTypes(MapType::OCCUPANCY)) {
+			if constexpr (Map::hasMapTypes(MapType::VOID_REGION)) {
+				if (void_region_instant_max_occupancy && map.voidRegion(node)) {
+					map.occupancyLogitSet(node, occupancy_max, false);
+				} else {
+					map.occupancyLogitUpdate(node, occupancy, false);
+				}
+			} else {
+				map.occupancyLogitUpdate(node, occupancy, false);
+			}
+		}
+
+		if constexpr (Map::hasMapTypes(MapType::COLOR) && contains_color_v<Ts...>) {
+			using color_type = first_color_t<Ts...>;
+
+			// TODO: Do something with weight (depending on `color_weight_mode`)
+
+			auto c = data.template get<color_type>();
+			if constexpr (map.colorDirectional()) {
+				auto dir = data.template get<0>() - sensor_origin;
+				map.colorAdd(node, normalize(dir), c, false);
+			} else {
+				map.colorAdd(node, c, false);
+			}
+		}
+
+		// TODO: Add more map types
+	}
+
+	template <class Map, class T, class... Rest>
+	void insertHits(Map& map, PointCloud<Dim, T, Rest...> const& cloud,
+	                Vec<Dim, T> const& sensor_origin) const
+	{
+		auto const occ     = probabilityToLogit(occupancy_hit);
+		auto const occ_min = probabilityToLogit(occupancy_min_clamp_thres);
+		auto const occ_max = probabilityToLogit(occupancy_max_clamp_thres);
+
+		cached_hits_.resize(cloud.size());
+		auto points = cloud.template view<0>();
+		ufo::transform(
+		    points.begin(), points.end(), cached_hits_.begin(),
+		    [&map, d = hit_depth](auto const& p) { return map.code(TreeCoord(p, d)); });
+
+		map.create(cached_hits_, cached_hits_.begin());
+
+		ufo::for_each(
+		    std::size_t(0), static_cast<std::size_t>(cached_hits_.size()),
+		    [this, &map, &cloud, &sensor_origin, occ, occ_min, occ_max](std::size_t i) {
+			    auto node = cached_hits_[i].node;
+
+			    // This chick wants to rule the block (node.pos being the block)
+			    //  std::lock_guard lock(map.chicken(node.pos));
+
+			    insertHit(map, sensor_origin, node, cloud[i], occ, occ_min, occ_max);
+		    });
+	}
+
+	template <
+	    class ExecutionPolicy, class Map, class T, class... Rest,
+	    std::enable_if_t<execution::is_execution_policy_v<ExecutionPolicy>, bool> = true>
+	void insertHits(ExecutionPolicy&& policy, Map& map,
+	                PointCloud<Dim, T, Rest...> const& cloud,
+	                Vec<Dim, T> const&                 sensor_origin) const
+	{
+		auto const occ     = probabilityToLogit(occupancy_hit);
+		auto const occ_min = probabilityToLogit(occupancy_min_clamp_thres);
+		auto const occ_max = probabilityToLogit(occupancy_max_clamp_thres);
+
+		cached_hits_.resize(cloud.size());
+		auto points = cloud.template view<0>();
+		ufo::transform(
+		    policy, points.begin(), points.end(), cached_hits_.begin(),
+		    [&map, d = hit_depth](auto const& p) { return map.code(TreeCoord(p, d)); });
+
+		map.create(policy, cached_hits_, cached_hits_.begin());
+
+		ufo::for_each(
+		    std::forward<ExecutionPolicy>(policy), std::size_t(0),
+		    static_cast<std::size_t>(cached_hits_.size()),
+		    [this, &map, &cloud, &sensor_origin, occ, occ_min, occ_max](std::size_t i) {
+			    auto node = cached_hits_[i].node;
+
+			    // This chick wants to rule the block (node.pos being the block)
+			    //  std::lock_guard lock(map.chicken(node.pos));
+
+			    insertHit(map, sensor_origin, node, cloud[i], occ, occ_min, occ_max);
+		    });
+	}
+
 	/**************************************************************************************
 	|                                                                                     |
 	|                                       Misses                                        |
@@ -248,14 +338,12 @@ class Integrator
 			// TODO: Is this good?
 			if constexpr (Map::hasMapTypes(MapType::VOID_REGION)) {
 				if (void_region_instant_min_occupancy && map.voidRegion(miss.node)) {
-					map.occupancySetLogit(miss.node, occupancy_min, false);
+					map.occupancyLogitSet(miss.node, occupancy_min, false);
 				} else {
-					map.occupancyUpdateLogit(miss.node, miss.count * occupancy, occupancy_min,
-					                         occupancy_max, false);
+					map.occupancyLogitUpdate(miss.node, miss.count * occupancy, false);
 				}
 			} else {
-				map.occupancyUpdateLogit(miss.node, miss.count * occupancy, occupancy_min,
-				                         occupancy_max, false);
+				map.occupancyLogitUpdate(miss.node, miss.count * occupancy, false);
 			}
 		}
 

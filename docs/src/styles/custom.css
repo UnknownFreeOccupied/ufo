@@ -1,0 +1,21 @@
+/* Targets the 2nd column (Q) of the header and standard rows */
+.truth-table th:nth-child(2),
+.truth-table td:nth-child(2) {
+	border-right: 2px solid var(--sl-color-hairline);
+	/* var(--sl-color-hairline) uses Starlight's built-in theme colors so it looks native in both dark and light modes! */
+}
+
+.katex-html svg {
+	height: inherit;
+}
+
+/* Force Mermaid containers and their SVGs to be transparent */
+.mermaid,
+.mermaid svg {
+	background-color: transparent !important;
+}
+
+/* Vertically center the contents of table data cells */
+.middle-align-table td {
+	vertical-align: middle;
+}

@@ -2,6 +2,7 @@ add_executable(ExecutionTests)
 
 target_sources(ExecutionTests
 	PRIVATE
+		algorithm_test.cpp
 		execution_test.cpp
 )
 
@@ -9,16 +10,11 @@ set_target_properties(ExecutionTests
 	PROPERTIES
 		VERSION ${PROJECT_VERSION}
 		SOVERSION ${PROJECT_VERSION_MAJOR}
-		CXX_STANDARD 17
+		CXX_STANDARD 23
 		CXX_EXTENSIONS OFF
+		CXX_SCAN_FOR_MODULES OFF
 )
 
-if (MSVC)
-	target_compile_options(ExecutionTests PRIVATE /W4)
-else()
-	target_compile_options(ExecutionTests PRIVATE -Wall -Wextra -Wpedantic)
-endif()
-
-target_link_libraries(ExecutionTests PRIVATE UFO::Execution Catch2::Catch2WithMain)
+target_link_libraries(ExecutionTests PRIVATE Catch2::Catch2WithMain UFO::Execution UFO::Warnings)
 
 catch_discover_tests(ExecutionTests)

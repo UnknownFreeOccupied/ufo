@@ -1,18 +1,14 @@
-/*!
- * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the
- * Unknown
- *
- * @author Daniel Duberg (dduberg@kth.se)
- * @see https://github.com/UnknownFreeOccupied/ufomap
+/**
+ * @author Daniel Duberg (danielduberg@gmail.com)
+ * @see https://github.com/UnknownFreeOccupied/ufo
  * @version 1.0
- * @date 2022-05-13
+ * @date 2026-02-22
  *
- * @copyright Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of
- * Technology
+ * @copyright Copyright (c) 2020-2026, Daniel Duberg
  *
  * BSD 3-Clause License
  *
- * Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of Technology
+ * Copyright (c) 2020-2026, Daniel Duberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,44 +42,92 @@
 #define UFO_CORE_INTENSITY_HPP
 
 // STL
+#include <format>
 #include <ostream>
 
 namespace ufo
 {
+/**
+ * @ingroup core
+ * @{
+ */
+
+/**
+ * @brief Represents LiDAR/sensor return intensity as a single float value.
+ *
+ * @details
+ * `Intensity` is a lightweight, trivially-copyable value type with no overhead over a
+ * bare `float`. It is implicitly convertible to and from `float`, fully ordered via
+ * `<=>`, and supports `std::ostream` streaming and `std::format`.
+ *
+ * Intended for use as a per-point attribute in a `Cloud`/`PointCloud`, where it can be
+ * stored as a separate SoA channel alongside position data.
+ */
 struct Intensity {
+	/**
+	 * @brief Underlying scalar type.
+	 */
 	using value_type = float;
 
+	/**
+	 * @brief The raw intensity value.
+	 */
 	value_type intensity{};
 
-	constexpr Intensity() noexcept                 = default;
-	constexpr Intensity(Intensity const&) noexcept = default;
+	/**
+	 * @brief Implicitly converts to the underlying scalar type.
+	 * @return The intensity value as a float.
+	 *
+	 * @details
+	 * Allows `Intensity` to be used wherever a `float` is expected.
+	 */
+	[[nodiscard]] constexpr operator value_type() const noexcept { return intensity; }
 
-	constexpr Intensity(value_type intensity) noexcept : intensity(intensity) {}
+	/**
+	 * @brief Three-way comparison (total order on the underlying float).
+	 *
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
+	 * @return Comparison result.
+	 */
+	[[nodiscard]] friend constexpr auto operator<=>(Intensity lhs,
+	                                                Intensity rhs) noexcept = default;
 
-	operator value_type() const { return intensity; }
+	/**
+	 * @brief Equality comparison.
+	 *
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
+	 * @return True if both intensity values are equal.
+	 */
+	[[nodiscard]] friend constexpr bool operator==(Intensity lhs,
+	                                               Intensity rhs) noexcept = default;
 };
 
-constexpr bool operator==(Intensity lhs, Intensity rhs)
+/**
+ * @}
+ */
+
+/**
+ * @ingroup core
+ * @brief Writes the raw intensity scalar to `out`.
+ *
+ * @param [in,out] out Output stream.
+ * @param [in] i Intensity to print.
+ * @return Reference to the output stream.
+ */
+inline std::ostream& operator<<(std::ostream& out, Intensity i)
 {
-	return lhs.intensity == rhs.intensity;
-}
-
-constexpr bool operator!=(Intensity lhs, Intensity rhs) { return !(lhs == rhs); }
-
-constexpr bool operator<(Intensity lhs, Intensity rhs)
-{
-	return lhs.intensity < rhs.intensity;
-}
-
-constexpr bool operator<=(Intensity lhs, Intensity rhs) { return !(rhs < lhs); }
-
-constexpr bool operator>(Intensity lhs, Intensity rhs) { return rhs < lhs; }
-
-constexpr bool operator>=(Intensity lhs, Intensity rhs) { return !(lhs < rhs); }
-
-inline std::ostream& operator<<(std::ostream& out, ufo::Intensity s)
-{
-	return out << s.intensity;
+	return out << i.intensity;
 }
 }  // namespace ufo
+
+template <>
+struct std::formatter<ufo::Intensity> : std::formatter<ufo::Intensity::value_type> {
+	auto format(ufo::Intensity i, std::format_context& ctx) const
+	{
+		return std::formatter<ufo::Intensity::value_type>::format(i.intensity, ctx);
+	}
+};
+
 #endif  // UFO_CORE_INTENSITY_HPP

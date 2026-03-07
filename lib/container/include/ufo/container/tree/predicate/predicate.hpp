@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -53,17 +53,6 @@ namespace ufo::pred
 {
 namespace detail
 {
-template <class, class = void>
-struct pred_has_value_type : std::false_type {
-};
-
-template <class T>
-struct pred_has_value_type<T, std::void_t<typename T::value_type>> : std::true_type {
-};
-
-template <class T>
-constexpr inline bool pred_has_value_type_v = pred_has_value_type<T>::value;
-
 template <class Tree, class = void>
 class Dynamic
 {
@@ -78,24 +67,36 @@ class Dynamic
 	[[nodiscard]] virtual bool traversable(Tree const&,
 	                                       typename Tree::Node const&) const = 0;
 
+	[[nodiscard]] virtual bool returnableRay(Tree const&, typename Tree::Node const&,
+	                                         typename Tree::Ray const&) const = 0;
+
+	[[nodiscard]] virtual bool traversableRay(Tree const&, typename Tree::Node const&,
+	                                          typename Tree::Ray const&) const = 0;
+
 	[[nodiscard]] virtual Dynamic* clone() const = 0;
 };
 
 template <class Tree>
-class Dynamic<Tree, std::enable_if_t<pred_has_value_type_v<Tree>>>
+class Dynamic<Tree, std::void_t<typename Tree::value_type>>
 {
  public:
 	virtual ~Dynamic() {}
 
 	virtual void init(Tree const&) = 0;
 
-	[[nodiscard]] virtual bool returnable(typename Tree::value_type const& v) const = 0;
+	[[nodiscard]] virtual bool returnableValue(typename Tree::value_type const&) const = 0;
 
 	[[nodiscard]] virtual bool returnable(Tree const&,
 	                                      typename Tree::Node const&) const = 0;
 
 	[[nodiscard]] virtual bool traversable(Tree const&,
 	                                       typename Tree::Node const&) const = 0;
+
+	[[nodiscard]] virtual bool returnableRay(Tree const&, typename Tree::Node const&,
+	                                         typename Tree::Ray const&) const = 0;
+
+	[[nodiscard]] virtual bool traversableRay(Tree const&, typename Tree::Node const&,
+	                                          typename Tree::Ray const&) const = 0;
 
 	[[nodiscard]] virtual Dynamic* clone() const = 0;
 };
@@ -106,9 +107,7 @@ class DynamicPredicate
     , public Predicate
 {
  public:
-	DynamicPredicate(Predicate const& pred) : Predicate(pred) {}
-
-	DynamicPredicate(Predicate&& pred) : Predicate(std::move(pred)) {}
+	using Predicate::Predicate;
 
 	DynamicPredicate(Tree const&, Predicate const& pred) : Predicate(pred) {}
 
@@ -131,6 +130,20 @@ class DynamicPredicate
 	                               typename Tree::Node const& n) const override
 	{
 		return Filter<Predicate>::traversable(static_cast<Predicate const&>(*this), t, n);
+	}
+
+	[[nodiscard]] bool returnableRay(Tree const& t, typename Tree::Node const& n,
+	                                 typename Tree::Ray const& r) const override
+	{
+		return Filter<Predicate>::returnableRay(static_cast<Predicate const&>(*this), t, n,
+		                                        r);
+	}
+
+	[[nodiscard]] bool traversableRay(Tree const& t, typename Tree::Node const& n,
+	                                  typename Tree::Ray const& r) const override
+	{
+		return Filter<Predicate>::traversableRay(static_cast<Predicate const&>(*this), t, n,
+		                                         r);
 	}
 
  protected:
@@ -141,14 +154,12 @@ class DynamicPredicate
 };
 
 template <class Tree, class Predicate>
-class DynamicPredicate<Tree, Predicate, std::enable_if_t<pred_has_value_type_v<Tree>>>
+class DynamicPredicate<Tree, Predicate, std::void_t<typename Tree::value_type>>
     : public Dynamic<Tree>
     , public Predicate
 {
  public:
-	DynamicPredicate(Predicate const& pred) : Predicate(pred) {}
-
-	DynamicPredicate(Predicate&& pred) : Predicate(std::move(pred)) {}
+	using Predicate::Predicate;
 
 	DynamicPredicate(Tree const&, Predicate const& pred) : Predicate(pred) {}
 
@@ -161,9 +172,9 @@ class DynamicPredicate<Tree, Predicate, std::enable_if_t<pred_has_value_type_v<T
 		Filter<Predicate>::init(static_cast<Predicate&>(*this), t);
 	}
 
-	[[nodiscard]] bool returnable(typename Tree::value_type const& v) const override
+	[[nodiscard]] bool returnableValue(typename Tree::value_type const& v) const override
 	{
-		return Filter<Predicate>::returnable(static_cast<Predicate const&>(*this), v);
+		return Filter<Predicate>::returnableValue(static_cast<Predicate const&>(*this), v);
 	}
 
 	[[nodiscard]] bool returnable(Tree const&                t,
@@ -176,6 +187,20 @@ class DynamicPredicate<Tree, Predicate, std::enable_if_t<pred_has_value_type_v<T
 	                               typename Tree::Node const& n) const override
 	{
 		return Filter<Predicate>::traversable(static_cast<Predicate const&>(*this), t, n);
+	}
+
+	[[nodiscard]] bool returnableRay(Tree const& t, typename Tree::Node const& n,
+	                                 typename Tree::Ray const& r) const override
+	{
+		return Filter<Predicate>::returnableRay(static_cast<Predicate const&>(*this), t, n,
+		                                        r);
+	}
+
+	[[nodiscard]] bool traversableRay(Tree const& t, typename Tree::Node const& n,
+	                                  typename Tree::Ray const& r) const override
+	{
+		return Filter<Predicate>::traversableRay(static_cast<Predicate const&>(*this), t, n,
+		                                         r);
 	}
 
  protected:
@@ -200,9 +225,11 @@ class Predicate
 	}
 
 	template <class Pred>
+	  requires Filterable<std::remove_cvref_t<Pred>>
 	Predicate(Pred&& pred)
-	    : predicate_(std::make_unique<detail::DynamicPredicate<Tree, Pred>>(
-	          std::forward<Pred>(pred)))
+	    : predicate_(
+	          std::make_unique<detail::DynamicPredicate<Tree, std::remove_cvref_t<Pred>>>(
+	              std::forward<Pred>(pred)))
 	{
 	}
 
@@ -229,10 +256,12 @@ class Predicate
 	}
 
 	template <class Pred>
+	  requires Filterable<std::remove_cvref_t<Pred>>
 	Predicate& operator=(Pred&& pred)
 	{
 		predicate_ =
-		    std::make_unique<detail::DynamicPredicate<Tree, Pred>>(std::forward<Pred>(pred));
+		    std::make_unique<detail::DynamicPredicate<Tree, std::remove_cvref_t<Pred>>>(
+		        std::forward<Pred>(pred));
 		return *this;
 	}
 
@@ -240,7 +269,7 @@ class Predicate
 	{
 		if (rhs.hasPredicate()) {
 			if (hasPredicate()) {
-				*this = *this && rhs;
+				*this = (*this && rhs);
 			} else {
 				predicate_.reset(rhs.predicate_->clone());
 			}
@@ -252,7 +281,7 @@ class Predicate
 	{
 		if (rhs.hasPredicate()) {
 			if (hasPredicate()) {
-				*this = *this || rhs;
+				*this = (*this || rhs);
 			} else {
 				predicate_.reset(rhs.predicate_->clone());
 			}
@@ -269,11 +298,10 @@ class Predicate
 		}
 	}
 
-	template <class Tree2                                                  = Tree,
-	          std::enable_if_t<detail::pred_has_value_type_v<Tree2>, bool> = true>
-	[[nodiscard]] bool returnable(typename Tree2::value_type const& v) const
+	[[nodiscard]] bool returnableValue(typename Tree::value_type const& v) const
+	  requires requires { typename Tree::value_type; }
 	{
-		return !hasPredicate() || predicate_->returnable(v);
+		return !hasPredicate() || predicate_->returnableValue(v);
 	}
 
 	[[nodiscard]] bool returnable(Tree const& t, typename Tree::Node const& n) const
@@ -284,6 +312,18 @@ class Predicate
 	[[nodiscard]] bool traversable(Tree const& t, typename Tree::Node const& n) const
 	{
 		return !hasPredicate() || predicate_->traversable(t, n);
+	}
+
+	[[nodiscard]] bool returnableRay(Tree const& t, typename Tree::Node const& n,
+	                                 typename Tree::Ray const& r) const
+	{
+		return !hasPredicate() || predicate_->returnableRay(t, n, r);
+	}
+
+	[[nodiscard]] bool traversableRay(Tree const& t, typename Tree::Node const& n,
+	                                  typename Tree::Ray const& r) const
+	{
+		return !hasPredicate() || predicate_->traversableRay(t, n, r);
 	}
 
  private:
@@ -300,11 +340,11 @@ struct Filter<Predicate<Tree>> {
 
 	static void init(Pred& p, Tree const& t) { p.init(t); }
 
-	template <class Tree2                                                  = Tree,
-	          std::enable_if_t<detail::pred_has_value_type_v<Tree2>, bool> = true>
-	[[nodiscard]] static bool returnable(Pred const& p, typename Tree2::value_type const& v)
+	[[nodiscard]] static bool returnableValue(Pred const&                      p,
+	                                          typename Tree::value_type const& v)
+	  requires requires { typename Tree::value_type; }
 	{
-		return p.returnable(v);
+		return p.returnableValue(v);
 	}
 
 	[[nodiscard]] static bool returnable(Pred const& p, Tree const& t,
@@ -317,6 +357,20 @@ struct Filter<Predicate<Tree>> {
 	                                      typename Tree::Node const& n)
 	{
 		return p.traversable(t, n);
+	}
+
+	[[nodiscard]] static bool returnableRay(Pred const& p, Tree const& t,
+	                                        typename Tree::Node const& n,
+	                                        typename Tree::Ray const&  r)
+	{
+		return p.returnableRay(t, n, r);
+	}
+
+	[[nodiscard]] static bool traversableRay(Pred const& p, Tree const& t,
+	                                         typename Tree::Node const& n,
+	                                         typename Tree::Ray const&  r)
+	{
+		return p.traversableRay(t, n, r);
 	}
 };
 }  // namespace ufo::pred

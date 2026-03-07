@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -45,21 +45,19 @@
 // UFO
 #include <ufo/compute/compute.hpp>
 #include <ufo/vision/camera.hpp>
+#include <ufo/vision/color.hpp>
 #include <ufo/viz/renderable.hpp>
+// #include <ufo/viz/renderable/map.hpp>
 
 // STL
+#include <array>
+#include <cstddef>
+#include <filesystem>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
-
-// EMSCRIPTEN
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#endif  // __EMSCRIPTEN__
-
-// ImGUI
-// #include <imgui.h>
 
 // Forward declare
 struct GLFWwindow;
@@ -69,60 +67,90 @@ namespace ufo
 class Viz
 {
  public:
-	Viz(std::string const&  window_name      = "UFOViz",
-	    WGPUPowerPreference power_preference = WGPUPowerPreference_Undefined,
-	    WGPUBackendType     backend_type     = WGPUBackendType_Undefined);
+	Viz();
 
 	~Viz();
 
-	void start(WGPUPowerPreference power_preference = WGPUPowerPreference_Undefined,
-	           WGPUBackendType     backend_type     = WGPUBackendType_Undefined);
+	[[nodiscard]] bool running() const;
 
-	void stop();
+	bool open(int width = 1280, int height = 800, bool resizable = true,
+	          std::string const&  window_name      = "UFOViz",
+	          WGPUPowerPreference power_preference = WGPUPowerPreference_Undefined,
+	          WGPUBackendType     backend_type     = WGPUBackendType_Undefined);
+
+	void close();
 
 	void run();
 
 	void runAsync();
 
-	[[nodiscard]] bool running() const;
-
 	void update();
-
-	[[nodiscard]] WGPUInstance instance() const;
-
-	[[nodiscard]] WGPUAdapter adapter() const;
 
 	[[nodiscard]] WGPUDevice device() const;
 
-	void addRenderable(Renderable const& renderable);
+	void addRenderable(std::shared_ptr<Renderable> const& renderable);
 
-	// void eraseRenderable(std::shared_ptr<Renderable> const& renderable);
+	// template <std::size_t Dim, class... Maps>
+	// void addRenderable(Map<Dim, Maps...> const& map)
+	// {
+	// 	renderables_.push_back(std::make_shared<RenderableMap<Map<Dim, Maps...>>>(map));
+	// }
 
-	void clearRenderable();
+	// TODO: Implement other
 
-	void loadConfig();
+	void eraseRenderable(std::shared_ptr<Renderable> const& renderable);
 
-	void saveConfig() const;
+	// template <std::size_t Dim, class... Maps>
+	// bool eraseRenderable(Map<Dim, Maps...> const& map)
+	// {
+	// 	auto it = std::find_if(
+	// 	    renderables_.begin(), renderables_.end(),
+	// 	    [&map](std::shared_ptr<Renderable> const& renderable) {
+	// 		    auto renderable_map =
+	// 		        std::dynamic_pointer_cast<RenderableMap<Map<Dim, Maps...>>>(renderable);
+	// 		    if (nullptr == renderable_map) {
+	// 			    return false;
+	// 		    }
+	// 		    return renderable_map->map() == map;
+	// 	    });
+
+	// 	if (it != renderables_.end()) {
+	// 		renderables_.erase(it);
+	// 		return true;
+	// 	}
+
+	// 	return false;
+	// }
+
+	// TODO: Implement other
+
+	void clearRenderables();
+
+	[[nodiscard]] std::size_t numRenderables() const;
+
+	void loadConfig(std::filesystem::path const& config);
+
+	void saveConfig(std::filesystem::path const& file) const;
 
  private:
-	void init(WGPUPowerPreference power_preference, WGPUBackendType backend_type);
+	[[nodiscard]] WGPULimits requiredLimits(WGPUAdapter adapter) const;
 
-	[[nodiscard]] GLFWwindow* createWindow() const;
+	[[nodiscard]] WGPUTextureFormat surfaceFormat(
+	    WGPUSurfaceCapabilities capabilities) const;
 
-	[[nodiscard]] WGPUSurfaceCapabilities surfaceCapabilities(WGPUSurface surface,
-	                                                          WGPUAdapter adapter) const;
+	void resizeSurface(int width, int height);
 
-	[[nodiscard]] WGPUSurfaceConfiguration surfaceConfiguration(
-	    GLFWwindow* window, WGPUDevice device, WGPUSurfaceCapabilities capabilities) const;
+	void updateCamera(float dt);
 
-	[[nodiscard]] WGPURequiredLimits requiredLimits(WGPUAdapter adapter) const;
+	bool initWindow(int width, int height, bool resizable, std::string const& title);
 
-	void initGui();
+	bool initWGPU(WGPUPowerPreference power_preference, WGPUBackendType backend_type);
 
-	void updateGui(WGPURenderPassEncoder render_pass);
+	bool initGUI();
 
-	// A function called when the window is resized.
-	// void onResize(int width, int height);
+	bool initCamera();
+
+	void updateGui();
 
 	// Party events
 	void onMouseMove(double x_pos, double y_pos);
@@ -133,31 +161,56 @@ class Viz
 
 	void onKey(int key, int scancode, int action, int mods);
 
+	void updateViewMatrix();
+
  private:
 	GLFWwindow* window_ = nullptr;
 
-	std::string window_name_ = "UFOViz";
+	WGPUInstance             instance_       = nullptr;
+	WGPUSurface              surface_        = nullptr;
+	WGPUAdapter              adapter_        = nullptr;
+	WGPUDevice               device_         = nullptr;
+	WGPUQueue                queue_          = nullptr;
+	WGPUSurfaceConfiguration surface_config_ = WGPU_SURFACE_CONFIGURATION_INIT;
 
-	WGPUInstance instance_ = nullptr;
-	WGPUSurface  surface_  = nullptr;
-	WGPUAdapter  adapter_  = nullptr;
-	WGPUDevice   device_   = nullptr;
-	WGPUQueue    queue_    = nullptr;
+	WGPUTextureFormat surface_preferred_format_ = WGPUTextureFormat_Undefined;
+	int               surface_width_            = 0;
+	int               surface_height_           = 0;
 
-	WGPUSurfaceCapabilities  surface_capa_;
-	WGPUSurfaceConfiguration surface_config_;
+	WGPUTextureFormat depth_texture_format_ = WGPUTextureFormat_Depth24Plus;
+	WGPUTexture       depth_texture_        = nullptr;
+	WGPUTextureView   depth_view_           = nullptr;
+
+	FineRGBA clear_color_ = FineRGBA(0.45f, 0.55f, 0.60f, 1.00f);
+
+	bool show_left_panel_   = true;
+	bool show_right_panel_  = true;
+	bool show_bottom_panel_ = true;
+	int  control_type_      = 0;
+	int  projection_type_   = 0;
 
 	std::thread render_thread_;
 
 	float prev_time_{};
 
-	std::mutex                               renderables_mutex_;
-	std::vector<std::unique_ptr<Renderable>> renderables_;
+	float scale_ = 1.0f;
+
+	std::vector<std::shared_ptr<Renderable>> renderables_;
 
 	Camera     camera_;
+	float      translation_speed_ = 2.5f;
+	float      rotation_speed_    = 90.0f;  // Degrees per second
 	ufo::Vec2f angles_{0.0f, 0.0f};
 	ufo::Vec3f center_{4.4f, 0.0f, 1.7f};
 	float      zoom_ = 0.0f;
+
+	bool       mouse_drag_         = false;
+	ufo::Vec2f start_mouse_pos_    = {0.0f, 0.0f};
+	Camera     start_camera_state_ = {};
+	float      mouse_sense_        = 1.0f;
+	float      scroll_sensitivity_ = 0.1f;
+
+	std::vector<float> frame_times_;
 };
 }  // namespace ufo
 

@@ -4,7 +4,7 @@
 // UFO
 #include <ufo/container/tree_map.hpp>
 #include <ufo/map/occupancy/predicate.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
 #include <cstdint>

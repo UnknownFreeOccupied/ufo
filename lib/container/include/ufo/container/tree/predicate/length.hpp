@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -45,100 +45,106 @@
 // UFO
 #include <ufo/container/tree/predicate/depth.hpp>
 #include <ufo/container/tree/predicate/filter.hpp>
-#include <ufo/container/tree/predicate/predicate_compare.hpp>
+#include <ufo/container/tree/predicate/predicate_interval.hpp>
+
+// TODO: Implement
 
 namespace ufo::pred
 {
-template <PredicateCompare PC = PredicateCompare::EQUAL>
+namespace detail
+{
 struct Length {
-	double length;
+	using value_type = double;
 
-	constexpr Length(double length = 0.0) noexcept : length(length) {}
-
- private:
-	Depth<PC> depth_;
-
-	template <class T>
-	friend class Filter;
+	int min_depth{};
+	int max_depth{};
 };
+}  // namespace detail
 
-using LengthE  = Length<PredicateCompare::EQUAL>;
-using LengthNE = Length<PredicateCompare::NOT_EQUAL>;
-using LengthLE = Length<PredicateCompare::LESS_EQUAL>;
-using LengthGE = Length<PredicateCompare::GREATER_EQUAL>;
-using LengthL  = Length<PredicateCompare::LESS>;
-using LengthG  = Length<PredicateCompare::GREATER>;
+template <bool Negated = false>
+using Length = PredicateInterval<detail::Length, Negated>;
 
-using LengthMin = LengthGE;
-using LengthMax = LengthLE;
+static constexpr inline Length<false> const length;
 
-template <PredicateCompare PC>
-struct Filter<Length<PC>> : public FilterBase<Length<PC>> {
-	using Pred = Length<PC>;
+template <bool Negated>
+struct Filter<Length<Negated>> {
+	using Pred = Length<Negated>;
 
 	template <class Tree>
-	static constexpr void init(Pred& p, Tree const& t)
+	static constexpr void init(Pred& p, Tree const& t) noexcept
 	{
-		int max = t.maxNumDepthLevels();
-
-		if constexpr (PredicateCompare::EQUAL == PC || PredicateCompare::NOT_EQUAL == PC) {
-			for (int d{}; max > d; ++d) {
-				if (p.length == t.length(d)) {
-					p.depth_ = d;
-					return;
-				}
+		int min_d = -1;
+		int max_d = -1;
+		int num   = t.maxNumDepthLevels();
+		for (int d{}; d < num; ++d) {
+			auto l = t.length(d);
+			if (p.min >= l && p.max >= l) {
+				min_d = -1 == min_d ? d : min_d;
+				max_d = d;
 			}
-
-			p.depth_ = max;
-		} else if constexpr (PredicateCompare::LESS_EQUAL == PC) {
-			p.depth_ = -1;
-
-			for (int d{}; max > d; ++d) {
-				if (p.length >= t.length(d)) {
-					p.depth_ = d;
-				}
-			}
-		} else if constexpr (PredicateCompare::LESS == PC) {
-			p.depth_ = -1;
-
-			for (int d{}; max > d; ++d) {
-				if (p.length > t.length(d)) {
-					p.depth_ = d;
-				}
-			}
-		} else if constexpr (PredicateCompare::GREATER_EQUAL == PC) {
-			for (int d{}; max > d; ++d) {
-				if (p.length <= t.length(d)) {
-					p.depth_ = d;
-					return;
-				}
-			}
-
-			p.depth_ = max;
-		} else if constexpr (PredicateCompare::GREATER == PC) {
-			for (int d{}; max > d; ++d) {
-				if (p.length < t.length(d)) {
-					p.depth_ = d;
-					return;
-				}
-			}
-
-			p.depth_ = max;
 		}
+
+		if (min_d > 0 && max_d > 0) {
+			p.min_depth = min_d;
+			p.max_depth = max_d;
+			return;
+		}
+
+		if constexpr (Negated) {
+			p.min_depth = std::numeric_limits<int>::lowest();
+			p.max_depth = std::numeric_limits<int>::max();
+		} else {
+			p.min_depth = std::numeric_limits<int>::max();
+			p.max_depth = std::numeric_limits<int>::lowest();
+		}
+	}
+
+	template <class Value>
+	[[nodiscard]] static constexpr bool returnableValue(Pred const&, Value const&) noexcept
+	{
+		return true;
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const& t,
-	                                               typename Tree::Node const& n)
+	                                               typename Tree::Node const& n) noexcept
 	{
-		return Filter<Depth<PC>>::returnable(p, t, n);
+		// Cast to int to prevent int to be promoted to unsigned
+		int depth = static_cast<int>(t.depth(n));
+		if constexpr (Negated) {
+			return p.min_depth > depth || p.max_depth < depth;
+		} else {
+			return p.min_depth <= depth && p.max_depth >= depth;
+		}
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool traversable(Pred const& p, Tree const& t,
-	                                                typename Tree::Node const& n)
+	                                                typename Tree::Node const& n) noexcept
 	{
-		return Filter<Depth<PC>>::traversable(p, t, n);
+		// Cast to int to prevent int to be promoted to unsigned
+		int depth = static_cast<int>(t.depth(n));
+		if constexpr (Negated) {
+			return 0 < p.min_depth || p.max_depth + 1 < depth;
+		} else {
+			return p.min_depth < depth;
+		}
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool returnableRay(Pred const& p, Tree const& t,
+	                                                  typename Tree::Node const& n,
+	                                                  typename Tree::Ray const&) noexcept
+	{
+		return returnable(p, t, n);
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool traversableRay(Pred const& p, Tree const& t,
+	                                                   typename Tree::Node const& n,
+	                                                   typename Tree::Ray const&) noexcept
+	{
+		return traversable(p, t, n);
 	}
 };
 }  // namespace ufo::pred

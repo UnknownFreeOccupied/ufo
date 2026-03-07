@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -38,85 +38,26 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifndef UFO_MAP_VOID_REGION_BLOCK_HPP
 #define UFO_MAP_VOID_REGION_BLOCK_HPP
 
 // UFO
-#include <ufo/utility/bit_set.hpp>
-#include <ufo/utility/create_array.hpp>
+#include <ufo/map/void_region/detail/inner_block.hpp>
+#include <ufo/map/void_region/detail/leaf_block.hpp>
 
 // STL
-#include <array>
-#include <cassert>
 #include <cstddef>
 
 namespace ufo
 {
-struct VoidRegionElement {
-	bool is{};
-	bool contains{};
-
-	constexpr VoidRegionElement() noexcept = default;
-
-	constexpr VoidRegionElement(bool v) noexcept : is(v), contains(v) {}
-
-	friend constexpr bool operator==(VoidRegionElement const& lhs,
-	                                 VoidRegionElement const& rhs)
-	{
-		return lhs.is == rhs.is && lhs.contains == rhs.contains;
-	}
-
-	friend constexpr bool operator!=(VoidRegionElement const& lhs,
-	                                 VoidRegionElement const& rhs)
-	{
-		return !(lhs == rhs);
-	};
-};
-
-template <std::size_t BF>
 struct VoidRegionBlock {
-	std::array<VoidRegionElement, BF> data;
+	template <std::size_t Dim, std::size_t BF>
+	using LeafBlock = detail::VoidRegionLeafBlock<Dim, BF>;
 
-	constexpr VoidRegionBlock() = default;
-
-	constexpr VoidRegionBlock(VoidRegionElement const& parent)
-	    : data(createArray<BF>(parent))
-	{
-	}
-
-	[[nodiscard]] constexpr VoidRegionElement& operator[](std::size_t pos)
-	{
-		assert(BF > pos);
-		return data[pos];
-	}
-
-	[[nodiscard]] constexpr VoidRegionElement const& operator[](std::size_t pos) const
-	{
-		assert(BF > pos);
-		return data[pos];
-	}
-
-	auto begin() { return data.begin(); }
-
-	auto begin() const { return data.begin(); }
-
-	auto cbegin() const { return begin(); }
-
-	auto end() { return data.end(); }
-
-	auto end() const { return data.end(); }
-
-	auto cend() const { return end(); }
-
-	friend constexpr bool operator==(VoidRegionBlock const& lhs, VoidRegionBlock const& rhs)
-	{
-		return lhs.data == rhs.data;
-	}
-
-	friend constexpr bool operator!=(VoidRegionBlock const& lhs, VoidRegionBlock const& rhs)
-	{
-		return !(lhs == rhs);
-	};
+	template <std::size_t Dim, std::size_t BF>
+	using InnerBlock = detail::VoidRegionInnerBlock<Dim, BF>;
 };
 }  // namespace ufo
+
 #endif  // UFO_MAP_VOID_REGION_BLOCK_HPP

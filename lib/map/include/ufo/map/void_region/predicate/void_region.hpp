@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -52,20 +52,19 @@ template <bool Negated = false>
 struct VoidRegion {
 };
 
+static constexpr VoidRegion const void_region;
+
 template <bool Negated>
-VoidRegion<!Negated> operator!(VoidRegion<Negated>)
+constexpr VoidRegion<!Negated> operator!(VoidRegion<Negated>) noexcept
 {
 	return VoidRegion<!Negated>{};
 }
 
 template <bool Negated>
-struct Filter<VoidRegion<Negated>> {
+struct Filter<VoidRegion<Negated>>
+    : FilterBase<VoidRegion<Negated>, FilterType::INIT, FilterType::VALUE,
+                 FilterType::RAY> {
 	using Pred = VoidRegion<Negated>;
-
-	template <class Tree>
-	static constexpr void init(Pred&, Tree const&)
-	{
-	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool returnable(Pred const&, Tree const& t,

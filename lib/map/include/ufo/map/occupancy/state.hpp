@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -42,9 +42,45 @@
 #ifndef UFO_MAP_OCCUPANCY_STATE_HPP
 #define UFO_MAP_OCCUPANCY_STATE_HPP
 
+// UFO
+#include <ufo/utility/enum.hpp>
+
+// STL
+#include <cstdint>
+
 namespace ufo
 {
-enum class OccupancyState { UNKNOWN, FREE, OCCUPIED };
+enum class OccupancyState : std::int8_t { UNKNOWN = 0, FREE = -1, OCCUPIED = 1 };
+
+constexpr inline bool operator==(OccupancyState lhs, OccupancyState rhs)
+{
+	return to_underlying(lhs) == to_underlying(rhs);
 }
+
+constexpr inline bool operator!=(OccupancyState lhs, OccupancyState rhs)
+{
+	return !(lhs == rhs);
+}
+
+constexpr inline bool operator<(OccupancyState lhs, OccupancyState rhs)
+{
+	return to_underlying(lhs) < to_underlying(rhs);
+}
+
+constexpr inline bool operator<=(OccupancyState lhs, OccupancyState rhs)
+{
+	return to_underlying(lhs) <= to_underlying(rhs);
+}
+
+constexpr inline bool operator>(OccupancyState lhs, OccupancyState rhs)
+{
+	return rhs < lhs;
+}
+
+constexpr inline bool operator>=(OccupancyState lhs, OccupancyState rhs)
+{
+	return rhs <= lhs;
+}
+}  // namespace ufo
 
 #endif  // UFO_MAP_OCCUPANCY_STATE_HPP

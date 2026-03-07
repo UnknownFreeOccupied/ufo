@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -43,84 +43,168 @@
 #define UFO_GEOMETRY_LINE_SEGMENT_HPP
 
 // UFO
-#include <ufo/math/vec.hpp>
+#include <ufo/geometry/aabb.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
+#include <concepts>
 #include <cstddef>
+#include <format>
 #include <ostream>
-#include <type_traits>
 
 namespace ufo
 {
-template <std::size_t Dim = 3, class T = float>
+/**
+ * @struct LineSegment
+ * @brief Line segment in Dim-dimensional space.
+ *
+ * @details
+ * Represents a line segment defined by a start and an end point.
+ *
+ * @tparam Dim The dimensionality of the space (default: 3).
+ * @tparam T   The numeric type (default: float), must be a floating-point type.
+ */
+template <std::size_t Dim = 3, std::floating_point T = float>
 struct LineSegment {
-	static_assert(std::is_floating_point_v<T>, "T is required to be floating point.");
-
 	using value_type = T;
 
+	/**
+	 * @brief The start point of the line segment.
+	 */
 	Vec<Dim, T> start;
+
+	/**
+	 * @brief The end point of the line segment.
+	 */
 	Vec<Dim, T> end;
 
+	/**
+	 * @brief Default constructor.
+	 */
 	constexpr LineSegment() noexcept = default;
 
+	/**
+	 * @brief Constructs a line segment from a start and an end point.
+	 *
+	 * @param [in] start The start point.
+	 * @param [in] end   The end point.
+	 */
 	constexpr LineSegment(Vec<Dim, T> const& start, Vec<Dim, T> const& end) noexcept
 	    : start(start), end(end)
 	{
 	}
 
+	/**
+	 * @brief Copy constructor.
+	 */
 	constexpr LineSegment(LineSegment const&) noexcept = default;
 
-	template <class U>
+	/**
+	 * @brief Converting constructor from a line segment with a different scalar type.
+	 *
+	 * @tparam U     The scalar type of the other segment.
+	 * @param [in] other The other segment.
+	 */
+	template <std::convertible_to<T> U>
 	constexpr explicit LineSegment(LineSegment<Dim, U> const& other) noexcept
-	    : start(other.start), end(other.end)
+	    : start(Vec<Dim, T>(other.start)), end(Vec<Dim, T>(other.end))
 	{
 	}
+
+	/**
+	 * @brief Returns the dimensionality of the line segment.
+	 * @return The dimensionality.
+	 */
+	[[nodiscard]] static constexpr std::size_t dimension() noexcept { return Dim; }
+
+	/**
+	 * @brief Returns the length of the line segment.
+	 *
+	 * @return The length.
+	 */
+	[[nodiscard]] constexpr T length() const noexcept { return norm(end - start); }
+
+	/**
+	 * @brief Returns the point at parameter t along the line segment.
+	 *
+	 * @param [in] t The parameter [0..1].
+	 * @return The point at parameter t.
+	 */
+	[[nodiscard]] constexpr Vec<Dim, T> at(T t) const noexcept
+	{
+		return start + t * (end - start);
+	}
+
+	/**
+	 * @brief Returns the center of the line segment.
+	 * @return The center.
+	 */
+	[[nodiscard]] constexpr Vec<Dim, T> center() const noexcept
+	{
+		return (start + end) * T(0.5);
+	}
+
+	/**
+	 * @brief Returns the diameter of the line segment.
+	 * @return The length of the segment.
+	 */
+	[[nodiscard]] constexpr T diameter() const noexcept { return length(); }
+
+	/**
+	 * @brief Returns whether the line segment is degenerate.
+	 * @param [in] eps The epsilon value for the check.
+	 * @return true if degenerate, false otherwise.
+	 */
+	[[nodiscard]] constexpr bool isDegenerate(
+	    T eps = std::numeric_limits<T>::epsilon()) const noexcept
+	{
+		return length() <= eps;
+	}
+
+	/**
+	 * @brief Returns the AABB of the line segment.
+	 * @return The AABB.
+	 */
+	[[nodiscard]] constexpr AABB<Dim, T> aabb() const noexcept
+	{
+		return AABB<Dim, T>(ufo::min(start, end), ufo::max(start, end));
+	}
+
+	/**
+	 * @brief Returns the volume of the line segment.
+	 * @return The volume (always 0).
+	 */
+	[[nodiscard]] constexpr T volume() const noexcept { return T(0); }
+
+	/**
+	 * @brief Equality operator.
+	 */
+	[[nodiscard]] bool operator==(LineSegment const&) const = default;
 };
 
 //
-// Deduction guide
+// Deduction guides
 //
 
-template <std::size_t Dim, class T>
+template <std::size_t Dim, std::floating_point T>
 LineSegment(Vec<Dim, T>, Vec<Dim, T>) -> LineSegment<Dim, T>;
 
-/*!
- * @brief Compare two LineSegments.
- *
- * @param lhs,rhs The LineSegments to compare
- * @return `true` if they compare equal, `false` otherwise.
+/**
+ * @brief Output stream operator for LineSegment.
  */
-template <std::size_t Dim, class T>
-bool operator==(LineSegment<Dim, T> const& lhs, LineSegment<Dim, T> const& rhs)
-{
-	return lhs.start == rhs.start && lhs.end == rhs.end;
-}
-
-/*!
- * @brief Compare two LineSegments.
- *
- * @param lhs,rhs The LineSegments to compare
- * @return `true` if they do not compare equal, `false` otherwise.
- */
-template <std::size_t Dim, class T>
-bool operator!=(LineSegment<Dim, T> const& lhs, LineSegment<Dim, T> const& rhs)
-{
-	return !(lhs == rhs);
-}
-
-template <std::size_t Dim, class T>
+template <std::size_t Dim, std::floating_point T>
 std::ostream& operator<<(std::ostream& out, LineSegment<Dim, T> const& ls)
 {
-	return out << "Start: " << ls.start << ", End: " << ls.end;
+	return out << "Start: [" << ls.start << "], End: [" << ls.end << "]";
 }
 
-template <class T>
+template <std::floating_point T>
 using LineSegment1 = LineSegment<1, T>;
-template <class T>
+template <std::floating_point T>
 using LineSegment2 = LineSegment<2, T>;
-template <class T>
+template <std::floating_point T>
 using LineSegment3 = LineSegment<3, T>;
-template <class T>
+template <std::floating_point T>
 using LineSegment4 = LineSegment<4, T>;
 
 using LineSegment1f = LineSegment<1, float>;
@@ -132,6 +216,18 @@ using LineSegment1d = LineSegment<1, double>;
 using LineSegment2d = LineSegment<2, double>;
 using LineSegment3d = LineSegment<3, double>;
 using LineSegment4d = LineSegment<4, double>;
+
 }  // namespace ufo
+
+template <std::size_t Dim, std::floating_point T>
+  requires std::formattable<T, char>
+struct std::formatter<ufo::LineSegment<Dim, T>> {
+	constexpr auto parse(std::format_parse_context& ctx) { return ctx.begin(); }
+
+	auto format(ufo::LineSegment<Dim, T> const& ls, std::format_context& ctx) const
+	{
+		return std::format_to(ctx.out(), "Start: [{}], End: [{}]", ls.start, ls.end);
+	}
+};
 
 #endif  // UFO_GEOMETRY_LINE_SEGMENT_HPP

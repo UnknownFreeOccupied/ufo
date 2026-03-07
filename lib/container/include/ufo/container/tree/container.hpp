@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -48,11 +48,11 @@
 #include <ufo/container/tree/container_iterator.hpp>
 #include <ufo/container/tree/index.hpp>
 #include <ufo/execution/execution.hpp>
-#include <ufo/utility/iterator_wrapper.hpp>
 #include <ufo/utility/spinlock.hpp>
 
 // STL
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <cstddef>
 #include <cstring>
@@ -62,6 +62,8 @@
 
 namespace ufo
 {
+// TODO: Add array of std::atomic_flag to value_type
+
 template <class... Ts>
 class TreeContainer
 {
@@ -79,7 +81,7 @@ class TreeContainer
 	using Data = std::array<T, NUM_BLOCKS_PER_BUCKET>;
 
 	template <class T>
-	struct alignas(8) S {
+	struct alignas(32) S {
 		Data<T> data;
 		alignas(8) bool modified = false;
 	};
@@ -87,9 +89,9 @@ class TreeContainer
 	template <class T>
 	using bucket_type = S<T>;
 	using size_type   = std::size_t;
-	using pos_t       = TreeIndex::pos_t;
+	using pos_type    = TreeIndex::pos_type;
 
-	using value_type = std::tuple<std::array<pos_t, NUM_BLOCKS_PER_BUCKET>, S<Ts>...>;
+	using value_type = std::tuple<Data<pos_type>, S<Ts>...>;
 	using Bucket     = std::atomic<value_type*>;
 
 	template <class T>
@@ -247,27 +249,27 @@ class TreeContainer
 	}
 
 	template <class T>
-	[[nodiscard]] IteratorWrapper<iterator<T>> iter()
+	[[nodiscard]] auto iter()
 	{
-		return IteratorWrapper<iterator<T>>(begin<T>(), end<T>());
+		return std::ranges::subrange(begin<T>(), end<T>());
 	}
 
 	template <class T>
-	[[nodiscard]] IteratorWrapper<const_iterator<T>> iter() const
+	[[nodiscard]] auto iter() const
 	{
-		return IteratorWrapper<const_iterator<T>>(begin<T>(), end<T>());
+		return std::ranges::subrange(begin<T>(), end<T>());
 	}
 
 	template <class T>
-	[[nodiscard]] IteratorWrapper<reverse_iterator<T>> riter()
+	[[nodiscard]] auto riter()
 	{
-		return IteratorWrapper<reverse_iterator<T>>(rbegin<T>(), rend<T>());
+		return std::ranges::subrange(rbegin<T>(), rend<T>());
 	}
 
 	template <class T>
-	[[nodiscard]] IteratorWrapper<const_reverse_iterator<T>> riter() const
+	[[nodiscard]] auto riter() const
 	{
-		return IteratorWrapper<const_reverse_iterator<T>>(rbegin<T>(), rend<T>());
+		return std::ranges::subrange(rbegin<T>(), rend<T>());
 	}
 
 	template <class T>
@@ -343,29 +345,27 @@ class TreeContainer
 	}
 
 	template <class T>
-	[[nodiscard]] IteratorWrapper<bucket_iterator<T>> iterBucket()
+	[[nodiscard]] auto iterBucket()
 	{
-		return IteratorWrapper<bucket_iterator<T>>(beginBucket<T>(), endBucket<T>());
+		return std::ranges::subrange(beginBucket<T>(), endBucket<T>());
 	}
 
 	template <class T>
-	[[nodiscard]] IteratorWrapper<const_bucket_iterator<T>> iterBucket() const
+	[[nodiscard]] auto iterBucket() const
 	{
-		return IteratorWrapper<const_bucket_iterator<T>>(beginBucket<T>(), endBucket<T>());
+		return std::ranges::subrange(beginBucket<T>(), endBucket<T>());
 	}
 
 	template <class T>
-	[[nodiscard]] IteratorWrapper<reverse_bucket_iterator<T>> riterBucket()
+	[[nodiscard]] auto riterBucket()
 	{
-		return IteratorWrapper<reverse_bucket_iterator<T>>(rbeginBucket<T>(),
-		                                                   rendBucket<T>());
+		return std::ranges::subrange(rbeginBucket<T>(), rendBucket<T>());
 	}
 
 	template <class T>
-	[[nodiscard]] IteratorWrapper<const_reverse_bucket_iterator<T>> riterBucket() const
+	[[nodiscard]] auto riterBucket() const
 	{
-		return IteratorWrapper<const_reverse_bucket_iterator<T>>(rbeginBucket<T>(),
-		                                                         rendBucket<T>());
+		return std::ranges::subrange(rbeginBucket<T>(), rendBucket<T>());
 	}
 
 	template <class T>
@@ -383,13 +383,13 @@ class TreeContainer
 	template <std::size_t I>
 	[[nodiscard]] auto& bucket(std::size_t idx)
 	{
-		return std::get<I>(bucket(idx));
+		return std::get<I + 1>(bucket(idx));
 	}
 
 	template <std::size_t I>
 	[[nodiscard]] auto const& bucket(std::size_t idx) const
 	{
-		return std::get<I>(bucket(idx));
+		return std::get<I + 1>(bucket(idx));
 	}
 
 	template <class T>
@@ -445,61 +445,61 @@ class TreeContainer
 	}
 
 	template <class T>
-	[[nodiscard]] T& get(pos_t pos)
+	[[nodiscard]] T& get(pos_type pos)
 	{
 		return bucketData<T>(pos)[blockPos(pos)];
 	}
 
 	template <class T>
-	[[nodiscard]] T const& get(pos_t pos) const
+	[[nodiscard]] T const& get(pos_type pos) const
 	{
 		return bucketData<T>(pos)[blockPos(pos)];
 	}
 
 	template <std::size_t I>
-	[[nodiscard]] auto& get(pos_t pos)
+	[[nodiscard]] auto& get(pos_type pos)
 	{
 		return bucketData<I>(pos)[blockPos(pos)];
 	}
 
 	template <std::size_t I>
-	[[nodiscard]] auto const& get(pos_t pos) const
+	[[nodiscard]] auto const& get(pos_type pos) const
 	{
 		return bucketData<I>(pos)[blockPos(pos)];
 	}
 
-	[[nodiscard]] constexpr pos_t numBuckets() const noexcept
+	[[nodiscard]] constexpr pos_type numBuckets() const noexcept
 	{
 		return empty() ? 0 : bucketPos(capacity() - 1) + 1;
 	}
 
-	[[nodiscard]] constexpr pos_t numBlocksPerBucket() const noexcept
+	[[nodiscard]] constexpr pos_type numBlocksPerBucket() const noexcept
 	{
 		return NUM_BLOCKS_PER_BUCKET;
 	}
 
-	[[nodiscard]] constexpr pos_t bucketPos(pos_t pos) const noexcept
+	[[nodiscard]] constexpr pos_type bucketPos(pos_type pos) const noexcept
 	{
 		return pos / NUM_BLOCKS_PER_BUCKET;
 	}
 
-	[[nodiscard]] constexpr pos_t blockPos(pos_t pos) const noexcept
+	[[nodiscard]] constexpr pos_type blockPos(pos_type pos) const noexcept
 	{
 		return pos % NUM_BLOCKS_PER_BUCKET;
 	}
 
-	[[nodiscard]] pos_t create()
+	[[nodiscard]] pos_type create()
 	{
-		if (pos_t idx = num_inactive_.load(std::memory_order_relaxed); 0u < idx) {
+		if (pos_type idx = num_inactive_.load(std::memory_order_relaxed); 0u < idx) {
 			--idx;
 			num_inactive_.store(idx, std::memory_order_relaxed);
 			auto& b = *buckets_[bucketPos(idx)].load(std::memory_order_relaxed);
 			return std::get<0>(b)[blockPos(idx)];
 		}
 
-		pos_t idx = cap_.fetch_add(pos_t(1u), std::memory_order_relaxed);
+		pos_type idx = cap_.fetch_add(pos_type(1u), std::memory_order_relaxed);
 
-		pos_t bucket = bucketPos(idx);
+		pos_type bucket = bucketPos(idx);
 
 		value_type* b = buckets_[bucket];
 		if (nullptr == b) {
@@ -511,11 +511,11 @@ class TreeContainer
 		return idx;
 	}
 
-	[[nodiscard]] pos_t createThreadSafe()
+	[[nodiscard]] pos_type createThreadSafe()
 	{
 		if (0u < num_inactive_.load(std::memory_order_relaxed)) {
 			std::scoped_lock lock(mutex_);
-			if (pos_t idx = num_inactive_.load(std::memory_order_acquire); 0u < idx) {
+			if (pos_type idx = num_inactive_.load(std::memory_order_acquire); 0u < idx) {
 				--idx;
 				num_inactive_.store(idx, std::memory_order_release);
 				auto& b = *buckets_[bucketPos(idx)].load(std::memory_order_relaxed);
@@ -523,10 +523,10 @@ class TreeContainer
 			}
 		}
 
-		pos_t idx = cap_.fetch_add(pos_t(1u), std::memory_order_acq_rel);
+		pos_type idx = cap_.fetch_add(pos_type(1u), std::memory_order_acq_rel);
 
-		pos_t bucket = bucketPos(idx);
-		pos_t block  = blockPos(idx);
+		pos_type bucket = bucketPos(idx);
+		pos_type block  = blockPos(idx);
 
 		value_type* v = buckets_[bucket];
 		if (0 == block) {
@@ -546,10 +546,10 @@ class TreeContainer
 		return idx;
 	}
 
-	void eraseBlock(pos_t block)
+	void eraseBlock(pos_type block)
 	{
-		pos_t idx = num_inactive_.fetch_add(pos_t(1), std::memory_order_acq_rel);
-		auto& b   = *buckets_[bucketPos(idx)].load(std::memory_order_relaxed);
+		pos_type idx = num_inactive_.fetch_add(pos_type(1), std::memory_order_acq_rel);
+		auto&    b   = *buckets_[bucketPos(idx)].load(std::memory_order_relaxed);
 		std::get<0>(b)[blockPos(idx)] = block;
 	}
 
@@ -561,18 +561,19 @@ class TreeContainer
 				break;
 			}
 
-			bucket(i) = value_type();
+			// TODO: Why does the line below not work?
+			// *(buckets_[i]) = {};
 		}
 
 		cap_          = 0;
 		num_inactive_ = 0;
 	}
 
-	void reserve(pos_t cap)
+	void reserve(pos_type cap)
 	{
 		// FIXME: Can be improved
-		pos_t first = bucketPos(capacity());
-		pos_t last  = bucketPos(cap);
+		pos_type first = bucketPos(capacity());
+		pos_type last  = bucketPos(cap);
 		for (; last >= first; ++first) {
 			if (nullptr == buckets_[first]) {
 				break;
@@ -601,20 +602,20 @@ class TreeContainer
 
 	[[nodiscard]] bool empty() const { return 0 == size(); }
 
-	[[nodiscard]] pos_t size() const { return cap_ - num_inactive_; }
+	[[nodiscard]] pos_type size() const { return cap_ - num_inactive_; }
 
-	[[nodiscard]] pos_t capacity() const { return cap_; }
+	[[nodiscard]] pos_type capacity() const { return cap_; }
 
 	template <class T>
-	[[nodiscard]] constexpr size_type serializedBucketSize() const
+	[[nodiscard]] static constexpr size_type serializedBucketSize()
 	{
-		// return sizeof(Data<T>);
-		return NUM_BLOCKS_PER_BUCKET * sizeof(T);
+		return sizeof(S<T>::data);
 	}
 
+	template <class T>
 	[[nodiscard]] constexpr size_type serializedSize() const
 	{
-		return numBuckets() * serializedBucketSize();
+		return numBuckets() * serializedBucketSize<T>();
 	}
 
 	void swap(TreeContainer& other)
@@ -622,9 +623,9 @@ class TreeContainer
 		using std::swap;
 		swap(buckets_, other.buckets_);
 
-		pos_t tmp  = cap_;
-		cap_       = other.cap_.load();
-		other.cap_ = tmp;
+		pos_type tmp = cap_;
+		cap_         = other.cap_.load();
+		other.cap_   = tmp;
 
 		tmp                 = num_inactive_;
 		num_inactive_       = other.num_inactive_.load();
@@ -645,8 +646,8 @@ class TreeContainer
  private:
 	std::unique_ptr<Bucket[]> buckets_ = std::make_unique<Bucket[]>(NUM_BUCKETS);
 
-	std::atomic<pos_t> cap_{};
-	std::atomic<pos_t> num_inactive_{};
+	std::atomic<pos_type> cap_{};
+	std::atomic<pos_type> num_inactive_{};
 
 	std::mutex mutex_;
 };

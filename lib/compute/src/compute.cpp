@@ -1,11 +1,55 @@
+/**
+ * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
+ *
+ * @author Daniel Duberg (dduberg@kth.se)
+ * @see https://github.com/UnknownFreeOccupied/ufomap
+ * @version 1.0
+ * @date 2022-05-13
+ *
+ * @copyright Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of Technology
+ *
+ * BSD 3-Clause License
+ *
+ * Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of Technology
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 // UFO
 #include <ufo/compute/compute.hpp>
 
 // STL
 #include <cassert>
 #include <cstring>
+#include <format>
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <string_view>
 
 namespace ufo::compute
 {
@@ -257,4 +301,103 @@ void release(WGPUCommandBuffer command_buffer)
 }
 
 void release(WGPUSampler sampler) { wgpuSamplerRelease(sampler); }
+
+GPUInfo gpuInfo(WGPUAdapter adapter)
+{
+	bool const adapter_was_passed = (nullptr != adapter);
+
+	WGPUInstance instance = nullptr;
+	if (!adapter_was_passed) {
+		instance = createInstance();
+		if (nullptr == instance) {
+			return GPUInfo{};
+		}
+
+		adapter = createAdapter(instance);
+		if (nullptr == adapter) {
+			release(instance);
+			return GPUInfo{};
+		}
+	}
+
+	WGPUAdapterInfo info = {};
+	wgpuAdapterGetInfo(adapter, &info);
+
+	GPUInfo gpu_info = {};
+	gpu_info.name    = std::string_view(info.device.data, info.device.length);
+	gpu_info.architecture =
+	    std::string_view(info.architecture.data, info.architecture.length);
+	gpu_info.description = std::string_view(info.description.data, info.description.length);
+
+	gpu_info.vendor = [id = info.vendorID, v = info.vendor.data] {
+		switch (id) {
+			case 0x10DE: return "NVIDIA";
+			case 0x1002: return "AMD";
+			case 0x8086: return "Intel";
+			case 0x13B5: return "ARM";
+			case 0x5143: return "Qualcomm";
+			case 0x106B: return "Apple";
+			default: return v;
+		}
+	}();
+
+	gpu_info.type = [t = info.adapterType] {
+		switch (t) {
+			case WGPUAdapterType_DiscreteGPU: return "Discrete GPU";
+			case WGPUAdapterType_IntegratedGPU: return "Integrated GPU";
+			case WGPUAdapterType_CPU: return "CPU";
+			case WGPUAdapterType_Unknown: return "Unknown";
+			default: return "Other";
+		}
+	}();
+
+	gpu_info.backend = [b = info.backendType] {
+		switch (b) {
+			case WGPUBackendType_WebGPU: return "WebGPU";
+			case WGPUBackendType_D3D11: return "D3D11";
+			case WGPUBackendType_D3D12: return "D3D12";
+			case WGPUBackendType_Metal: return "Metal";
+			case WGPUBackendType_Vulkan: return "Vulkan";
+			case WGPUBackendType_OpenGL: return "OpenGL";
+			case WGPUBackendType_OpenGLES: return "OpenGLES";
+			default: return "Unknown";
+		}
+	}();
+
+	wgpuAdapterInfoFreeMembers(info);
+	if (!adapter_was_passed) {
+		release(adapter);
+		release(instance);
+	}
+
+	return gpu_info;
+}
+
+std::vector<GPUInfo> gpusInfo()
+{
+	WGPUInstance instance = createInstance();
+	if (nullptr == instance) {
+		return {};
+	}
+
+	size_t count = wgpuInstanceEnumerateAdapters(instance, nullptr, nullptr);
+	if (0 == count) {
+		release(instance);
+		return {};
+	}
+
+	std::vector<WGPUAdapter> adapters(count);
+	wgpuInstanceEnumerateAdapters(instance, nullptr, adapters.data());
+
+	std::vector<GPUInfo> res;
+	res.reserve(count);
+	for (auto adapter : adapters) {
+		res.push_back(gpuInfo(adapter));
+		release(adapter);
+	}
+
+	release(instance);
+
+	return res;
+}
 }  // namespace ufo::compute

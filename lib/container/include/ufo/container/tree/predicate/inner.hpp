@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -50,27 +50,51 @@ namespace ufo::pred
 struct Inner {
 };
 
+static constexpr inline Inner const inner;
+
 template <>
-struct Filter<Inner> : public FilterBase<Inner> {
+struct Filter<Inner> {
 	using Pred = Inner;
 
 	template <class Tree>
-	static constexpr void init(Pred&, Tree const&)
+	static constexpr void init(Pred&, Tree const&) noexcept
 	{
+	}
+
+	template <class Value>
+	[[nodiscard]] static constexpr bool returnableValue(Pred const&, Value const&) noexcept
+	{
+		return true;
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool returnable(Pred const&, Tree const& t,
-	                                               typename Tree::Node const& n)
+	                                               typename Tree::Node const& n) noexcept
 	{
 		return 0 < t.depth(n);
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool traversable(Pred const&, Tree const& t,
-	                                                typename Tree::Node const& n)
+	                                                typename Tree::Node const& n) noexcept
 	{
 		return 1 < t.depth(n);
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool returnableRay(Pred const& p, Tree const& t,
+	                                                  typename Tree::Node const& n,
+	                                                  typename Tree::Ray const&) noexcept
+	{
+		return returnable(p, t, n);
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool traversableRay(Pred const& p, Tree const& t,
+	                                                   typename Tree::Node const& n,
+	                                                   typename Tree::Ray const&) noexcept
+	{
+		return traversable(p, t, n);
 	}
 };
 }  // namespace ufo::pred

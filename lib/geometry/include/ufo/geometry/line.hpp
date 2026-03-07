@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se), Ramona Häuselmann (ramonaha@kth.se)
@@ -43,97 +43,219 @@
 #define UFO_GEOMETRY_LINE_HPP
 
 // UFO
+#include <ufo/geometry/aabb.hpp>
+#include <ufo/numeric/vec.hpp>
+
+// STL
+#include <concepts>
+#include <cstddef>
+#include <format>
 #include <limits>
-#include <ufo/math/vec.hpp>
+#include <ostream>
 
 namespace ufo
 {
+template <std::size_t Dim = 3, std::floating_point T = float>
+struct Line {
+	using value_type = T;
 
-template <std::size_t Dim = 3, class T = float>
-struct Line;
+	/**
+	 * @brief The origin point of the line.
+	 */
+	Vec<Dim, T> origin;
 
-template <class T>
-struct Line<2, T> {
-	Vec<2, T> normal;
-	T         distance{};
+	/**
+	 * @brief The direction of the line.
+	 */
+	Vec<Dim, T> direction;
 
-	constexpr Line() noexcept            = default;
+	/**
+	 * @brief Default constructor.
+	 */
+	constexpr Line() noexcept = default;
+
+	/**
+	 * @brief Copy constructor.
+	 */
 	constexpr Line(Line const&) noexcept = default;
 
-	constexpr explicit Line(Vec<2, T> normal) noexcept : normal(normal) {}
-
-	constexpr Line(Vec<2, T> normal, T distance) noexcept
-	    : normal(normal), distance(distance)
+	/**
+	 * @brief Constructs a line from an origin and a direction.
+	 *
+	 * @param [in] origin    The origin of the line.
+	 * @param [in] direction The direction of the line.
+	 */
+	constexpr Line(Vec<Dim, T> const& origin, Vec<Dim, T> const& direction) noexcept
+	    : origin(origin), direction(normalize(direction))
 	{
 	}
 
-	constexpr Line(Vec<2, T> v_1, Vec<2, T> v_2) noexcept
+	/**
+	 * @brief Constructs a line from two points.
+	 *
+	 * @param [in] v_1 The first point.
+	 * @param [in] v_2 The second point.
+	 * @return The line passing through v_1 and v_2.
+	 */
+	[[nodiscard]] static constexpr Line fromPoints(Vec<Dim, T> const& v_1,
+	                                               Vec<Dim, T> const& v_2) noexcept
 	{
-		auto aux_1 = v_2 - v_1;
-		normal     = normalize(Vec<2, T>(-aux_1.y, aux_1.x));
-		distance   = dot(normal, v_1);
+		return Line(v_1, v_2 - v_1);
 	}
 
-	template <class U>
-	constexpr explicit Line(Line<2, U> const& other) noexcept
-	    : normal(other.normal), distance(static_cast<T>(other.distance))
+	/**
+	 * @brief Converting constructor from a line with a different scalar type.
+	 *
+	 * @tparam U         The scalar type of the other line.
+	 * @param [in] other The other line.
+	 */
+	template <std::convertible_to<T> U>
+	constexpr explicit Line(Line<Dim, U> const& other) noexcept
+	    : origin(Vec<Dim, T>(other.origin)), direction(Vec<Dim, T>(other.direction))
 	{
+	}
+
+	/**
+	 * @brief Returns the dimensionality of the line.
+	 * @return The dimensionality.
+	 */
+	[[nodiscard]] static constexpr std::size_t dimension() noexcept { return Dim; }
+
+	/**
+	 * @brief Copy assignment operator.
+	 */
+	[[nodiscard]] constexpr Line& operator=(Line const&) noexcept = default;
+
+	/**
+	 * @brief Returns whether the line is degenerate.
+	 * @return true if degenerate, false otherwise.
+	 */
+	[[nodiscard]] constexpr bool isDegenerate() const noexcept
+	{
+		return dot(direction, direction) < std::numeric_limits<T>::epsilon();
+	}
+
+	/**
+	 * @brief Returns the center of the line.
+	 * @return The origin of the line.
+	 */
+	[[nodiscard]] constexpr Vec<Dim, T> center() const noexcept { return origin; }
+
+	/**
+	 * @brief Returns the point at distance t along the line.
+	 * @param [in] t The distance along the line.
+	 * @return The point at distance t.
+	 */
+	[[nodiscard]] constexpr Vec<Dim, T> at(T t) const noexcept
+	{
+		return origin + t * direction;
+	}
+
+	/**
+	 * @brief Returns the diameter of the line.
+	 * @return The diameter (always infinity).
+	 */
+	[[nodiscard]] constexpr T diameter() const noexcept
+	{
+		return std::numeric_limits<T>::infinity();
+	}
+
+	/**
+	 * @brief Returns the volume of the line.
+	 * @return The volume (always 0).
+	 */
+	[[nodiscard]] constexpr T volume() const noexcept { return T(0); }
+
+	/**
+	 * @brief Returns the AABB of the line.
+	 * @return The AABB.
+	 */
+	[[nodiscard]] constexpr AABB<Dim, T> aabb() const noexcept
+	{
+		// A line is infinite
+		return AABB<Dim, T>(Vec<Dim, T>(-std::numeric_limits<T>::infinity()),
+		                    Vec<Dim, T>(std::numeric_limits<T>::infinity()));
 	}
 };
 
-// TODO: Where to put this?
-template <std::size_t Dim, class T>
+/**
+ * @brief Computes the intersection point of two lines.
+ *
+ * @tparam Dim   The dimensionality.
+ * @tparam T     The numeric type.
+ * @param [in] a The first line.
+ * @param [in] b The second line.
+ * @return The intersection point.
+ */
+template <std::size_t Dim, std::floating_point T>
 [[nodiscard]] constexpr Vec<Dim, T> intersectionPoint(Line<Dim, T> const& a,
                                                       Line<Dim, T> const& b)
 {
 	if constexpr (2 == Dim) {
-		// LOOKAT: What if they are parallel, then det is also 0
-		auto det = a.normal.x * b.normal.y - a.normal.y * b.normal.x;
-		return det != 0 ? 1 / det *
-		                      Vec<2, T>((a.distance * b.normal.y - b.distance * a.normal.y),
-		                                (b.distance * a.normal.x - a.distance * b.normal.x))
-		                : Vec<2, T>(std::numeric_limits<T>::infinity());
+		T det = a.direction.x() * b.direction.y() - a.direction.y() * b.direction.x();
+		if (std::abs(det) < std::numeric_limits<T>::epsilon()) {
+			return Vec<Dim, T>(std::numeric_limits<T>::infinity());
+		}
+		T t = ((b.origin.x() - a.origin.x()) * b.direction.y() -
+		       (b.origin.y() - a.origin.y()) * b.direction.x()) /
+		      det;
+		return a.origin + t * a.direction;
 	} else if constexpr (3 == Dim) {
-		// TODO: Implement
-	} else if constexpr (4 == Dim) {
-		// TODO: Implement
+		Vec<3, T> w0     = a.origin - b.origin;
+		T         a_dot  = T(1);  // a.direction is normalized
+		T         b_dot  = T(1);  // b.direction is normalized
+		T         ab_dot = dot(a.direction, b.direction);
+		T         aw_dot = dot(a.direction, w0);
+		T         bw_dot = dot(b.direction, w0);
+		T         denom  = a_dot * b_dot - ab_dot * ab_dot;
+		if (std::abs(denom) < std::numeric_limits<T>::epsilon()) {
+			return Vec<Dim, T>(std::numeric_limits<T>::infinity());
+		}
+		T sc = (ab_dot * bw_dot - b_dot * aw_dot) / denom;
+		return a.origin + sc * a.direction;
 	} else {
-		// Error
+		// TODO: Implement for 4D
+		return Vec<Dim, T>(std::numeric_limits<T>::quiet_NaN());
 	}
 }
 
-/*!
- * @brief Compare two Lines.
- *
- * @param lhs,rhs The Lines to compare
- * @return `true` if they compare equal, `false` otherwise.
+/**
+ * @brief Equality operator for Line.
  */
-template <std::size_t Dim, class T>
-bool operator==(Line<Dim, T> const& lhs, Line<Dim, T> const& rhs)
+template <std::size_t Dim, std::floating_point T>
+[[nodiscard]] bool operator==(Line<Dim, T> const& lhs, Line<Dim, T> const& rhs) noexcept
 {
-	return (lhs.normal == rhs.normal && lhs.distance == rhs.distance) ||
-	       (lhs.normal == -rhs.normal && lhs.distance == -rhs.distance);
+	// Lines are equal if they are collinear (same direction and origin lies on the other
+	// line) Or same origin and direction/opposite direction
+	T d = dot(lhs.direction, rhs.direction);
+	if (std::abs(std::abs(d) - T(1)) > std::numeric_limits<T>::epsilon()) {
+		return false;
+	}
+	Vec<Dim, T> diff = lhs.origin - rhs.origin;
+	if (normSquared(diff) < std::numeric_limits<T>::epsilon()) {
+		return true;
+	}
+	diff = normalize(diff);
+	return std::abs(std::abs(dot(diff, lhs.direction)) - T(1)) <
+	       std::numeric_limits<T>::epsilon();
 }
 
-/*!
- * @brief Compare two Lines.
- *
- * @param lhs,rhs The Lines to compare
- * @return `true` if they do not compare equal, `false` otherwise.
+/**
+ * @brief Output stream operator for Line.
  */
-template <std::size_t Dim, class T>
-bool operator!=(Line<Dim, T> const& lhs, Line<Dim, T> const& rhs)
+template <std::size_t Dim, std::floating_point T>
+std::ostream& operator<<(std::ostream& out, Line<Dim, T> const& line)
 {
-	return !(lhs == rhs);
+	return out << "Origin: [" << line.origin << "], Direction: [" << line.direction << "]";
 }
 
-template <class T>
+template <std::floating_point T>
 using Line1 = Line<1, T>;
-template <class T>
+template <std::floating_point T>
 using Line2 = Line<2, T>;
-template <class T>
+template <std::floating_point T>
 using Line3 = Line<3, T>;
-template <class T>
+template <std::floating_point T>
 using Line4 = Line<4, T>;
 
 using Line1f = Line<1, float>;
@@ -145,6 +267,19 @@ using Line1d = Line<1, double>;
 using Line2d = Line<2, double>;
 using Line3d = Line<3, double>;
 using Line4d = Line<4, double>;
+
 }  // namespace ufo
+
+template <std::size_t Dim, std::floating_point T>
+  requires std::formattable<T, char>
+struct std::formatter<ufo::Line<Dim, T>> {
+	constexpr auto parse(std::format_parse_context& ctx) { return ctx.begin(); }
+
+	auto format(ufo::Line<Dim, T> const& line, std::format_context& ctx) const
+	{
+		return std::format_to(ctx.out(), "Origin: [{}], Direction: [{}]", line.origin,
+		                      line.direction);
+	}
+};
 
 #endif  // UFO_GEOMETRY_LINE_HPP

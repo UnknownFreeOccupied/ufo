@@ -545,6 +545,8 @@ void Timing::addTags(std::vector<std::pair<std::wstring, std::wstring>>& data,
 {
 	// TODO: Optimized
 
+	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+
 	for (std::size_t i{}; timers.size() > i; ++i) {
 		std::wstring prefix = L" ";
 		// TODO: std::wstring tag_postfix = timers[i].timing->has_run_concurrent_ ? L"² " : L"
@@ -552,7 +554,8 @@ void Timing::addTags(std::vector<std::pair<std::wstring, std::wstring>>& data,
 		std::wstring tag_postfix = L" ";
 
 		if (0 == timers[i].level) {
-			data.emplace_back(prefix, utf8ToWstring(timers[i].timing->tag()) + tag_postfix);
+			data.emplace_back(prefix,
+			                  converter.from_bytes(timers[i].timing->tag()) + tag_postfix);
 			continue;
 		}
 
@@ -588,7 +591,8 @@ void Timing::addTags(std::vector<std::pair<std::wstring, std::wstring>>& data,
 			prefix += L"└─ ";  // L"╰─ "
 		}
 
-		data.emplace_back(prefix, utf8ToWstring(timers[i].timing->tag()) + tag_postfix);
+		data.emplace_back(prefix,
+		                  converter.from_bytes(timers[i].timing->tag()) + tag_postfix);
 	}
 }
 

@@ -9,7 +9,7 @@
 #include <ufo/map/color/map.hpp>
 #include <ufo/map/occupancy/map.hpp>
 #include <ufo/map/ufomap.hpp>
-#include <ufo/math/trans2.hpp>
+#include <ufo/numeric/trans2.hpp>
 #include <ufo/vision/image.hpp>
 // #include <ufo/util/timing.hpp>
 #include <ufo/execution/execution.hpp>

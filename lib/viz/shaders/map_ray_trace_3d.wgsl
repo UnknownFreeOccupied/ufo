@@ -8,7 +8,8 @@ const NULL_INDEX: Index = Index(NULL_POS, 0u);
 
 struct Hit {
   node: Index,
-  distance: f32
+  distance: f32,
+  hit: vec3f
 };
 
 struct Sample {

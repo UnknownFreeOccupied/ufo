@@ -1,0 +1,357 @@
+---
+title: Predicates
+description: Tree predicates.
+---
+
+Predicates are functions that return a boolean value. They are used to filter nodes, simplifying code, and making it more readable. The predicates allows the developer to extract the desired information, in an efficient manner, without having deep knowledge of the underlying tree structure. They reduce the risk of bugs creeping in, as correct tree traversal code can be tricky to write. They can be combined to create complex structural queries. They are also efficient, even beating manual traversal code written by the author.
+
+> **Mental Model:** Always think of predicates from the *current evaluated node's* perspective (e.g., *"Is this node a descendant of X?"*, *"Does this node have children?"*).
+
+---
+
+## Tree Concepts
+
+### Structure
+
+The following predicates evaluate the *structure* of a node.
+
+| Predicate | Arguments    | Description                                                 |
+| --------- | ------------ | ----------------------------------------------------------- |
+| `Inner`   |              | Is an inner node (i.e., can have children, `height > 0`).   |
+| `Leaf`    |              | Is a leaf node (i.e., cannot have children, `height == 0`). |
+| `Height`  | `min`, `max` | Height is in `[min..max]`.                                  |
+| `Offset`  | `min`, `max` | Offset is in `[min..max]`.                                  |
+
+Below you can find a binary tree diagram to illustrate when the different predicates return true. 
+
+```mermaid
+---
+config:
+  layout: dagre
+  look: classic
+---
+flowchart TB
+  %% Vertical column for labels
+  L3["Height 3 (Inner)"] ~~~ L2["Height 2 (Inner)"]
+  L2 ~~~ L1["Height 1 (Inner)"]
+  L1 ~~~ L0["Height 0 (Leaf)"]
+
+  %% Tree Structure
+  A{{"`Root
+Offset: 0`"}} --> B{
+Offset: 0}
+  A --> C{Offset: 1}
+  B --> D{Offset: 0}
+  B --> E[Offset: 1]
+  D --> F((Offset: 0))
+  D --> G((Offset: 1))
+  C --> H{Offset: 0}
+  C --> I[Offset: 1]
+  H --> J((Offset: 0))
+  H --> K((Offset: 1))
+
+  %% Strip background/borders from labels
+  classDef textLabel fill:none,stroke:none,font-weight:bold,font-size:16px;
+  class L3,L2,L1,L0 textLabel;
+```
+
+### State
+
+The following predicates evaluate the *current state* of a node.
+
+| Predicate     | Description             |
+| ------------- | ----------------------- |
+| `HasChildren` | Has children.           |
+| `Childless`   | Is childless.           |
+| `Exists`      | Exists.                 |
+| `Modified`    | Is in a modified state. |
+
+### Relationships
+
+These predicates evaluate a node based on its position relative to a target node (`T`).
+
+| Predicate      | Arguments | Description                                       |
+| -------------- | --------- | ------------------------------------------------- |
+| `AncestorOf`   | `query`   | Is an ancestor of the given `query` node.         |
+| `SiblingOf`    | `query`   | Shares the same parent as the given `query` node. |
+| `DescendantOf` | `query`   | Is a descendant of the given `query` node.        |
+
+---
+
+## Spatial & Coordinates
+
+### Spatial
+
+These predicates evaluate the physical intersection between a node and a given geometry.
+
+<div class="middle-align-table">
+
+| Predicate | Diagram | Arguments | Description |
+| --- | :---: | :---: | --- |
+| `Contains` | <svg width="80" height="50" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="25" r="22" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2"/><circle cx="40" cy="25" r="10" fill="#ef4444" fill-opacity="0.2" stroke="#ef4444" stroke-width="2"/><text x="40" y="28" font-size="10" text-anchor="middle" fill="currentColor">G</text><text x="40" y="12" font-size="10" text-anchor="middle" fill="#3b82f6">N</text></svg> | `geometry` | `node` contains the `geometry`. |
+| `Disjoint` | <svg width="80" height="50" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><circle cx="22" cy="25" r="15" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2"/><circle cx="58" cy="25" r="15" fill="#ef4444" fill-opacity="0.2" stroke="#ef4444" stroke-width="2"/><text x="22" y="28" font-size="10" text-anchor="middle" fill="#3b82f6">N</text><text x="58" y="28" font-size="10" text-anchor="middle" fill="#ef4444">G</text></svg> | `geometry` | `node` is disjoint from the `geometry`. |
+| `Intersects` | <svg width="80" height="50" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="25" r="18" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2"/><circle cx="50" cy="25" r="18" fill="#ef4444" fill-opacity="0.2" stroke="#ef4444" stroke-width="2"/><text x="23" y="28" font-size="10" text-anchor="middle" fill="#3b82f6">N</text><text x="57" y="28" font-size="10" text-anchor="middle" fill="#ef4444">G</text></svg> | `geometry` | `node` intersects with the `geometry`. |
+| `Inside` | <svg width="80" height="50" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg"><circle cx="40" cy="25" r="22" fill="#ef4444" fill-opacity="0.2" stroke="#ef4444" stroke-width="2"/><circle cx="40" cy="25" r="10" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2"/><text x="40" y="28" font-size="10" text-anchor="middle" fill="currentColor">N</text><text x="40" y="12" font-size="10" text-anchor="middle" fill="#ef4444">G</text></svg> | `geometry` | `node` is inside the `geometry`. |
+
+</div>
+
+### Coordinates
+
+| Predicate | Arguments    | Description                                              |
+| --------- | ------------ | -------------------------------------------------------- |
+| `X`       | `min`, `max` | Intersects along the x-axis with the range `[min, max]`. |
+| `Y`       | `min`, `max` | Intersects along the y-axis with the range `[min, max]`. |
+| `Z`       | `min`, `max` | Intersects along the z-axis with the range `[min, max]`. |
+| `W`       | `min`, `max` | Intersects along the w-axis with the range `[min, max]`. |
+
+---
+
+## Combining Predicates
+
+### Logical
+The following predicates are used to combine, negate, or compare other predicates. 
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `And` | $P_1, \dots, P_n$ | True if all predicates are true ($P_1 \land \dots \land P_n$). |
+| `Or` | $P_1, \dots, P_n$ | True if at least one predicate is true ($P_1 \lor \dots \lor P_n$). |
+| `IfThen` | $P, Q$ | True if $P$ is false or $Q$ is true ($P \rightarrow Q$). |
+| `Iff` | $P, Q$ | True if both arguments are either true or false ($P \leftrightarrow Q$). |
+| `Xor` | $P, Q$ | True if exactly one argument is true ($P \oplus Q$). |
+
+<div class="truth-table">
+
+| P     | Q     | And<br/>$P \land Q$ | Or<br/>$P \lor Q$ | IfThen<br/>$P \rightarrow Q$ | Iff<br/>$P \leftrightarrow Q$ | Xor<br/>$P \oplus Q$ |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **T** | **T** | **T** | **T** | **T** | **T** | F     |
+| **T** | F     | F     | **T** | F     | F     | **T** |
+| F     | **T** | F     | **T** | **T** | F     | **T** |
+| F     | F     | F     | F     | **T** | **T** | F     |
+
+</div>
+
+#### C++ Operator Overloads
+In C++, you can use standard operators to make complex queries much more readable:
+
+| C++ Operator | Predicate | Equivalent Logic |
+| :---: | --- | --- |
+| `&&` | `And` | |
+| `\|\|` | `Or` | |
+| `!` | Negate | |
+| `>>` | `IfThen` | |
+| `^` | `Xor` | |
+| *(None)* | `Iff` | `!(P ^ Q)` |
+
+**Example: Combining Predicates**
+Using the operators, this verbose functional code:
+```cpp
+auto pred = Or(And(a, Xor(b, c), d), e, Iff(f, IfThen(g, h)))
+
+```
+
+Can be written cleanly as:
+
+```cpp
+auto pred = (a && (b ^ c) && d) || e || !(f ^ (g >> h));
+
+```
+
+**Example: Negating Predicates**
+For predicates that check for ranges, it can be more efficient to negate the predicate instead of splitting it into two predicates. Below, the first predicate will be two separate checks per node, while the second predicate will be a single check per node.
+
+```cpp
+// Instead of this:
+auto pred = 3 > depth || depth > 5;
+
+// You can write this:
+auto pred = !(3 < depth < 5);
+```
+
+> **⚠️ Note on C++ Range Syntax**
+> In standard C++, `3 < depth < 5` evaluates incorrectly as `(3 < depth) < 5`. However, our library overrides these operators to build a safe expression chain, meaning you can write mathematical ranges exactly as they appear above!
+
+```cpp
+auto pred = 3 > depth > 5;
+
+// Is equivalent to:
+auto pred = (3 > depth) > 5;
+
+// Which results in:
+auto pred = depth > 5; // Since there is only one predicate at play here
+```
+
+While:
+
+```cpp
+auto pred = 3 < depth < 5;
+
+// Is equivalent to:
+auto pred = 3 < depth && depth < 5;
+```
+
+### Boolean
+These are the simplest predicates, used primarily for testing or forcing specific evaluation states.
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `True` | | Always true. |
+| `False` | | Never true. |
+| `Bool` | `B` | True if the provided boolean `B` is true. |
+
+---
+
+## Customizable Filters
+
+| Predicate | Arguments | Description |
+| --- | --- | --- |
+| `Satisfies` | `RetFun`, `IntFun` | Satisfies `RetFun` and all ancestors satisfy `IntFun`. |
+
+---
+
+## Map-specific Predicates
+
+### Color
+
+These predicates are only available if the map has color, i.e., `ColorMap` is used.
+
+> **Note:** Color properties are evaluated using the [**Oklch** color space](https://bottosson.github.io/posts/oklab/).
+
+| Predicate     | Arguments    | Description                                          |
+| ------------- | ------------ | ---------------------------------------------------- |
+| `HasColor`    |              | Has color.                                           |
+| `Lightness`   | `min`, `max` | Lightness is in `[min, max]`. Valid range: `[0, 1]`. |
+| `Chroma`      | `min`, `max` | Chroma is in `[min, max]`. Valid range: `[0, 0.4]`.  |
+| `Hue`         | `min`, `max` | Hue is in `[min, max]`. Valid range: `[0, 360]`.     |
+| `Alpha`       | `min`, `max` | Alpha is in `[min, max]`. Valid range: `[0, 1]`.     |
+| `ColorWeight` | `min`, `max` | Color weight is in `[min, max]`.                     |
+
+### Confidence
+
+These predicates are only available if the map has confidence, i.e., `ConfidenceMap` or `SemanticMap` is used.
+
+| Predicate    | Arguments    | Description                    |
+| ------------ | ------------ | ------------------------------ |
+| `Confidence` | `min`, `max` | Confidence is in `[min, max]`. |
+
+
+### Cost
+
+These predicates are only available if the map has cost, i.e., `CostMap` is used.
+
+| Predicate | Arguments    | Description              |
+| --------- | ------------ | ------------------------ |
+| `Cost`    | `min`, `max` | Cost is in `[min, max]`. |
+
+### Count
+
+These predicates are only avilable if the map has count, i.e., `CountMap` is used.
+
+| Predicate | Arguments    | Description               |
+| --------- | ------------ | ------------------------- |
+| `Count`   | `min`, `max` | Count is in `[min, max]`. |
+
+### Distance
+
+These predicates are only avilable if the map has distance, i.e., `DistanceMap` is used.
+
+| Predicate  | Arguments    | Description                  |
+| ---------- | ------------ | ---------------------------- |
+| `Distance` | `min`, `max` | Distance is in `[min, max]`. |
+
+### Dynamics
+
+These predicates are only avilable if the map has dynamics, i.e., `DynamicsMap` is used.
+
+| Predicate    | Arguments | Description                     |
+| ------------ | --------- | ------------------------------- |
+| `Dynamic`    |           | Is dynamic.                     |
+| `Static`     |           | Is static.                      |
+| `HasDynamic` |           | Itself or any child is dynamic. |
+| `HasStatic`  |           | Itself or any child is static.  |
+
+### Intensity
+
+These predicates are only avilable if the map has intensity, i.e., `IntensityMap` is used.
+
+| Predicate   | Arguments    | Description                   |
+| ----------- | ------------ | ----------------------------- |
+| `Intensity` | `min`, `max` | Intensity is in `[min, max]`. |
+
+### Label
+
+These predicates are only avilable if the map has labels, i.e., `LabelMap` or `SemanticMap` is used.
+
+| Predicate | Arguments | Description            |
+| --------- | --------- | ---------------------- |
+| `Label`   | `label`   | Has the given `label`. |
+
+### Occupancy
+
+These predicates are only avilable if the map has occupancy, i.e., `OccupancyMap` is used.
+
+| Predicate         | Arguments    | Description                                          |
+| ----------------- | ------------ | ---------------------------------------------------- |
+| `Free`            |              | Is free.                                             |
+| `Occupied`        |              | Is occupied.                                         |
+| `Unknown`         |              | Is unknown.                                          |
+| `Occupancy`       | `min`, `max` | Occupancy is in `[min, max]`. Valid range: `[0, 1]`. |
+| `OccupancyStates` | `states`     | Occupancy is one of the given `states`.              |
+| `HasFree`         |              | Itself or any child is free.                         |
+| `HasOccupied`     |              | Itself or any child is occupied.                     |
+| `HasUnknown`      |              | Itself or any child is unknown.                      |
+
+### Reflection
+
+These predicates are only avilable if the map has reflection, i.e., `ReflectionMap` is used.
+
+| Predicate        | Arguments    | Description                                               |
+| ---------------- | ------------ | --------------------------------------------------------- |
+| `Hits`           | `min`, `max` | Hits is in `[min, max]`.                                  |
+| `Misses`         | `min`, `max` | Misses is in `[min, max]`.                                |
+| `Reflectiveness` | `min`, `max` | Reflectiveness is in `[min, max]`. Valid range: `[0, 1]`. |
+
+### Semantic
+
+These predicates are only avilable if the map has semantic, i.e., `SemanticMap` is used.
+
+| Predicate  | Arguments             | Description                                  |
+| ---------- | --------------------- | -------------------------------------------- |
+| `Semantic` | `label`, `min`, `max` | Has `label` with confidence in `[min, max]`. |
+
+### Surfel
+
+These predicates are only avilable if the map has surfels, i.e., `SurfelMap` is used.
+
+| Predicate        | Arguments    | Description                       |
+| ---------------- | ------------ | --------------------------------- |
+| `SurfelRadius`   | `min`, `max` | Surfel radius is in `[min, max]`. |
+| `IsPlanar`       |              | Surfel is planar.                 |
+
+### Time
+
+These predicates are only avilable if the map has time, i.e., `TimeMap` is used.
+
+| Predicate | Arguments    | Description                   |
+| --------- | ------------ | ----------------------------- |
+| `Time`    | `min`, `max` | Timestamp is in `[min, max]`. |
+
+
+## Examples
+
+```cpp
+ufo::Map<ufo::OccupancyMap, ufo::DynamicsMap, ufo::SemanticMap> map;
+
+// Fill in map with data
+
+namespace up = ufo::pred;
+
+auto pred = up::childless && up::occupied && up::dynamic && up::Semantic("car", 0.7, 1.0);
+
+for (auto node : pred) {
+  // Node is a node that satisfies the predicate, so it is:
+  // - Childless
+  // - Occupied
+  // - Dynamic
+  // - Has label "car" with confidence in [0.7, 1.0]
+}
+```

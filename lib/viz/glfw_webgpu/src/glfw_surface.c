@@ -1,6 +1,9 @@
 // UFO
 #include <ufo/glfw_webgpu/glfw_surface.h>
 
+// STL
+#include <assert.h>
+
 // WebGPU
 #include <webgpu/webgpu.h>
 
@@ -13,59 +16,87 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 WGPUSurface glfwSurface(WGPUInstance instance, GLFWwindow* window)
 {
-	WGPUSurfaceDescriptor desc;
-	desc.label = NULL;
-
-#if defined(GLFW_EXPOSE_NATIVE_WAYLAND) && defined(GLFW_EXPOSE_NATIVE_X11)
-	if (GLFW_PLATFORM_X11 == glfwGetPlatform()) {
-		WGPUSurfaceDescriptorFromXlibWindow desc_x11;
-		desc_x11.chain.next  = NULL;
-		desc_x11.chain.sType = WGPUSType_SurfaceDescriptorFromXlibWindow;
-		desc_x11.display     = glfwGetX11Display();
-		desc_x11.window      = glfwGetX11Window(window);
-
-		desc.nextInChain = &desc_x11.chain;
-	}
-	if (GLFW_PLATFORM_WAYLAND == glfwGetPlatform()) {
-		WGPUSurfaceDescriptorFromWaylandSurface desc_wl;
-		desc_wl.chain.next  = NULL;
-		desc_wl.chain.sType = WGPUSType_SurfaceDescriptorFromWaylandSurface;
-		desc_wl.display     = glfwGetWaylandDisplay();
-		desc_wl.surface     = glfwGetWaylandWindow(window);
-
-		desc.nextInChain = &desc_wl.chain;
-	}
-#elif defined(GLFW_EXPOSE_NATIVE_COCOA)
+#if defined(GLFW_EXPOSE_NATIVE_COCOA)
 	{
-		WGPUSurfaceDescriptorFromMetalLayer desc_metal;
-		desc_metal.chain.next  = NULL;
-		desc_metal.chain.sType = WGPUSType_SurfaceDescriptorFromMetalLayer;
-
 		id        metal_layer = NULL;
 		NSWindow* ns_window   = glfwGetCocoaWindow(window);
 		[ns_window.contentView setWantsLayer:YES];
 		metal_layer = [CAMetalLayer layer];
 		[ns_window.contentView setLayer:metal_layer];
-
-		desc_metal.layer = metal_layer;
-
-		desc.nextInChain = &desc_metal.chain;
+		return wgpuInstanceCreateSurface(
+		    instance, &(WGPUSurfaceDescriptor const){
+		                  .nextInChain =
+		                      (WGPUChainedStruct const*)&(WGPUSurfaceSourceMetalLayer const){
+		                          .chain =
+		                              (WGPUChainedStruct const){
+		                                  .sType = WGPUSType_SurfaceSourceMetalLayer,
+		                              },
+		                          .layer = metal_layer,
+		                      },
+		              });
+	}
+#elif defined(GLFW_EXPOSE_NATIVE_WAYLAND) && defined(GLFW_EXPOSE_NATIVE_X11)
+	if (GLFW_PLATFORM_X11 == glfwGetPlatform()) {
+		Display* x11_display = glfwGetX11Display();
+		Window   x11_window  = glfwGetX11Window(window);
+		return wgpuInstanceCreateSurface(
+		    instance, &(WGPUSurfaceDescriptor const){
+		                  .nextInChain =
+		                      (WGPUChainedStruct const*)&(WGPUSurfaceSourceXlibWindow const){
+		                          .chain =
+		                              (WGPUChainedStruct const){
+		                                  .sType = WGPUSType_SurfaceSourceXlibWindow,
+		                              },
+		                          .display = x11_display,
+		                          .window  = x11_window,
+		                      },
+		              });
+	}
+	if (GLFW_PLATFORM_WAYLAND == glfwGetPlatform()) {
+		struct wl_display* wayland_display = glfwGetWaylandDisplay();
+		struct wl_surface* wayland_surface = glfwGetWaylandWindow(window);
+		return wgpuInstanceCreateSurface(
+		    instance,
+		    &(WGPUSurfaceDescriptor const){
+		        .nextInChain =
+		            (WGPUChainedStruct const*)&(WGPUSurfaceSourceWaylandSurface const){
+		                .chain =
+		                    (WGPUChainedStruct const){
+		                        .sType = WGPUSType_SurfaceSourceWaylandSurface,
+		                    },
+		                .display = wayland_display,
+		                .surface = wayland_surface,
+		            },
+		    });
 	}
 #elif defined(GLFW_EXPOSE_NATIVE_WIN32)
 	{
-		WGPUSurfaceDescriptorFromWindowsHWND desc_win;
-		desc_win.chain.next  = NULL;
-		desc_win.chain.sType = WGPUSType_SurfaceDescriptorFromWindowsHWND;
-		desc_win.hinstance   = GetModuleHandle(NULL);
-		desc_win.hwnd        = glfwGetWin32Window(window);
-
-		desc.nextInChain = &desc_win.chain;
+		HWND      hwnd      = glfwGetWin32Window(window);
+		HINSTANCE hinstance = GetModuleHandle(NULL);
+		return wgpuInstanceCreateSurface(
+		    instance, &(WGPUSurfaceDescriptor const){
+		                  .nextInChain =
+		                      (WGPUChainedStruct const*)&(WGPUSurfaceSourceWindowsHWND const){
+		                          .chain =
+		                              (WGPUChainedStruct const){
+		                                  .sType = WGPUSType_SurfaceSourceWindowsHWND,
+		                              },
+		                          .hinstance = hinstance,
+		                          .hwnd      = hwnd,
+		                      },
+		              });
 	}
 #else
 #error "Unsupported GLFW native platform"
 #endif
-
-	return wgpuInstanceCreateSurface(instance, &desc);
 }
+
+#ifdef __cplusplus
+}
+#endif

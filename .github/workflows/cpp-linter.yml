@@ -16,7 +16,7 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Set reusable strings
         # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
@@ -46,11 +46,10 @@ jobs:
           style: 'file'  # Use .clang-format config file
           tidy-checks: '' # Use .clang-tidy config file
           ignore: 'external'
-          # only 'update' a single comment in a pull request thread.
           lines-changed-only: true
-          tidy-review: true
-          format-review: true
-          thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
+          tidy-review: false
+          format-review: false
+          thread-comments: ${{ github.event_name == 'pull_request' && 'update' || 'false' }}
           database: ${{ steps.strings.outputs.build-output-dir }}
       - name: Fail fast?!
         if: steps.linter.outputs.checks-failed > 0

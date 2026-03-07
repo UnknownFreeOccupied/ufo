@@ -1,23 +1,21 @@
-/*!
- * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
- *
- * @author Daniel Duberg (dduberg@kth.se)
- * @see https://github.com/UnknownFreeOccupied/ufomap
+/**
+ * @author Daniel Duberg (danielduberg@gmail.com)
+ * @see https://github.com/UnknownFreeOccupied/ufo
  * @version 1.0
- * @date 2022-05-13
+ * @date 2026-02-22
  *
- * @copyright Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of Technology
+ * @copyright Copyright (c) 2020-2026, Daniel Duberg
  *
  * BSD 3-Clause License
  *
- * Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of Technology
+ * Copyright (c) 2020-2026, Daniel Duberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *     list of conditions and the following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *     this list of conditions and the following disclaimer in the documentation
@@ -29,27 +27,25 @@
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef UFO_UTILITY_BIT_SET_HPP
 #define UFO_UTILITY_BIT_SET_HPP
 
 // STL
-#if __cplusplus >= 202002L
 #include <bit>
-#else
-#include <bitset>
-#endif
 #include <cassert>
 #include <cstdint>
+#include <limits>
 #include <stdexcept>
 #include <type_traits>
 
@@ -70,40 +66,51 @@ class BitSet
 	using value_type = T;
 
  private:
-	static constexpr T ALL_SET = ~((~std::uint64_t(0)) << N);
+	static constexpr T const ALL_SET = []() {
+		if constexpr (std::numeric_limits<T>::digits == N) {
+			return static_cast<T>(~T(0));
+		} else {
+			return static_cast<T>(~(static_cast<T>(~T(0)) << N));
+		}
+	}();
 
  public:
 	struct Reference {
 		friend class BitSet<N>;
 
 	 public:
-		constexpr Reference& operator=(bool x) noexcept
+		constexpr Reference& operator=(bool v) noexcept
 		{
-			set_ ^= static_cast<T>(-static_cast<T>(x) ^ set_) & index_;
+			T const x = set_;
+			T const y = static_cast<T>(~bit_);
+			T const z = static_cast<T>(v) << pos_;
+
+			set_ = (x & y) | z;
 			return *this;
 		}
 
-		constexpr Reference& operator=(Reference const& x) noexcept { return operator=(!!x); }
+		constexpr Reference& operator=(Reference const& v) noexcept { return operator=(!!v); }
 
-		constexpr operator bool() const noexcept { return T(0) != (set_ & index_); }
+		constexpr operator bool() const noexcept { return !!(set_ & bit_); }
 
-		constexpr bool operator~() const noexcept { return T(0) == (set_ & index_); }
+		constexpr bool operator~() const noexcept { return !(set_ & bit_); }
 
 		constexpr Reference& flip() noexcept
 		{
-			set_ ^= index_;
+			set_ ^= bit_;
 			return *this;
 		}
 
 	 private:
 		constexpr Reference(T& set, std::size_t pos) noexcept
-		    : set_(set), index_(static_cast<T>(T(1) << pos))
+		    : set_(set), pos_(pos), bit_(static_cast<T>(T(1) << pos))
 		{
 		}
 
 	 private:
 		T& set_;
-		T  index_;
+		T  pos_;
+		T  bit_;
 	};
 
 	constexpr BitSet() noexcept = default;
@@ -156,23 +163,16 @@ class BitSet
 
 	[[nodiscard]] constexpr bool all() const noexcept { return ALL_SET == set_; }
 
-	[[nodiscard]] constexpr bool any() const noexcept { return set_; }
+	[[nodiscard]] constexpr bool any() const noexcept { return !none(); }
 
-	[[nodiscard]] constexpr bool none() const noexcept { return 0 == set_; }
+	[[nodiscard]] constexpr bool none() const noexcept { return T(0) == set_; }
 
-	[[nodiscard]] constexpr bool some() const noexcept { return any() && !all(); }
+	[[nodiscard]] constexpr bool some() const noexcept { return !all() && !none(); }
 
-#if __cplusplus >= 202002L
 	[[nodiscard]] constexpr std::size_t count() const noexcept
 	{
 		return std::popcount(set_);
 	}
-#else
-	[[nodiscard]] std::size_t count() const noexcept
-	{
-		return std::bitset<N>(set_).count();
-	}
-#endif
 
 	[[nodiscard]] static constexpr std::size_t size() noexcept { return N; }
 
@@ -201,7 +201,12 @@ class BitSet
 	constexpr void set(std::size_t pos, bool value)
 	{
 		assert(N > pos);
-		set_ ^= static_cast<T>(-static_cast<T>(value) ^ set_) & static_cast<T>(T(1) << pos);
+
+		T const x = set_;
+		T const y = static_cast<T>(~(T(1) << pos));
+		T const z = static_cast<T>(value) << pos;
+
+		set_ = (x & y) | z;
 	}
 
 	constexpr void set(std::size_t pos)
@@ -215,7 +220,7 @@ class BitSet
 	constexpr void reset(std::size_t pos)
 	{
 		assert(N > pos);
-		set_ &= ~(T(1) << pos);
+		set_ &= static_cast<T>(~(T(1) << pos));
 	}
 
 	constexpr void flip() noexcept { set_ = static_cast<T>(~set_); }
@@ -226,42 +231,44 @@ class BitSet
 		set_ ^= static_cast<T>(T(1) << pos);
 	}
 
-	[[nodiscard]] constexpr T data() const { return set_; }
+	[[nodiscard]] constexpr value_type data() const { return set_; }
 
- public:  // TODO: Make private
+ private:
 	T set_{};
 };
 
 template <std::size_t N>
 constexpr BitSet<N> operator&(BitSet<N> lhs, BitSet<N> rhs) noexcept
 {
-	return BitSet<N>(lhs.set_ & rhs.set_);
+	return BitSet<N>(lhs.data() & rhs.data());
 }
 
 template <std::size_t N>
 constexpr BitSet<N> operator|(BitSet<N> lhs, BitSet<N> rhs) noexcept
 {
-	return BitSet<N>(lhs.set_ | rhs.set_);
+	return BitSet<N>(lhs.data() | rhs.data());
 }
 
 template <std::size_t N>
 constexpr BitSet<N> operator^(BitSet<N> lhs, BitSet<N> rhs) noexcept
 {
-	return BitSet<N>(lhs.set_ ^ rhs.set_);
+	return BitSet<N>(lhs.data() ^ rhs.data());
 }
 
 template <class CharT, class Traits, std::size_t N>
 std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os,
                                               BitSet<N>                          x)
 {
-	return os << +x.set_;
+	return os << +x.data();
 }
 
 template <class CharT, class Traits, std::size_t N>
 std::basic_istream<CharT, Traits>& operator>>(std::basic_istream<CharT, Traits>& is,
                                               BitSet<N>&                         x)
 {
-	// TODO: Implement
+	typename BitSet<N>::value_type data;
+	is >> data;
+	x = BitSet<N>(data);
 	return is;
 }
 }  // namespace ufo
@@ -270,7 +277,7 @@ namespace std
 {
 template <std::size_t N>
 struct hash<ufo::BitSet<N>> {
-	std::size_t operator()(ufo::BitSet<N> x) const { return x.set_; }
+	std::size_t operator()(ufo::BitSet<N> x) const { return x.data(); }
 };
 }  // namespace std
 

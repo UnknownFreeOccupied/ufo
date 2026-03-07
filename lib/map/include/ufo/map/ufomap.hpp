@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -45,35 +45,24 @@
 // UFO
 #include <ufo/map/color/map.hpp>
 #include <ufo/map/integrator/integrator.hpp>
-#include <ufo/map/map_full.hpp>
+#include <ufo/map/map.hpp>
 #include <ufo/map/occupancy/map.hpp>
+#include <ufo/map/occupancy_color_void_region/map.hpp>
 #include <ufo/map/utility.hpp>
 #include <ufo/map/void_region/map.hpp>
 
 namespace ufo
 {
-template <template <class, class> class... Maps>
+template <class... Maps>
 using Map1D = Map<1, Maps...>;
 
-template <template <class, class> class... Maps>
+template <class... Maps>
 using Map2D = Map<2, Maps...>;
 
-template <template <class, class> class... Maps>
+template <class... Maps>
 using Map3D = Map<3, Maps...>;
 
-template <template <class, class> class... Maps>
+template <class... Maps>
 using Map4D = Map<4, Maps...>;
-
-template <MapUtility Utility, template <class, class> class... Maps>
-using MapFull1D = MapFull<1, Utility, Maps...>;
-
-template <MapUtility Utility, template <class, class> class... Maps>
-using MapFull2D = MapFull<2, Utility, Maps...>;
-
-template <MapUtility Utility, template <class, class> class... Maps>
-using MapFull3D = MapFull<3, Utility, Maps...>;
-
-template <MapUtility Utility, template <class, class> class... Maps>
-using MapFull4D = MapFull<4, Utility, Maps...>;
 }  // namespace ufo
 #endif  // UFO_MAP_UFOMAP_HPP

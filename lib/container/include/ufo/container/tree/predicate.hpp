@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -45,38 +45,83 @@
 // UFO
 #include <ufo/container/tree/predicate/and.hpp>
 #include <ufo/container/tree/predicate/bool.hpp>
+#include <ufo/container/tree/predicate/boolean.hpp>
 #include <ufo/container/tree/predicate/child_of.hpp>
 #include <ufo/container/tree/predicate/coord.hpp>
 #include <ufo/container/tree/predicate/depth.hpp>
-#include <ufo/container/tree/predicate/depth_interval.hpp>
+#include <ufo/container/tree/predicate/disjoint.hpp>
 #include <ufo/container/tree/predicate/exists.hpp>
-#include <ufo/container/tree/predicate/false.hpp>
 #include <ufo/container/tree/predicate/filter.hpp>
+#include <ufo/container/tree/predicate/height.hpp>
 #include <ufo/container/tree/predicate/if_and_only_if.hpp>
+#include <ufo/container/tree/predicate/if_then.hpp>
 #include <ufo/container/tree/predicate/inner.hpp>
+#include <ufo/container/tree/predicate/intersects.hpp>
 #include <ufo/container/tree/predicate/leaf.hpp>
-#include <ufo/container/tree/predicate/leaf_or_depth.hpp>
 #include <ufo/container/tree/predicate/length.hpp>
-#include <ufo/container/tree/predicate/length_interval.hpp>
 #include <ufo/container/tree/predicate/modified.hpp>
 #include <ufo/container/tree/predicate/offset.hpp>
 #include <ufo/container/tree/predicate/or.hpp>
 #include <ufo/container/tree/predicate/parent.hpp>
 #include <ufo/container/tree/predicate/predicate.hpp>
-#include <ufo/container/tree/predicate/predicate_compare.hpp>
+#include <ufo/container/tree/predicate/predicate_interval.hpp>
 #include <ufo/container/tree/predicate/pure_leaf.hpp>
 #include <ufo/container/tree/predicate/satisfies.hpp>
-#include <ufo/container/tree/predicate/satisfies_inner.hpp>
 #include <ufo/container/tree/predicate/spatial.hpp>
-#include <ufo/container/tree/predicate/then.hpp>
-#include <ufo/container/tree/predicate/true.hpp>
+#include <ufo/container/tree/predicate/xor.hpp>
 
 namespace ufo::pred
 {
-constexpr PureLeaf operator!(Inner) { return {}; }
-constexpr Inner    operator!(PureLeaf) { return {}; }
-constexpr Parent   operator!(Leaf) { return {}; }
-constexpr Leaf     operator!(Parent) { return {}; }
+template <Filterable... Preds>
+[[nodiscard]] constexpr auto operator!(And<Preds...> const& p) noexcept
+{
+	return std::apply([](auto&&... preds) { return Or(!preds...); }, p.preds);
+}
+
+template <Filterable... Preds>
+[[nodiscard]] constexpr auto operator!(Or<Preds...> const& p) noexcept
+{
+	return std::apply([](auto&&... preds) { return And(!preds...); }, p.preds);
+}
+
+template <Filterable PredPre, Filterable PredPost>
+[[nodiscard]] constexpr auto operator!(IfThen<PredPre, PredPost> const& p) noexcept
+{
+	return And(p.pre, !p.post);
+}
+
+template <Filterable PredLeft, Filterable PredRight>
+[[nodiscard]] constexpr Xor<PredLeft, PredRight> operator!(
+    Iff<PredLeft, PredRight> const& p) noexcept
+{
+	return Xor(p.left, p.right);
+}
+
+template <Filterable PredLeft, Filterable PredRight>
+[[nodiscard]] constexpr Iff<PredLeft, PredRight> operator!(
+    Xor<PredLeft, PredRight> const& p) noexcept
+{
+	return Iff(p.left, p.right);
+}
+
+template <class Geometry>
+[[nodiscard]] constexpr Disjoint<Geometry> operator!(
+    Intersects<Geometry> const& p) noexcept
+{
+	return Disjoint<Geometry>(p.geometry);
+}
+
+template <class Geometry>
+[[nodiscard]] constexpr Intersects<Geometry> operator!(
+    Disjoint<Geometry> const& p) noexcept
+{
+	return Intersects<Geometry>(p.geometry);
+}
+
+[[nodiscard]] constexpr PureLeaf operator!(Inner) noexcept { return {}; }
+[[nodiscard]] constexpr Inner    operator!(PureLeaf) noexcept { return {}; }
+[[nodiscard]] constexpr Parent   operator!(Leaf) noexcept { return {}; }
+[[nodiscard]] constexpr Leaf     operator!(Parent) noexcept { return {}; }
 }  // namespace ufo::pred
 
 #endif  // UFO_CONTAINER_TREE_PREDICATE_HPP

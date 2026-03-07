@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -44,7 +44,7 @@
 
 // UFO
 #include <ufo/map/type.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/vec.hpp>
 #include <ufo/utility/enum.hpp>
 #include <ufo/utility/io/buffer.hpp>
 #include <ufo/utility/string.hpp>
@@ -355,11 +355,11 @@ struct MapHeader {
 
 		if (reading_map_info && '-' == param[0]) {
 			MapTypeInfo   info;
-			std::uint64_t type;
-			if (2 != std::sscanf(value.c_str(), "%" SCNx64 ", %" SCNx64, &type, &info.size)) {
+			std::uint64_t map_type = to_underlying(info.type);
+			if (2 !=
+			    std::sscanf(value.c_str(), "%" SCNx64 ", %" SCNx64, &map_type, &info.size)) {
 				throw std::logic_error("Wrong map type info");
 			}
-			info.type = static_cast<MapType>(type);
 			map_info.push_back(info);
 			return false;
 		}

@@ -1,18 +1,14 @@
-/*!
- * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the
- * Unknown
- *
- * @author Daniel Duberg (dduberg@kth.se)
- * @see https://github.com/UnknownFreeOccupied/ufomap
+/**
+ * @author Daniel Duberg (danielduberg@gmail.com)
+ * @see https://github.com/UnknownFreeOccupied/ufo
  * @version 1.0
- * @date 2022-05-13
+ * @date 2026-02-22
  *
- * @copyright Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of
- * Technology
+ * @copyright Copyright (c) 2020-2026, Daniel Duberg
  *
  * BSD 3-Clause License
  *
- * Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of Technology
+ * Copyright (c) 2020-2026, Daniel Duberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,48 +42,93 @@
 #define UFO_CORE_SEMANTIC_HPP
 
 // UFO
+#include <ufo/core/confidence.hpp>
 #include <ufo/core/label.hpp>
 
 // STL
+#include <concepts>
+#include <format>
 #include <ostream>
 
 namespace ufo
 {
-using value_t = float;
+/**
+ * @ingroup core
+ * @{
+ */
 
+/**
+ * @brief Represents a semantic annotation as a pair of class label and confidence score.
+ *
+ * @details
+ * `Semantic` combines a discrete category identifier (`Label`) with a continuous
+ * confidence measure (`Confidence`), making it suitable for probabilistic semantic
+ * segmentation of point clouds and map nodes. It is a lightweight, trivially-copyable
+ * aggregate, fully ordered via `<=>`, and supports `std::ostream` streaming (as "label:
+ * confidence") and `std::format`.
+ *
+ * Intended for use as a per-point or per-node attribute in semantic mapping, where both
+ * the class and its associated certainty are required.
+ *
+ * @see Label, Confidence
+ */
 struct Semantic {
-	label_t label = 0;
-	value_t value = 0;
+	/**
+	 * @brief The discrete semantic class identifier.
+	 */
+	Label label{};
 
-	constexpr Semantic() noexcept = default;
+	/**
+	 * @brief The associated confidence or weight score.
+	 */
+	Confidence confidence{};
 
-	constexpr Semantic(label_t label, value_t value = 0) noexcept
-	    : label(label), value(value)
-	{
-	}
+	/**
+	 * @brief Three-way comparison (lexicographic on label then value).
+	 *
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
+	 * @return Comparison result.
+	 */
+	[[nodiscard]] friend constexpr auto operator<=>(Semantic lhs,
+	                                                Semantic rhs) noexcept = default;
+
+	/**
+	 * @brief Equality comparison.
+	 *
+	 * @param [in] lhs Left operand.
+	 * @param [in] rhs Right operand.
+	 * @return True if both label and confidence are equal.
+	 */
+	[[nodiscard]] friend constexpr bool operator==(Semantic lhs,
+	                                               Semantic rhs) noexcept = default;
 };
 
-constexpr bool operator==(Semantic lhs, Semantic rhs)
+/**
+ * @}
+ */
+
+/**
+ * @ingroup core
+ * @brief Writes the semantic as "label: confidence" to `out`.
+ *
+ * @param [in,out] out Output stream.
+ * @param [in] s Semantic to print.
+ * @return Reference to the output stream.
+ */
+inline std::ostream& operator<<(std::ostream& out, Semantic s)
 {
-	return lhs.label == rhs.label && lhs.value == rhs.value;
-}
-
-constexpr bool operator!=(Semantic lhs, Semantic rhs) { return !(lhs == rhs); }
-
-constexpr bool operator<(Semantic lhs, Semantic rhs)
-{
-	return lhs.label < rhs.label || (lhs.label == rhs.label && lhs.value < rhs.value);
-}
-
-constexpr bool operator<=(Semantic lhs, Semantic rhs) { return !(rhs < lhs); }
-
-constexpr bool operator>(Semantic lhs, Semantic rhs) { return rhs < lhs; }
-
-constexpr bool operator>=(Semantic lhs, Semantic rhs) { return !(lhs < rhs); }
-
-inline std::ostream& operator<<(std::ostream& out, ufo::Semantic s)
-{
-	return out << s.label << ": " << s.value;
+	return out << s.label << ": " << s.confidence;
 }
 }  // namespace ufo
+
+template <>
+struct std::formatter<ufo::Semantic> {
+	constexpr auto parse(std::format_parse_context& ctx) const { return ctx.begin(); }
+
+	auto format(ufo::Semantic s, std::format_context& ctx) const
+	{
+		return std::format_to(ctx.out(), "{}: {}", s.label, s.confidence);
+	}
+};
 #endif  // UFO_CORE_SEMANTIC_HPP

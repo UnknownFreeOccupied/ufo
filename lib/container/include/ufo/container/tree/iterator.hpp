@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -65,8 +65,9 @@ class TreeIterator
  private:
 	static constexpr std::size_t const BF = Tree::branchingFactor();
 
-	using Node     = typename Tree::Node;
-	using offset_t = typename Tree::offset_t;
+	using Node        = typename Tree::Node;
+	using offset_type = typename Tree::offset_type;
+	using depth_type  = typename Tree::depth_type;
 
  public:
 	//
@@ -81,36 +82,22 @@ class TreeIterator
 
 	constexpr TreeIterator() = default;
 
-	TreeIterator(Tree* t, Node const& node, bool only_leaves, bool only_exists)
-	    : t_(t)
-	    , root_(node)
+	TreeIterator(Tree const* tree, Node node, bool only_leaves, bool only_exists)
+	    : tree_(tree)
 	    , cur_(node)
-	    , only_leaves_(only_leaves)
-	    , only_exists_(only_exists)
+	    , start_(tree->depth(node))
+	    , nextNode(nextNodeFun(only_leaves, only_exists))
 	{
-		if (only_exists_ && !t_->exists(root_)) {
-			root_ = {};
-			cur_  = {};
-			return;
+		if (only_exists && !tree_->exists(cur_)) {
+			cur_ = {};
+		} else if (only_leaves && tree_->isParent(node.index)) {
+			cur_ = nextNode(*tree_, cur_, start_);
 		}
-
-		if (returnable(cur_)) {
-			return;
-		}
-
-		nextNode();
 	}
 
 	TreeIterator& operator++()
 	{
-		if (!only_exists_) {
-			auto min_depth = t_->depth(cur_.code);
-			auto depth     = t_->depth(cur_.index);
-			while (min_depth < depth && t_->isParent(cur_.index)) {
-				cur_.index = t_->child(cur_.index, cur_.code.offset(--depth));
-			}
-		}
-		nextNode();
+		cur_ = nextNode(*tree_, cur_, start_);
 		return *this;
 	}
 
@@ -127,7 +114,7 @@ class TreeIterator
 
 	friend bool operator==(TreeIterator const& lhs, TreeIterator const& rhs)
 	{
-		return lhs.cur_ == rhs.cur_;
+		return lhs.cur_.code == rhs.cur_.code;
 	}
 
 	friend bool operator!=(TreeIterator const& lhs, TreeIterator const& rhs)
@@ -136,104 +123,85 @@ class TreeIterator
 	}
 
  private:
-	[[nodiscard]] bool returnable(Node const& node) const
+	[[nodiscard]] static auto nextNodeFun(bool only_leaves, bool only_exists)
 	{
-		return !only_leaves_ || t_->isLeaf(node.index);
-	}
-
-	[[nodiscard]] bool traversable(Node const& node) const
-	{
-		return t_->isParent(node.index) || (!only_exists_ && !t_->isPureLeaf(node.code));
-	}
-
-	[[nodiscard]] bool exists(Node const& node) const
-	{
-		return only_exists_ || t_->code(node.index) == node.code;
-	}
-
-	[[nodiscard]] Node sibling(Node const& node, offset_t sibling_index) const
-	{
-		return Node(t_->sibling(node.code, sibling_index),
-		            exists(node) ? t_->sibling(node.index, sibling_index) : node.index);
-	}
-
-	[[nodiscard]] Node child(Node const& node, offset_t child_index) const
-	{
-		return Node(
-		    t_->child(node.code, child_index),
-		    t_->isParent(node.index) ? t_->child(node.index, child_index) : node.index);
-	}
-
-	[[nodiscard]] Node parent(Node const& node) const
-	{
-		return Node(t_->parent(node.code),
-		            exists(node) ? t_->parent(node.index) : node.index);
-	}
-
-	[[nodiscard]] offset_t offset(Node const& node) const { return node.code.offset(); }
-
-	void nextNode()
-	{
-		if (traversable(cur_)) {
-			cur_ = child(cur_, 0);
-			if (nextNodeDownwards()) {
-				return;
-			}
+		if (only_leaves && only_exists) {
+			return &TreeIterator::next<true, true>;
+		} else if (only_leaves && !only_exists) {
+			return &TreeIterator::next<true, false>;
+		} else if (!only_leaves && only_exists) {
+			return &TreeIterator::next<false, true>;
+		} else {
+			return &TreeIterator::next<false, false>;
 		}
+	}
 
-		while (root_ != cur_) {
-			auto branch = offset(cur_);
-			if (BF - 1 == branch) {
-				cur_ = parent(cur_);
-				continue;
-			}
+	template <bool OnlyLeaves, bool OnlyExists>
+	[[nodiscard]] static Node next(Tree const& tree, Node node, depth_type start)
+	{
+		if constexpr (!OnlyLeaves) {
+			// Traverse down the branch
 
-			cur_ = sibling(cur_, branch + 1);
-
-			if (returnable(cur_)) {
-				return;
-			}
-
-			if (traversable(cur_)) {
-				cur_ = child(cur_, 0);
-				if (nextNodeDownwards()) {
-					return;
+			if constexpr (OnlyExists) {
+				if (tree.isParent(node.index)) {
+					node.code  = node.code.firstborn();
+					node.index = tree.child(node.index, 0);
+					return node;
+				}
+			} else {
+				if (0 < node.code.depth()) {
+					node.code = node.code.firstborn();
+					if (tree.isParent(node.index)) {
+						node.index = tree.child(node.index, 0);
+					}
+					return node;
 				}
 			}
 		}
 
-		// We have visited all nodes
-		root_ = {};
-		cur_  = {};
-	}
+		// Find next branch
 
-	/*!
-	 * @brief
-	 *
-	 * @return true if a new node was found, false otherwise.
-	 */
-	bool nextNodeDownwards()
-	{
-		while (true) {
-			if (returnable(cur_)) {
-				return true;
-			} else if (traversable(cur_)) {
-				cur_ = child(cur_, 0);
+		while (BF - 1 <= node.code.offset()) {
+			node.code = node.code.parent();
+		}
+
+		if (start <= node.code.depth()) {
+			return Node{};
+		}
+
+		node.code  = node.code.nextSibling();
+		node.index = tree.ancestor(node.index, node.code.depth());
+
+		if constexpr (OnlyExists) {
+			++node.index.offset;
+		} else {
+			node.index.offset += node.code.depth() == tree.depth(node.index) ? 1 : 0;
+		}
+
+		if constexpr (OnlyLeaves) {
+			// Adjust index
+
+			while (tree.isParent(node.index)) {
+				node.index = tree.child(node.index, 0);
+			}
+
+			if constexpr (OnlyExists) {
+				node.code.setDepth(tree.depth(node.index));
 			} else {
-				break;
+				node.code.setDepth(0);
 			}
 		}
-		return false;
+
+		return node;
 	}
 
  private:
-	Tree* t_ = nullptr;
+	Tree const* tree_;
 
-	Node root_{};
-	Node cur_{};
+	Node       cur_{};
+	depth_type start_;
 
-	bool only_leaves_{};
-	bool only_exists_{};
+	decltype(&TreeIterator::next<true, true>) nextNode;
 };
 }  // namespace ufo
 

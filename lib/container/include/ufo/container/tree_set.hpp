@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -63,11 +63,11 @@ namespace ufo
 {
 template <std::size_t Dim>
 class TreeSet
-    : protected Tree<TreeSet<Dim>, Dim, false, TreeSetBlock<Dim, std::size_t(1) << Dim>>
+    : protected Tree<TreeSet<Dim>, Dim, TreeSetBlock<Dim, std::size_t(1) << Dim>>
 {
  protected:
 	using Block = TreeSetBlock<Dim, std::size_t(1) << Dim>;
-	using Base  = Tree<TreeSet, Dim, false, Block>;
+	using Base  = Tree<TreeSet, Dim, Block>;
 
 	//
 	// Friends
@@ -367,21 +367,21 @@ class TreeSet
 	|                                                                                     |
 	**************************************************************************************/
 
-	/*!
+	/**
 	 * @brief Checks if the container has no elements.
 	 *
 	 * @return `true` if the container is empty, `false` otherwise.
 	 */
 	[[nodiscard]] bool empty() const noexcept { return 0 == size(); }
 
-	/*!
+	/**
 	 * @brief Returns the number of elements in the container.
 	 *
 	 * @return The number of elements in the container.
 	 */
 	[[nodiscard]] size_type size() const noexcept { return size_; }
 
-	/*!
+	/**
 	 * @brief Returns the minimum `Bounds` able to contain all values stored
 	 * in the container.
 	 *
@@ -395,7 +395,7 @@ class TreeSet
 	|                                                                                     |
 	**************************************************************************************/
 
-	/*!
+	/**
 	 * @brief Erases all elements from the container. After this call, `size()` returns
 	 * zero.
 	 */
@@ -677,7 +677,7 @@ class TreeSet
 		return erase(query.begin(), query.end());
 	}
 
-	/*!
+	/**
 	 * @brief Exchanges the contents of the container with those of `other`.
 	 *
 	 * @param other	container to exchange the contents with
@@ -694,7 +694,7 @@ class TreeSet
 	|                                                                                     |
 	**************************************************************************************/
 
-	/*!
+	/**
 	 * @brief Returns the number of elements with Point that compares equivalent to the
 	 * specified argument.
 	 *
@@ -708,7 +708,7 @@ class TreeSet
 		                     [point](auto const& x) { return x == point; });
 	}
 
-	/*!
+	/**
 	 * @brief Checks if there is an element with Point equivalent to `point` in the
 	 * container.
 	 *
@@ -822,7 +822,7 @@ class TreeSet
 	|                                                                                     |
 	**************************************************************************************/
 
-	/*!
+	/**
 	 * @brief Returns the minimum `Bounds` able to contain all values stored
 	 * in the node and all of its children.
 	 *
@@ -837,7 +837,7 @@ class TreeSet
 		return Base::treeBlock(n).bounds[n.offset];
 	}
 
-	/*!
+	/**
 	 * @brief Returns the minimum `Bounds` able to contain all values stored
 	 * in the node and all of its children.
 	 *
@@ -883,7 +883,7 @@ class TreeSet
 	|                                                                                     |
 	**************************************************************************************/
 
-	/*!
+	/**
 	 * @brief Checks if the node and none of its children have any elements.
 	 *
 	 * @param node the node to check
@@ -1017,7 +1017,7 @@ class TreeSet
 		return Base::treeBlock(node).values[node.offset];
 	}
 
-	/*!
+	/**
 	 * @brief Returns the minimum point of the `Bounds` able to contain all values stored
 	 * in the node and all of its children.
 	 *
@@ -1030,7 +1030,7 @@ class TreeSet
 		return Base::treeBlock(node).bounds[node.offset].min;
 	}
 
-	/*!
+	/**
 	 * @brief Returns the minimum point of the `Bounds` able to contain all values stored
 	 * in the node and all of its children.
 	 *
@@ -1043,7 +1043,7 @@ class TreeSet
 		return Base::treeBlock(node).bounds[node.offset].min;
 	}
 
-	/*!
+	/**
 	 * @brief Returns the maximum point of the `Bounds` able to contain all values stored
 	 * in the node and all of its children.
 	 *
@@ -1056,7 +1056,7 @@ class TreeSet
 		return Base::treeBlock(node).bounds[node.offset].max;
 	}
 
-	/*!
+	/**
 	 * @brief Returns the maximum point of the `Bounds` able to contain all values stored
 	 * in the node and all of its children.
 	 *

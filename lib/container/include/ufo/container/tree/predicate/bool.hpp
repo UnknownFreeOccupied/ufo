@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -46,40 +46,62 @@
 #include <ufo/container/tree/predicate/filter.hpp>
 #include <ufo/utility/type_traits.hpp>
 
-// STL
-#include <tuple>
-#include <type_traits>
-#include <utility>
-
 namespace ufo::pred
 {
+struct Bool {
+	bool value{};
+
+	constexpr Bool() noexcept = default;
+
+	constexpr explicit Bool(bool value) noexcept : value(value) {}
+};
+
+[[nodiscard]] constexpr Bool operator!(Bool const& p) noexcept { return Bool{!p.value}; }
+
 template <>
-struct Filter<bool> : public FilterBase<bool> {
-	using Pred = bool;
+struct Filter<Bool> {
+	using Pred = Bool;
 
 	template <class Tree>
-	static constexpr void init(Pred&, Tree const&)
+	static constexpr void init(Pred&, Tree const&) noexcept
 	{
 	}
 
 	template <class Value>
-	[[nodiscard]] static constexpr bool returnable(Pred const& p, Value const&)
+	[[nodiscard]] static constexpr bool returnableValue(Pred const& p,
+	                                                    Value const&) noexcept
 	{
-		return p;
+		return p.value;
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const&,
-	                                               typename Tree::Node const&)
+	                                               typename Tree::Node const&) noexcept
 	{
-		return p;
+		return p.value;
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool traversable(Pred const& p, Tree const&,
-	                                                typename Tree::Node const&)
+	                                                typename Tree::Node const&) noexcept
 	{
-		return p;
+		return p.value;
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool returnableRay(Pred const& p, Tree const&,
+	                                                  typename Tree::Node const&,
+	                                                  typename Tree::Ray const&) noexcept
+	{
+		return p.value;
+	}
+
+	template <class Tree>
+	[[nodiscard]] static constexpr bool traversableRay(Pred const& p, Tree const&,
+	                                                   typename Tree::Node const&,
+	                                                   typename Tree::Ray const&) noexcept
+	{
+		return p.value;
 	}
 };
 }  // namespace ufo::pred

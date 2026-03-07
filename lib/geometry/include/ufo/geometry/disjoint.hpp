@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -46,6 +46,18 @@
 
 namespace ufo
 {
+/**
+ * @brief Checks if two shapes are disjoint.
+ *
+ * @tparam A The type of the first shape.
+ * @tparam B The type of the second shape.
+ * @param [in] a The first shape.
+ * @param [in] b The second shape.
+ * @retval true if a and b are disjoint.
+ * @retval false if a and b are not disjoint.
+ *
+ * @note This function is equivalent to `!intersects(a, b)`.
+ */
 template <class A, class B>
 [[nodiscard]] constexpr bool disjoint(A const& a, B const& b)
 {

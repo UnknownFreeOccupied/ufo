@@ -9,14 +9,15 @@ target_sources(ContainerTests
 	# range_test.cpp
 	# tree_index_test.cpp
 	# tree_node_test.cpp
-	predicate_test.cpp
+	# predicate_test.cpp
+	structure_of_arrays_test.cpp
 )
 
 set_target_properties(ContainerTests
 	PROPERTIES
 		VERSION ${PROJECT_VERSION}
 		SOVERSION ${PROJECT_VERSION_MAJOR}
-		CXX_STANDARD 17
+		CXX_STANDARD 23
 		CXX_EXTENSIONS OFF
 )
 

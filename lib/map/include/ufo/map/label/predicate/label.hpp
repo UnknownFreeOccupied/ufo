@@ -1,7 +1,7 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
- * @author Daniel Duberg (dduberg@kth.se)
+ * @author Daniel Duberg (dduberg@kth.se), Ramona Häuselmann (ramonaha@kth.se)
  * @see https://github.com/UnknownFreeOccupied/ufomap
  * @version 1.0
  * @date 2022-05-13
@@ -39,36 +39,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_MAP_LABEL_PREDICATE_LABEL_HPP
-#define UFO_MAP_LABEL_PREDICATE_LABEL_HPP
+#ifndef UFO_MAP_LABELS_PREDICATE_LABEL_HPP
+#define UFO_MAP_LABELS_PREDICATE_LABEL_HPP
 
 // UFO
-#include <ufo/container/tree/index.hpp>
 #include <ufo/container/tree/predicate/filter.hpp>
 #include <ufo/container/tree/predicate/predicate_compare.hpp>
+#include <ufo/core/label.hpp>
+#include <ufo/map/labels/propagation_criteria.hpp>
 
 namespace ufo::pred
 {
 template <bool Negated = false>
 struct Label {
-	using label_t = std::uint32_t;
-	label_t label;
-
 	Label(label_t label) : label(label) {}
 
- protected:
-	template <class T>
-	friend class Filter;
+	label_t label;
 };
 
 template <bool Negated>
-Label<!Negated> operator!(Label<Negated> p)
+Label<!Negated> operator!(Label<Negated>)
 {
-	return {p.label};
+	return {};
 }
 
 template <bool Negated>
-struct Filter<Label<Negated>> : public FilterBase<Label<Negated>> {
+struct Filter<Label<Negated>> {
 	using Pred = Label<Negated>;
 
 	template <class Tree>
@@ -77,26 +73,50 @@ struct Filter<Label<Negated>> : public FilterBase<Label<Negated>> {
 	}
 
 	template <class Tree, class Node>
-	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const& t, Node n)
+	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const& t,
+	                                               Node const& n)
 	{
+		// TODO: Do this better
+		auto ls = t.labels(n.index);
 		if constexpr (Negated) {
-			return t.label(n) != p.label;
+			return ls.find(p.label) == ls.end();
 		} else {
-			return t.label(n) == p.label;
+			return ls.find(p.label) != ls.end();
 		}
 	}
 
 	template <class Tree, class Node>
-	[[nodiscard]] static constexpr bool traversable(Pred const& p, Tree const& t, Node n)
+	[[nodiscard]] static constexpr bool traversable(Pred const& p, Tree const& t,
+	                                                Node const& n)
 	{
 		if constexpr (Negated) {
 			return true;
 		} else {
-			return (t.label(n) & p.label) == p.label;
+			// TODO: Do this better
+			auto ls = t.labels(n.index);
+			switch (t.labelsPropagationCriteria()) {
+				case LabelsPropagationCriteria::ALL: {
+					return ls.find(p.label) != ls.end();
+				}
+				case LabelsPropagationCriteria::SUMMARY: {
+					return !ls.empty() && *ls.begin() & p.label == p.label;
+				}
+				case LabelsPropagationCriteria::MIN: {
+					return !ls.empty() && *ls.begin() < p.label;
+				}
+				case LabelsPropagationCriteria::MAX: {
+					return !ls.empty() && *ls.begin() > p.label;
+					return true;
+				}
+				case LabelsPropagationCriteria::NONE: {
+					return true;
+				}
+			}
 		}
+		return true;
 	}
 };
-// };
+
 }  // namespace ufo::pred
 
-#endif  // UFO_MAP_LABEL_PREDICATE_LABEL_HPP
+#endif  // UFO_MAP_LABELS_PREDICATE_LABEL_HPP

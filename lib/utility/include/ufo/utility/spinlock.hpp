@@ -1,23 +1,21 @@
-/*!
- * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
- *
- * @author Daniel Duberg (dduberg@kth.se)
- * @see https://github.com/UnknownFreeOccupied/ufomap
+/**
+ * @author Daniel Duberg (danielduberg@gmail.com)
+ * @see https://github.com/UnknownFreeOccupied/ufo
  * @version 1.0
- * @date 2022-05-13
+ * @date 2026-02-22
  *
- * @copyright Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of Technology
+ * @copyright Copyright (c) 2020-2026, Daniel Duberg
  *
  * BSD 3-Clause License
  *
- * Copyright (c) 2022, Daniel Duberg, KTH Royal Institute of Technology
+ * Copyright (c) 2020-2026, Daniel Duberg
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *     list of conditions and the following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *     this list of conditions and the following disclaimer in the documentation
@@ -29,14 +27,15 @@
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef UFO_UTILITY_SPINLOCK_HPP
@@ -47,32 +46,50 @@
 
 namespace ufo
 {
+/**
+ * @class Spinlock
+ * @brief A simple spinlock implementation using std::atomic_flag.
+ *
+ * @details
+ * Spinlock is a lightweight mutual exclusion primitive for short critical sections.
+ * It repeatedly checks a flag until it can acquire the lock, avoiding thread suspension.
+ *
+ * Uses C++20 atomic wait/notify for efficient spinning.
+ *
+ * Example usage:
+ * @code{.cpp}
+ *   ufo::Spinlock lock;
+ *   lock.lock();
+ *   // critical section
+ *   lock.unlock();
+ * @endcode
+ */
 class Spinlock
 {
  public:
-	void lock() noexcept
-	{
-		while (flag_.test_and_set(std::memory_order_acquire))
-#if defined(__cpp_lib_atomic_wait) && __cpp_lib_atomic_wait >= 201907L
-			// Since C++20, locks can be acquired only after notification in the unlock,
-			// avoiding any unnecessary spinning.
-			// Note that even though wait gurantees it returns only after the value has
-			// changed, the lock is acquired after the next condition check.
-			flag_.wait(true, std::memory_order_relaxed)
-#endif
-			    ;
-	}
-	bool try_lock() noexcept { return !flag_.test_and_set(std::memory_order_acquire); }
+	/**
+	 * @brief Acquires the lock. Spins until the lock is available.
+	 *
+	 * @details
+	 * Uses atomic wait/notify for efficient spinning.
+	 */
+	void lock() noexcept;
 
-	void unlock() noexcept
-	{
-		flag_.clear(std::memory_order_release);
-#if defined(__cpp_lib_atomic_wait) && __cpp_lib_atomic_wait >= 201907L
-		flag_.notify_one();
-#endif
-	}
+	/**
+	 * @brief Attempts to acquire the lock without blocking.
+	 * @return true if lock was acquired, false otherwise.
+	 */
+	[[nodiscard]] bool try_lock() noexcept;
+
+	/**
+	 * @brief Releases the lock and notifies one waiting thread.
+	 */
+	void unlock() noexcept;
 
  private:
+	/**
+	 * @brief Atomic flag used for lock state.
+	 */
 	std::atomic_flag flag_ = ATOMIC_FLAG_INIT;
 };
 }  // namespace ufo

@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -67,8 +67,9 @@ class TreeQueryIterator
  private:
 	static constexpr std::size_t const BF = Tree::branchingFactor();
 
-	using Node     = typename Tree::Node;
-	using offset_t = typename Tree::offset_t;
+	using Node        = typename Tree::Node;
+	using offset_type = typename Tree::offset_type;
+	using depth_type  = typename Tree::depth_type;
 
 	using Filter = pred::Filter<Predicate>;
 
@@ -85,57 +86,45 @@ class TreeQueryIterator
 
 	constexpr TreeQueryIterator() = default;
 
-	TreeQueryIterator(Tree* t, Node const& node, Predicate const& pred, bool only_exists,
+	TreeQueryIterator(Tree const* tree, Node node, Predicate const& pred, bool only_exists,
 	                  bool early_stopping)
-	    : t_(t)
+	    : tree_(tree)
 	    , pred_(pred)
-	    , root_(node)
 	    , cur_(node)
-	    , only_exists_(only_exists)
-	    , early_stopping_(early_stopping)
+	    , start_(tree->depth(node))
+	    , nextNode(nextNodeFun(only_exists, early_stopping))
 	{
-		Filter::init(pred_, *t_);
-
-		if (only_exists_ && !t_->exists(root_)) {
-			root_ = {};
-			cur_  = {};
+		if (only_exists && !tree_->exists(cur_)) {
+			cur_ = {};
 			return;
 		}
 
-		if (returnable(cur_)) {
-			return;
-		} else if (traversable(cur_)) {
-			if (nextNodeDownwards()) {
-				return;
+		Filter::init(pred_, *tree_);
+
+		if (!Filter::returnable(pred_, *tree_, cur_)) {
+			if (only_exists) {
+				cur_ = next<true, false>(*tree_, pred_, cur_, start_);
+			} else {
+				cur_ = next<false, false>(*tree_, pred_, cur_, start_);
 			}
 		}
-
-		nextNode();
 	}
 
 	TreeQueryIterator(TreeQueryIterator const&) = default;
 
 	template <class Predicate2>
 	TreeQueryIterator(TreeQueryIterator<Tree, Predicate2> const& other)
-	    : t_(other.t_)
+	    : tree_(other.tree_)
 	    , pred_(other.pred_)
-	    , root_(other.root_)
 	    , cur_(other.cur_)
-	    , only_exists_(other.only_exists_)
-	    , early_stopping_(other.early_stopping_)
+	    , start_(other.start_)
+	    , nextNode(other.nextNode)
 	{
 	}
 
 	TreeQueryIterator& operator++()
 	{
-		if (!only_exists_) {
-			auto min_depth = t_->depth(cur_.code);
-			auto depth     = t_->depth(cur_.index);
-			while (min_depth < depth && t_->isParent(cur_.index)) {
-				cur_.index = t_->child(cur_.index, cur_.code.offset(--depth));
-			}
-		}
-		nextNode();
+		cur_ = nextNode(*tree_, pred_, cur_, start_);
 		return *this;
 	}
 
@@ -153,7 +142,7 @@ class TreeQueryIterator
 	template <class Predicate2>
 	bool operator==(TreeQueryIterator<Tree, Predicate2> const& other)
 	{
-		return cur_ == other.cur_;
+		return cur_.code == other.cur_.code;
 	}
 
 	template <class Predicate2>
@@ -163,107 +152,99 @@ class TreeQueryIterator
 	}
 
  private:
-	[[nodiscard]] bool returnable(Node const& node) const
+	[[nodiscard]] static auto nextNodeFun(bool only_exists, bool early_stopping)
 	{
-		return Filter::returnable(pred_, *t_, node);
-	}
-
-	[[nodiscard]] bool traversable(Node const& node) const
-	{
-		return (t_->isParent(node.index) || (!only_exists_ && !t_->isPureLeaf(node.code))) &&
-		       Filter::traversable(pred_, *t_, node);
-	}
-
-	[[nodiscard]] bool exists(Node const& node) const
-	{
-		return only_exists_ || t_->code(node.index) == node.code;
-	}
-
-	[[nodiscard]] Node sibling(Node const& node, offset_t sibling_index) const
-	{
-		return Node(t_->sibling(node.code, sibling_index),
-		            exists(node) ? t_->sibling(node.index, sibling_index) : node.index);
-	}
-
-	[[nodiscard]] Node child(Node const& node, offset_t child_index) const
-	{
-		return Node(
-		    t_->child(node.code, child_index),
-		    t_->isParent(node.index) ? t_->child(node.index, child_index) : node.index);
-	}
-
-	[[nodiscard]] Node parent(Node const& node) const
-	{
-		return Node(t_->parent(node.code),
-		            exists(node) ? t_->parent(node.index) : node.index);
-	}
-
-	[[nodiscard]] offset_t offset(Node const& node) const { return node.code.offset(); }
-
-	void nextNode()
-	{
-		if (!early_stopping_ && traversable(cur_)) {
-			cur_ = child(cur_, 0);
-			if (nextNodeDownwards()) {
-				return;
-			}
+		if (only_exists && early_stopping) {
+			return &TreeQueryIterator::next<true, true>;
+		} else if (only_exists && !early_stopping) {
+			return &TreeQueryIterator::next<true, false>;
+		} else if (!only_exists && early_stopping) {
+			return &TreeQueryIterator::next<false, true>;
+		} else {
+			return &TreeQueryIterator::next<false, false>;
 		}
+	}
 
-		while (root_ != cur_) {
-			auto branch = offset(cur_);
-			if (BF - 1 == branch) {
-				cur_ = parent(cur_);
-				continue;
-			}
+	template <bool OnlyExists>
+	[[nodiscard]] static bool traversable(Tree const& tree, Predicate const& pred,
+	                                      Node node)
+	{
+		if constexpr (OnlyExists) {
+			return tree.isParent(node.index) && Filter::traversable(pred, tree, node);
+		} else {
+			return 0 < node.code.depth() && Filter::traversable(pred, tree, node);
+		}
+	}
 
-			cur_ = sibling(cur_, branch + 1);
+	template <bool OnlyExists>
+	[[nodiscard]] static Node firstborn(Tree const& tree, Node node)
+	{
+		node.code = node.code.firstborn();
+		if constexpr (OnlyExists) {
+			node.index = tree.child(node.index, 0);
+		} else if (tree.isParent(node.index)) {
+			node.index = tree.child(node.index, 0);
+		}
+		return node;
+	}
 
-			if (returnable(cur_)) {
-				return;
-			}
+	template <bool OnlyExists, bool EarlyStopping>
+	[[nodiscard]] static Node next(Tree const& tree, Predicate const& pred, Node node,
+	                               depth_type start)
+	{
+		if constexpr (!EarlyStopping) {
+			// Traverse down the branch
 
-			if (traversable(cur_)) {
-				cur_ = child(cur_, 0);
-				if (nextNodeDownwards()) {
-					return;
+			while (traversable<OnlyExists>(tree, pred, node)) {
+				node = firstborn<OnlyExists>(tree, node);
+
+				if (Filter::returnable(pred, tree, node)) {
+					return node;
 				}
 			}
 		}
 
-		// We have visited all nodes
-		root_ = {};
-		cur_  = {};
-	}
-
-	/*!
-	 * @brief
-	 *
-	 * @return true if a new node was found, false otherwise.
-	 */
-	bool nextNodeDownwards()
-	{
 		while (true) {
-			if (returnable(cur_)) {
-				return true;
-			} else if (traversable(cur_)) {
-				cur_ = child(cur_, 0);
+			while (BF - 1 <= node.code.offset()) {
+				node.code = node.code.parent();
+			}
+
+			if (start <= node.code.depth()) {
+				return Node{};
+			}
+
+			node.code  = node.code.nextSibling();
+			node.index = tree.ancestor(node.index, node.code.depth());
+
+			if constexpr (OnlyExists) {
+				++node.index.offset;
 			} else {
-				break;
+				node.index.offset += node.code.depth() == tree.depth(node.index) ? 1 : 0;
+			}
+
+			if (Filter::returnable(pred, tree, node)) {
+				return node;
+			}
+
+			while (traversable<OnlyExists>(tree, pred, node)) {
+				node = firstborn<OnlyExists>(tree, node);
+
+				if (Filter::returnable(pred, tree, node)) {
+					return node;
+				}
 			}
 		}
-		return false;
 	}
 
  private:
-	Tree* t_ = nullptr;
+	Tree const* tree_;
 
 	Predicate pred_{};
 
-	Node root_{};
-	Node cur_{};
+	Node       cur_{};
+	depth_type start_;
 
-	bool only_exists_{};
-	bool early_stopping_{};
+	decltype(&TreeQueryIterator::next<true, true>) nextNode;
 };
 }  // namespace ufo
 

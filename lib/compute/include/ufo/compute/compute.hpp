@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -46,6 +46,8 @@
 
 // STL
 #include <filesystem>
+#include <string>
+#include <vector>
 
 // WebGPU
 #include <webgpu/webgpu.h>
@@ -726,6 +728,15 @@
 
 namespace ufo::compute
 {
+struct GPUInfo {
+	std::string name;
+	std::string architecture;
+	std::string vendor;
+	std::string type;
+	std::string backend;
+	std::string description;
+};
+
 [[nodiscard]] WGPUInstance createInstance(
     WGPUInstanceDescriptor const* descriptor = nullptr);
 
@@ -789,6 +800,10 @@ void release(WGPUCommandEncoder command_encoder);
 void release(WGPUCommandBuffer command_buffer);
 
 void release(WGPUSampler sampler);
+
+[[nodiscard]] GPUInfo gpuInfo(WGPUAdapter adapter = nullptr);
+
+[[nodiscard]] std::vector<GPUInfo> gpusInfo();
 }  // namespace ufo::compute
 
 #endif  // UFO_COMPUTE_COMPUTE_HPP

@@ -17,8 +17,10 @@ TEST_CASE("[Line 2D]")
 
 	ufo::Line<2> l(a, b);
 
-	std::cout << "Normal: " << l.normal << "\n";
-	std::cout << "Normal len: " << norm(l.normal) << "\n";
+	// Direction should be normalized (1, 1) / sqrt(2)
+	REQUIRE(l.origin == a);
+	REQUIRE(l.direction.x() == Catch::Approx(std::sqrt(2) / 2.0f));
+	REQUIRE(l.direction.y() == Catch::Approx(std::sqrt(2) / 2.0f));
 }
 
 TEST_CASE("[Line 2D] distance")
@@ -29,12 +31,12 @@ TEST_CASE("[Line 2D] distance")
 	ufo::Line<2> l(a, b);
 
 	auto d1 = ufo::distance(l, a);
-	REQUIRE(d1 == 0);
-	// std::cout << "Distance: " << d1 << "\n";
+	REQUIRE(d1 == Catch::Approx(0));
 
 	auto d2 = ufo::distance(l, ufo::Vec2f(0, 1));
+	// Closest point on line y=x to (0,1) is (0.5, 0.5)
+	// Distance is sqrt(0.5^2 + 0.5^2) = sqrt(0.5) = 1/sqrt(2) = sqrt(2)/2
 	REQUIRE(d2 == Catch::Approx(std::sqrt(2) / 2.0f));
-	// std::cout << "Distance: " << d2 << "\n";
 }
 
 TEST_CASE("[Line 2D] intersects")
@@ -50,24 +52,24 @@ TEST_CASE("[Line 2D] intersects")
 		ufo::Line<2> l2(a2, b2);
 
 		REQUIRE(ufo::intersects(l1, l2));
-		REQUIRE(ufo::intersectionPoint(l1, l2) == ufo::Vec2f(0, 0));
+		auto pt = ufo::intersectionPoint(l1, l2);
+		REQUIRE(pt.x() == Catch::Approx(0));
+		REQUIRE(pt.y() == Catch::Approx(0));
 	}
 
 	SECTION("not origin")
 	{
 		ufo::Vec2f   a1(0, -1);
-		ufo::Vec2f   b1(1, 0);
+		ufo::Vec2f   b1(1, 0);  // y = x - 1
 		ufo::Line<2> l1(a1, b1);
 
-		std::cout << "1: normal: " << l1.normal << ", distance: " << l1.distance << "\n";
-
-		ufo::Vec2f   a2(2, 1);
-		ufo::Vec2f   b2(3, 0);
+		ufo::Vec2f   a2(2, 2);
+		ufo::Vec2f   b2(2, 0);  // x = 2
 		ufo::Line<2> l2(a2, b2);
 
-		std::cout << "2: normal: " << l2.normal << ", distance: " << l2.distance << "\n";
-
 		REQUIRE(ufo::intersects(l1, l2));
-		REQUIRE(ufo::intersectionPoint(l1, l2) == ufo::Vec2f(2, 1));
+		auto pt = ufo::intersectionPoint(l1, l2);
+		REQUIRE(pt.x() == Catch::Approx(2));
+		REQUIRE(pt.y() == Catch::Approx(1));
 	}
 }

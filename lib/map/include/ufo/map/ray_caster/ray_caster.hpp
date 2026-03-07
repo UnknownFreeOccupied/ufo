@@ -1,4 +1,4 @@
-/*!
+/**
  * UFOMap: An Efficient Probabilistic 3D Mapping Framework That Embraces the Unknown
  *
  * @author Daniel Duberg (dduberg@kth.se)
@@ -49,9 +49,9 @@
 #include <ufo/map/quadtree/quadtree_code.hpp>
 #include <ufo/map/quadtree/quadtree_key.hpp>
 #include <ufo/map/types.hpp>
-#include <ufo/math/util.hpp>
-#include <ufo/math/vec2.hpp>
-#include <ufo/math/vec3.hpp>
+#include <ufo/numeric/util.hpp>
+#include <ufo/numeric/vec2.hpp>
+#include <ufo/numeric/vec3.hpp>
 
 // STL
 #include <cassert>
