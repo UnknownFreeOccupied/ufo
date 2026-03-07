@@ -1,5 +1,5 @@
 // UFO
-#include <ufo/math/quat.hpp>
+#include <ufo/numeric/quat.hpp>
 
 // STL
 #include <numbers>

@@ -38,13 +38,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_MATH_TRANSFORM_HPP
-#define UFO_MATH_TRANSFORM_HPP
+#ifndef UFO_NUMERIC_TRANSFORM_HPP
+#define UFO_NUMERIC_TRANSFORM_HPP
 
 // UFO
-#include <ufo/math/mat.hpp>
-#include <ufo/math/quat.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/mat.hpp>
+#include <ufo/numeric/quat.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
 #include <cmath>
@@ -54,7 +54,7 @@
 #include <ostream>
 
 /**
- * @ingroup math
+ * @ingroup numeric
  * @{
  */
 
@@ -509,4 +509,4 @@ struct std::formatter<ufo::Transform<Dim, T>> {
  * @}
  */
 
-#endif  // UFO_MATH_TRANSFORM_HPP
+#endif  // UFO_NUMERIC_TRANSFORM_HPP

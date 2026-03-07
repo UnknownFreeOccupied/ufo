@@ -1,6 +1,6 @@
-add_executable(MathTests)
+add_executable(NumericTests)
 
-target_sources(MathTests
+target_sources(NumericTests
 	PRIVATE
 		mat_test.cpp
 		math_test.cpp
@@ -9,7 +9,7 @@ target_sources(MathTests
 		vec_test.cpp
 )
 
-set_target_properties(MathTests
+set_target_properties(NumericTests
 	PROPERTIES
 		VERSION ${PROJECT_VERSION}
 		SOVERSION ${PROJECT_VERSION_MAJOR}
@@ -18,6 +18,6 @@ set_target_properties(MathTests
 		CXX_SCAN_FOR_MODULES OFF
 )
 
-target_link_libraries(MathTests PRIVATE Catch2::Catch2WithMain UFO::Math UFO::Warnings)
+target_link_libraries(NumericTests PRIVATE Catch2::Catch2WithMain UFO::Numeric UFO::Warnings)
 
-catch_discover_tests(MathTests)
+catch_discover_tests(NumericTests)

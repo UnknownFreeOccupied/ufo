@@ -80,11 +80,12 @@ struct Filter<Depth<Negated>> {
 	                                               typename Tree::Node const& n) noexcept
 	{
 		// Cast to int to prevent int to be promoted to unsigned
-		int depth = static_cast<int>(t.depth(n));
+		int  depth = static_cast<int>(t.depth(n));
+		bool ret   = p.min <= depth && depth <= p.max;
 		if constexpr (Negated) {
-			return p.min > depth || p.max < depth;
+			return !ret;
 		} else {
-			return p.min <= depth && p.max >= depth;
+			return ret;
 		}
 	}
 

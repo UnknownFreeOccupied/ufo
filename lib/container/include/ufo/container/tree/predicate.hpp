@@ -52,6 +52,7 @@
 #include <ufo/container/tree/predicate/disjoint.hpp>
 #include <ufo/container/tree/predicate/exists.hpp>
 #include <ufo/container/tree/predicate/filter.hpp>
+#include <ufo/container/tree/predicate/height.hpp>
 #include <ufo/container/tree/predicate/if_and_only_if.hpp>
 #include <ufo/container/tree/predicate/if_then.hpp>
 #include <ufo/container/tree/predicate/inner.hpp>
@@ -66,7 +67,6 @@
 #include <ufo/container/tree/predicate/predicate_interval.hpp>
 #include <ufo/container/tree/predicate/pure_leaf.hpp>
 #include <ufo/container/tree/predicate/satisfies.hpp>
-#include <ufo/container/tree/predicate/satisfies_inner.hpp>
 #include <ufo/container/tree/predicate/spatial.hpp>
 #include <ufo/container/tree/predicate/xor.hpp>
 

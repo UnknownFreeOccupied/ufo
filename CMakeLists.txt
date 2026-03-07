@@ -52,8 +52,8 @@ add_subdirectory(lib/execution)
 add_subdirectory(lib/geometry)
 # add_subdirectory(lib/io)
 # add_subdirectory(lib/map)
-add_subdirectory(lib/math)
 add_subdirectory(lib/morton)
+add_subdirectory(lib/numeric)
 # add_subdirectory(lib/plan)
 add_subdirectory(lib/sensor)
 # add_subdirectory(lib/time)
@@ -81,8 +81,8 @@ target_link_libraries(UFO INTERFACE
 	UFO::Geometry
 	# UFO::IO
 	# UFO::Map
-	UFO::Math
 	UFO::Morton
+	UFO::Numeric
 	# UFO::Plan
 	UFO::Sensor
 	# UFO::Time

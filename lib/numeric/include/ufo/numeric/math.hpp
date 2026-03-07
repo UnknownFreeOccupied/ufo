@@ -1,6 +1,6 @@
 /**
- * @defgroup math Math Module
- * @brief All math-related classes and functions.
+ * @defgroup numeric Numeric Module
+ * @brief All numeric-related classes and functions.
  * @author Daniel Duberg (danielduberg@gmail.com)
  * @see https://github.com/UnknownFreeOccupied/ufo
  * @version 1.0
@@ -39,8 +39,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_MATH_MATH_HPP
-#define UFO_MATH_MATH_HPP
+#ifndef UFO_NUMERIC_MATH_HPP
+#define UFO_NUMERIC_MATH_HPP
 
 // STL
 #include <algorithm>
@@ -54,7 +54,7 @@
 namespace ufo
 {
 /**
- * @ingroup math
+ * @ingroup numeric
  * @{
  */
 
@@ -155,4 +155,4 @@ template <std::floating_point T>
  */
 }  // namespace ufo
 
-#endif  // UFO_MATH_MATH_HPP
+#endif  // UFO_NUMERIC_MATH_HPP

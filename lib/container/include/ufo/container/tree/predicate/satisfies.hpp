@@ -50,23 +50,48 @@
 
 namespace ufo::pred
 {
-template <class Fun, bool Negated = false>
-struct Satisfies {
-	Satisfies(Fun fun) : fun(fun) {}
-
-	Fun fun;
+struct SatisfiesDefaultReturnFun {
+	template <class... Args>
+	[[nodiscard]] constexpr bool operator()(Args&&...) const noexcept
+	{
+		return true;
+	}
 };
 
-template <class Fun, bool Negated>
-[[nodiscard]] constexpr Satisfies<Fun, !Negated> operator!(
-    Satisfies<Fun, Negated> const& p) noexcept
+struct SatisfiesDefaultTraverseFun {
+	template <class... Args>
+	[[nodiscard]] constexpr bool operator()(Args&&...) const noexcept
+	{
+		return true;
+	}
+};
+
+template <class ReturnFun   = SatisfiesDefaultReturnFun,
+          class TraverseFun = SatisfiesDefaultTraverseFun, bool Negated = false>
+struct Satisfies {
+	constexpr Satisfies() = default;
+
+	constexpr Satisfies(ReturnFun ret_fun) : ret_fun(ret_fun) {}
+
+	constexpr Satisfies(ReturnFun ret_fun, TraverseFun trav_fun)
+	    : ret_fun(ret_fun), trav_fun(trav_fun)
+	{
+	}
+
+	ReturnFun   ret_fun;
+	TraverseFun trav_fun;
+};
+
+template <class ReturnFun, class TraverseFun, bool Negated>
+[[nodiscard]] constexpr Satisfies<ReturnFun, TraverseFun, !Negated> operator!(
+    Satisfies<ReturnFun, TraverseFun, Negated> const& p) noexcept
 {
-	return Satisfies<Fun, !Negated>(p.fun);
+	return Satisfies<ReturnFun, TraverseFun, !Negated>(p.ret_fun, p.trav_fun);
 }
 
-template <class Fun, bool Negated>
-struct Filter<Satisfies<Fun, Negated>> {
-	using Pred = Satisfies<Fun, Negated>;
+template <class ReturnFun, class TraverseFun, bool Negated>
+struct Filter<Satisfies<ReturnFun, TraverseFun, Negated>> {
+	using Pred = Satisfies<ReturnFun, TraverseFun, Negated>;
 
 	template <class Tree>
 	static constexpr void init(Pred&, Tree const&) noexcept
@@ -77,13 +102,14 @@ struct Filter<Satisfies<Fun, Negated>> {
 	[[nodiscard]] static constexpr bool returnableValue(Pred const&  p,
 	                                                    Value const& v) noexcept
 	{
-		static_assert(std::is_invocable_r_v<bool, Fun, Value const&>,
-		              "Satisfies: The provided function is not invocable with 'Value const&' "
-		              "or does not return a boolean-convertible value.");
-		if constexpr (Negated) {
-			return !std::invoke_r<bool>(p.fun, v);
+		if constexpr (std::is_invocable_r_v<bool, ReturnFun, Value const&>) {
+			if constexpr (Negated) {
+				return !std::invoke_r<bool>(p.ret_fun, v);
+			} else {
+				return std::invoke_r<bool>(p.ret_fun, v);
+			}
 		} else {
-			return std::invoke_r<bool>(p.fun, v);
+			return true;
 		}
 	}
 
@@ -91,23 +117,32 @@ struct Filter<Satisfies<Fun, Negated>> {
 	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const& t,
 	                                               typename Tree::Node const& n) noexcept
 	{
-		static_assert(
-		    std::is_invocable_r_v<bool, Fun, Tree const&, typename Tree::Node const&>,
-		    "Satisfies: The provided function is not invocable with 'Tree const&, "
-		    "typename Tree::Node const&' or does not return a "
-		    "boolean-convertible value.");
-		if constexpr (Negated) {
-			return !std::invoke_r<bool>(p.fun, t, n);
+		if constexpr (std::is_invocable_r_v<bool, ReturnFun, Tree const&,
+		                                    typename Tree::Node const&>) {
+			if constexpr (Negated) {
+				return !std::invoke_r<bool>(p.ret_fun, t, n);
+			} else {
+				return std::invoke_r<bool>(p.ret_fun, t, n);
+			}
 		} else {
-			return std::invoke_r<bool>(p.fun, t, n);
+			return true;
 		}
 	}
 
 	template <class Tree>
-	[[nodiscard]] static constexpr bool traversable(Pred const&, Tree const&,
-	                                                typename Tree::Node const&) noexcept
+	[[nodiscard]] static constexpr bool traversable(Pred const& p, Tree const& t,
+	                                                typename Tree::Node const& n) noexcept
 	{
-		return true;
+		if constexpr (std::is_invocable_r_v<bool, TraverseFun, Tree const&,
+		                                    typename Tree::Node const&>) {
+			if constexpr (Negated) {
+				return !std::invoke_r<bool>(p.trav_fun, t, n);
+			} else {
+				return std::invoke_r<bool>(p.trav_fun, t, n);
+			}
+		} else {
+			return true;
+		}
 	}
 
 	template <class Tree>

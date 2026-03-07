@@ -38,11 +38,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_MATH_MAT_HPP
-#define UFO_MATH_MAT_HPP
+#ifndef UFO_NUMERIC_MAT_HPP
+#define UFO_NUMERIC_MAT_HPP
 
 // UFO
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
 #include <algorithm>
@@ -62,7 +62,7 @@
 #include <utility>
 
 /**
- * @ingroup math
+ * @ingroup numeric
  * @{
  */
 
@@ -1677,4 +1677,4 @@ struct std::formatter<ufo::Mat<Rows, Cols, T>> {
 	}
 };
 
-#endif  // UFO_MATH_MAT_HPP
+#endif  // UFO_NUMERIC_MAT_HPP

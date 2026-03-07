@@ -39,34 +39,30 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_CONTAINER_TREE_PREDICATE_SATISFIES_INNER_HPP
-#define UFO_CONTAINER_TREE_PREDICATE_SATISFIES_INNER_HPP
+#ifndef UFO_CONTAINER_TREE_PREDICATE_HEIGHT_HPP
+#define UFO_CONTAINER_TREE_PREDICATE_HEIGHT_HPP
 
 // UFO
 #include <ufo/container/tree/predicate/filter.hpp>
-
-// STL
-#include <functional>
+#include <ufo/container/tree/predicate/predicate_interval.hpp>
 
 namespace ufo::pred
 {
-template <class Fun, bool Negated = false>
-struct SatisfiesInner {
-	SatisfiesInner(Fun fun) : fun(fun) {}
-
-	Fun fun;
-};
-
-template <class Fun, bool Negated>
-[[nodiscard]] constexpr SatisfiesInner<Fun, !Negated> operator!(
-    SatisfiesInner<Fun, Negated> const& p) noexcept
+namespace detail
 {
-	return SatisfiesInner<Fun, !Negated>(p.fun);
-}
+struct Height {
+	using value_type = int;
+};
+}  // namespace detail
 
-template <class Fun, bool Negated>
-struct Filter<SatisfiesInner<Fun, Negated>> {
-	using Pred = SatisfiesInner<Fun, Negated>;
+template <bool Negated = false>
+using Height = PredicateInterval<detail::Height, Negated>;
+
+static constexpr inline Height<false> const height;
+
+template <bool Negated>
+struct Filter<Height<Negated>> {
+	using Pred = Height<Negated>;
 
 	template <class Tree>
 	static constexpr void init(Pred&, Tree const&) noexcept
@@ -80,25 +76,29 @@ struct Filter<SatisfiesInner<Fun, Negated>> {
 	}
 
 	template <class Tree>
-	[[nodiscard]] static constexpr bool returnable(Pred const&, Tree const&,
-	                                               typename Tree::Node const&) noexcept
+	[[nodiscard]] static constexpr bool returnable(Pred const& p, Tree const& t,
+	                                               typename Tree::Node const& n) noexcept
 	{
-		return true;
+		// Cast to int to prevent int to be promoted to unsigned
+		int  height = static_cast<int>(t.height(n));
+		bool ret    = p.min <= height && height <= p.max;
+		if constexpr (Negated) {
+			return !ret;
+		} else {
+			return ret;
+		}
 	}
 
 	template <class Tree>
 	[[nodiscard]] static constexpr bool traversable(Pred const& p, Tree const& t,
 	                                                typename Tree::Node const& n) noexcept
 	{
-		static_assert(
-		    std::is_invocable_r_v<bool, Fun, Tree const&, typename Tree::Node const&>,
-		    "SatisfiesInner: The provided function is not invocable with "
-		    "'Tree const&, typename Tree::Node const&' or does not return a "
-		    "boolean-convertible value.");
+		// Cast to int to prevent int to be promoted to unsigned
+		int height = static_cast<int>(t.height(n));
 		if constexpr (Negated) {
-			return !std::invoke_r<bool>(p.fun, t, n);
+			return 0 < p.min || p.max + 1 < height;
 		} else {
-			return std::invoke_r<bool>(p.fun, t, n);
+			return p.min < height;
 		}
 	}
 
@@ -120,4 +120,4 @@ struct Filter<SatisfiesInner<Fun, Negated>> {
 };
 }  // namespace ufo::pred
 
-#endif  // UFO_CONTAINER_TREE_PREDICATE_SATISFIES_INNER_HPP
+#endif  // UFO_CONTAINER_TREE_PREDICATE_HEIGHT_HPP

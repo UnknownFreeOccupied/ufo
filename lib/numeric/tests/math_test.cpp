@@ -1,5 +1,5 @@
 // UFO
-#include <ufo/math/math.hpp>
+#include <ufo/numeric/math.hpp>
 
 // STL
 #include <cmath>

@@ -1,5 +1,5 @@
 // UFO
-#include <ufo/math/mat.hpp>
+#include <ufo/numeric/mat.hpp>
 
 // STL
 #include <stdexcept>

@@ -38,12 +38,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef UFO_MATH_QUAT_HPP
-#define UFO_MATH_QUAT_HPP
+#ifndef UFO_NUMERIC_QUAT_HPP
+#define UFO_NUMERIC_QUAT_HPP
 
 // UFO
-#include <ufo/math/mat.hpp>
-#include <ufo/math/vec.hpp>
+#include <ufo/numeric/mat.hpp>
+#include <ufo/numeric/vec.hpp>
 
 // STL
 #include <algorithm>
@@ -56,7 +56,7 @@
 #include <ostream>
 
 /**
- * @ingroup math
+ * @ingroup numeric
  * @{
  */
 
@@ -1060,4 +1060,4 @@ struct std::formatter<ufo::Quat<T>> {
  * @}
  */
 
-#endif  // UFO_MATH_QUAT_HPP
+#endif  // UFO_NUMERIC_QUAT_HPP
